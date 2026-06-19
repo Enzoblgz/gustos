@@ -436,7 +436,7 @@ const App = {
           <span>Gustos</span>
         </div>
         <div class="auth-brand-mascot">
-          <img src="Images/logo-gustos.png" alt="Gustos" class="auth-mascot-img">
+          <img src="Images/gustos-logo-transparent-background.png" alt="Gustos" class="auth-mascot-img">
         </div>
         <p class="auth-brand-tagline">${this.t('appSubtitle')}</p>
       </div>

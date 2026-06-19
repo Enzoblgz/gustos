@@ -1204,55 +1204,63 @@ select { cursor: pointer; }
 
 /* --- Panneau gauche (branding + mascotte) --- */
 .auth-brand {
-  background: linear-gradient(170deg, #FDEADE 0%, #F7CCAA 50%, #EEB48A 100%);
+  background: linear-gradient(160deg, #3A1206 0%, #7A2C0E 45%, #C05020 100%);
   display: flex;
   flex-direction: column;
-  padding: 36px 40px 32px;
+  padding: 36px 32px 36px;
   position: relative;
   overflow: hidden;
 }
-.auth-brand::before {
+.auth-brand::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 60% 100%, rgba(199,82,42,0.15) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 50% 110%, rgba(255,140,60,0.18) 0%, transparent 65%);
   pointer-events: none;
 }
 .auth-brand-logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--terracotta);
+  color: rgba(255,255,255,0.92);
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 700;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 .auth-brand-mascot {
   flex: 1;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 16px 0 0;
+  padding: 8px 0;
+  position: relative;
+  z-index: 1;
 }
 .auth-mascot-img {
-  width: 100%;
-  max-width: 340px;
+  width: 88%;
+  max-width: none;
   height: auto;
   object-fit: contain;
-  object-position: bottom;
   display: block;
-  filter: drop-shadow(0 12px 32px rgba(100,30,10,0.18));
+  filter: drop-shadow(0 16px 40px rgba(0,0,0,0.35));
 }
 .auth-brand-tagline {
   font-family: var(--font-serif);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-style: italic;
-  color: rgba(80,35,10,0.65);
+  color: rgba(255,255,255,0.88);
   text-align: center;
-  margin-top: 18px;
-  line-height: 1.5;
+  line-height: 1.55;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  padding: 14px 16px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
 /* --- Panneau droit (formulaire) --- */
