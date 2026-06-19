@@ -923,6 +923,7 @@ main {
 label { font-size: 0.82rem; font-weight: 600; color: var(--brown); }
 
 input[type="text"],
+input[type="email"],
 input[type="number"],
 select,
 textarea {
