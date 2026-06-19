@@ -286,18 +286,22 @@ const App = {
   },
 
   async onSignIn(authUser) {
-    const { data: profile, error } = await db.from('profiles').select('*').eq('id', authUser.id).single();
-    if (error) console.warn('[Auth]', error.message);
-    this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
-    if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
-    this.avatarImg = localStorage.getItem('gustos_avatar_' + authUser.id) || null;
-    await this.syncRecipes();
-    if (Store.get().length === 0 && !localStorage.getItem('gustos_seeded_v1')) {
-      await this.seedDefaultRecipes(true);
-      localStorage.setItem('gustos_seeded_v1', '1');
+    try {
+      const { data: profile, error } = await db.from('profiles').select('*').eq('id', authUser.id).single();
+      if (error) console.warn('[Auth]', error.message);
+      this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
+      if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
+      this.avatarImg = localStorage.getItem('gustos_avatar_' + authUser.id) || null;
+      await this.syncRecipes().catch(e => console.warn('[Sync]', e));
+      if (Store.get().length === 0 && !localStorage.getItem('gustos_seeded_v1')) {
+        await this.seedDefaultRecipes(true).catch(() => {});
+        localStorage.setItem('gustos_seeded_v1', '1');
+      }
+      await this.loadSocial().catch(e => console.warn('[Social]', e));
+      await this.loadPlan().catch(e => console.warn('[Plan]', e));
+    } catch (e) {
+      console.error('[onSignIn]', e);
     }
-    await this.loadSocial();
-    await this.loadPlan();
     this.view = 'list'; this.render();
   },
 
@@ -513,15 +517,19 @@ const App = {
       if (this.authMode === 'register' && pass !== pass2) { this.authError = 'Les mots de passe ne correspondent pas.'; this.render(); return; }
       if (btn) { btn.disabled = true; btn.textContent = this.t('loading'); }
       let error;
-      if (this.authMode === 'login') { const r = await db.auth.signInWithPassword({ email, password: pass }); error = r.error; }
-      else {
+      if (this.authMode === 'login') {
+        const r = await db.auth.signInWithPassword({ email, password: pass });
+        error = r.error;
+        if (error && btn) { btn.disabled = false; btn.textContent = this.t('signIn'); }
+      } else {
         const name = document.getElementById('auth-name')?.value?.trim() || '';
         const r = await db.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
         error = r.error;
         if (!error) {
-          if (r.data?.user?.id && name) await db.from('profiles').upsert({ id: r.data.user.id, email, name });
+          if (r.data?.user?.id && name) await db.from('profiles').upsert({ id: r.data.user.id, email, name }).catch(() => {});
           this.toast(this.t('accountCreated')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return;
         }
+        if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); }
       }
       if (error) { this.authError = this.translateAuthError(error.message); this.render(); }
     });
