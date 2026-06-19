@@ -292,6 +292,10 @@ const App = {
     if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
     this.avatarImg = localStorage.getItem('gustos_avatar_' + authUser.id) || null;
     await this.syncRecipes();
+    if (Store.get().length === 0 && !localStorage.getItem('gustos_seeded_v1')) {
+      await this.seedDefaultRecipes(true);
+      localStorage.setItem('gustos_seeded_v1', '1');
+    }
     await this.loadSocial();
     await this.loadPlan();
     this.view = 'list'; this.render();
@@ -593,28 +597,6 @@ const App = {
           <button class="user-avatar" id="btn-go-account" title="Mon profil">
             ${this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo" alt="">` : initial}
           </button>
-          <button class="user-menu-chevron" id="btn-user-menu" aria-label="Menu compte">▾</button>
-          <div class="user-dropdown" id="user-dropdown" hidden>
-            <div class="user-dropdown-info">
-              <div class="user-dropdown-name">${this.escHtml(displayName)}</div>
-              <div class="user-dropdown-email">${this.escHtml(this.user?.email||'')}</div>
-            </div>
-            <span class="plan-badge plan-${planClass}">${planLabel}</span>
-            <hr class="dropdown-sep">
-            <button class="user-dropdown-item" id="btn-account">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              ${this.t('myAccount')}
-            </button>
-            ${isAdmin?`<button class="user-dropdown-item" id="btn-admin">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 4.2l3-.5-1.5 2.7 1.5 2.7-3-.5L7 11.3 5.2 8.6l-3 .5 1.5-2.7-1.5-2.7 3 .5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/></svg>
-              ${this.t('adminPanel')}
-            </button>`:''}
-            <hr class="dropdown-sep">
-            <button class="user-dropdown-item danger" id="btn-logout">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2h3v10H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5L9 7 6 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="7" x2="2" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              ${this.t('logout')}
-            </button>
-          </div>
         </div>
       </div>
     </header>`;
@@ -668,8 +650,8 @@ const App = {
           <input type="text" id="profile-name-input" value="${this.escHtml(this.user?.name||'')}">
         </div>
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" value="${this.escHtml(this.user?.email||'')}" readonly style="opacity:0.6;cursor:default">
+          <label>Email <span class="label-note">(non modifiable)</span></label>
+          <div class="readonly-field">${this.escHtml(this.user?.email||'')}</div>
         </div>
         <div class="profile-edit-actions">
           <button class="btn-ghost" id="btn-cancel-profile">Annuler</button>
@@ -778,7 +760,7 @@ const App = {
       <p class="section-title" id="section-title">${sectionLabel}</p>
       <div id="results-area">
         ${shown.length===0
-          ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p>${!this.searchQuery&&all.length===0?`<button class="btn-secondary" id="btn-seed-recipes" style="margin-top:16px">🍝 Ajouter les recettes de base</button>`:''}</div>`
+          ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
           :`<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`}
       </div>
     </div>`;
@@ -1025,14 +1007,7 @@ const App = {
     }));
 
     document.getElementById('btn-go-account')?.addEventListener('click', () => { this.accountTab='mine'; this.nav('account'); });
-    const menuBtn=document.getElementById('btn-user-menu'), dropdown=document.getElementById('user-dropdown');
-    menuBtn?.addEventListener('click', e => {
-      e.stopPropagation(); const open=!dropdown.hidden; dropdown.hidden=open;
-      if(!open) document.addEventListener('click',()=>{ dropdown.hidden=true; },{once:true});
-    });
     document.getElementById('btn-plan')?.addEventListener('click', () => this.nav('planning'));
-    document.getElementById('btn-account')?.addEventListener('click', () => { this.accountTab='mine'; this.nav('account'); });
-    document.getElementById('btn-logout')?.addEventListener('click', async () => { await db.auth.signOut(); });
   },
 
   bindContent() {
@@ -1065,7 +1040,6 @@ const App = {
       const file = e.target.files?.[0];
       if (file) this.handleAvatarUpload(file);
     });
-    document.getElementById('btn-seed-recipes')?.addEventListener('click', () => this.seedDefaultRecipes());
 
     document.querySelectorAll('.recipe-card').forEach(el => el.addEventListener('click', e => {
       if (e.target.closest('[data-save-card]')) return;
@@ -1231,8 +1205,9 @@ const App = {
   async saveProfileName() {
     const name = document.getElementById('profile-name-input')?.value?.trim();
     if (!name || !this.user) return;
-    const { error } = await db.from('profiles').update({ name }).eq('id', this.user.id);
+    const { error } = await db.auth.updateUser({ data: { full_name: name } });
     if (error) { this.toast('Erreur : ' + error.message); return; }
+    await db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
     this.user.name = name;
     document.getElementById('profile-edit-card').hidden = true;
     this.render();
@@ -1267,7 +1242,7 @@ const App = {
     reader.readAsDataURL(file);
   },
 
-  async seedDefaultRecipes() {
+  async seedDefaultRecipes(silent = false) {
     const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
     const recipes = [
       {
@@ -1298,8 +1273,7 @@ const App = {
       Store.add(r);
       if (this.user) await db.from('recipes').upsert({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt }).catch(() => {});
     }
-    this.renderContent();
-    this.toast('Recette ajoutée !');
+    if (!silent) { this.renderContent(); this.toast('Recette ajoutée !'); }
   },
 
   showUpgradeModal(){
