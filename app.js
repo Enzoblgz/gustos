@@ -290,6 +290,7 @@ const App = {
     if (error) console.warn('[Auth]', error.message);
     this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
     if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
+    this.avatarImg = localStorage.getItem('gustos_avatar_' + authUser.id) || null;
     await this.syncRecipes();
     await this.loadSocial();
     await this.loadPlan();
@@ -454,8 +455,24 @@ const App = {
           <form id="auth-form" autocomplete="on">
             ${!isLogin?`<div class="form-group"><label for="auth-name">${this.t('firstName')}</label><input type="text" id="auth-name" placeholder="${this.t('firstNamePh')}" autocomplete="given-name"></div>`:''}
             <div class="form-group"><label for="auth-email">${this.t('email')}</label><input type="email" id="auth-email" placeholder="${this.t('emailPh')}" autocomplete="email" required></div>
-            <div class="form-group"><label for="auth-pass">${this.t('password')}</label><input type="password" id="auth-pass" placeholder="${this.t('passPh')}" autocomplete="${isLogin?'current-password':'new-password'}" required></div>
-            ${!isLogin?`<div class="form-group"><label for="auth-pass2">${this.t('passwordConfirm')}</label><input type="password" id="auth-pass2" placeholder="${this.t('passPh')}" autocomplete="new-password" required></div>`:''}
+            <div class="form-group"><label for="auth-pass">${this.t('password')}</label>
+              <div class="password-input-wrap">
+                <input type="password" id="auth-pass" placeholder="${this.t('passPh')}" autocomplete="${isLogin?'current-password':'new-password'}" required>
+                <button type="button" class="btn-toggle-pw" data-target="auth-pass" title="Voir/masquer">
+                  <svg class="eye-icon eye-closed" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg>
+                  <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none"><path d="M2 2l14 14M7.4 7.6A2.5 2.5 0 0011.4 11.6M4.2 4.4C2.5 5.7 1 9 1 9s3 6 8 6c1.8 0 3.4-.6 4.7-1.6M7 3.3C7.6 3.1 8.3 3 9 3c5 0 8 6 8 6s-.9 1.8-2.5 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+            </div>
+            ${!isLogin?`<div class="form-group"><label for="auth-pass2">${this.t('passwordConfirm')}</label>
+              <div class="password-input-wrap">
+                <input type="password" id="auth-pass2" placeholder="${this.t('passPh')}" autocomplete="new-password" required>
+                <button type="button" class="btn-toggle-pw" data-target="auth-pass2" title="Voir/masquer">
+                  <svg class="eye-icon eye-closed" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg>
+                  <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none"><path d="M2 2l14 14M7.4 7.6A2.5 2.5 0 0011.4 11.6M4.2 4.4C2.5 5.7 1 9 1 9s3 6 8 6c1.8 0 3.4-.6 4.7-1.6M7 3.3C7.6 3.1 8.3 3 9 3c5 0 8 6 8 6s-.9 1.8-2.5 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+            </div>`:''}
             ${this.authError?`<div class="auth-error">${this.escHtml(this.authError)}</div>`:''}
             <button type="submit" class="btn-primary btn-full" id="btn-auth-submit">${isLogin?this.t('signIn'):this.t('createAccount')}</button>
           </form>
@@ -473,6 +490,14 @@ const App = {
     document.querySelectorAll('.auth-tab').forEach(tab => tab.addEventListener('click', () => {
       this.authMode = tab.dataset.authMode; this.authError = ''; this.render();
       document.getElementById('auth-email')?.focus();
+    }));
+    document.querySelectorAll('.btn-toggle-pw').forEach(btn => btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.querySelector('.eye-closed').style.display = show ? 'none' : '';
+      btn.querySelector('.eye-open').style.display = show ? '' : 'none';
     }));
     document.getElementById('auth-form')?.addEventListener('submit', async e => {
       e.preventDefault();
@@ -565,7 +590,10 @@ const App = {
           </div>
         </div>
         <div class="user-menu" id="user-menu">
-          <button class="user-avatar" id="btn-user-menu" title="${this.escHtml(displayName)}">${initial}</button>
+          <button class="user-avatar" id="btn-go-account" title="Mon profil">
+            ${this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo" alt="">` : initial}
+          </button>
+          <button class="user-menu-chevron" id="btn-user-menu" aria-label="Menu compte">▾</button>
           <div class="user-dropdown" id="user-dropdown" hidden>
             <div class="user-dropdown-info">
               <div class="user-dropdown-name">${this.escHtml(displayName)}</div>
@@ -607,9 +635,15 @@ const App = {
     const emptyIcon = tab === 'liked' ? '❤️' : tab === 'saved' ? '🔖' : '🍽️';
     const emptyText = tab === 'liked' ? this.t('noLiked') : tab === 'saved' ? this.t('noSaved') : this.t('noRecipesAcc');
     const emptySub  = tab === 'mine' ? this.t('createFirst') : this.t('exploreHint');
+    const avatarLarge = this.avatarImg
+      ? `<img src="${this.escHtml(this.avatarImg)}" class="account-avatar-large avatar-photo-large" alt="">`
+      : `<div class="account-avatar-large">${initial}</div>`;
     return `<div class="view-account">
       <div class="account-hero">
-        <div class="account-avatar-large">${initial}</div>
+        <div class="account-avatar-wrap">
+          ${avatarLarge}
+          <button class="btn-edit-avatar" id="btn-edit-profile" title="Modifier le profil">✏️</button>
+        </div>
         <div class="account-info">
           <h2 class="account-display-name">${this.escHtml(displayName)}</h2>
           <p class="account-email-sub">${this.escHtml(this.user?.email||'')}</p>
@@ -619,6 +653,28 @@ const App = {
           </div>
         </div>
         <button class="btn-ghost btn-logout-header" id="btn-logout-account">${this.t('disconnectBtn')}</button>
+      </div>
+      <div class="profile-edit-card" id="profile-edit-card" hidden>
+        <h3>Modifier le profil</h3>
+        <div class="profile-edit-avatar-row">
+          <div class="profile-avatar-preview" id="profile-avatar-preview">
+            ${this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo-large" alt="">` : `<div class="account-avatar-large" style="width:72px;height:72px;font-size:1.5rem">${initial}</div>`}
+          </div>
+          <label class="btn-secondary btn-sm" for="profile-avatar-input" style="cursor:pointer">Changer la photo</label>
+          <input type="file" id="profile-avatar-input" accept="image/*" style="display:none">
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label for="profile-name-input">Prénom / Nom affiché</label>
+          <input type="text" id="profile-name-input" value="${this.escHtml(this.user?.name||'')}">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" value="${this.escHtml(this.user?.email||'')}" readonly style="opacity:0.6;cursor:default">
+        </div>
+        <div class="profile-edit-actions">
+          <button class="btn-ghost" id="btn-cancel-profile">Annuler</button>
+          <button class="btn-primary" id="btn-save-profile">Enregistrer</button>
+        </div>
       </div>
       <div class="account-stats">
         <div class="astat"><span class="astat-val">${all.length}</span><span class="astat-lbl">${this.t('statCreated')}</span></div>
@@ -694,10 +750,10 @@ const App = {
     const sectionLabel = this.searchQuery
       ? this.t('searchResults', shown.length, this.escHtml(this.searchQuery))
       : (this.activeCategory === ALL_CAT ? this.t('allRecipesLabel') : this.activeCategory);
-    const displayName = this.user?.name || this.user?.email?.split('@')[0] || '';
+    const firstName = this.user?.name || '';
     return `<div class="view-list">
       <div class="hero">
-        <p class="hero-greeting">${this.t('heroGreeting')}, <strong>${this.escHtml(displayName)}</strong> 👋</p>
+        <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
         <h1 class="hero-title">${this.t('heroTitle')}</h1>
         <div class="hero-search-wrap">
           <div class="hero-search-bar">
@@ -722,7 +778,7 @@ const App = {
       <p class="section-title" id="section-title">${sectionLabel}</p>
       <div id="results-area">
         ${shown.length===0
-          ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
+          ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p>${!this.searchQuery&&all.length===0?`<button class="btn-secondary" id="btn-seed-recipes" style="margin-top:16px">🍝 Ajouter les recettes de base</button>`:''}</div>`
           :`<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`}
       </div>
     </div>`;
@@ -968,6 +1024,7 @@ const App = {
       this.render();
     }));
 
+    document.getElementById('btn-go-account')?.addEventListener('click', () => { this.accountTab='mine'; this.nav('account'); });
     const menuBtn=document.getElementById('btn-user-menu'), dropdown=document.getElementById('user-dropdown');
     menuBtn?.addEventListener('click', e => {
       e.stopPropagation(); const open=!dropdown.hidden; dropdown.hidden=open;
@@ -994,6 +1051,22 @@ const App = {
       if (hdr) hdr.value = '';
       this.renderContent();
     });
+    // Profil edit
+    document.getElementById('btn-edit-profile')?.addEventListener('click', () => {
+      const card = document.getElementById('profile-edit-card');
+      if (card) card.hidden = !card.hidden;
+    });
+    document.getElementById('btn-cancel-profile')?.addEventListener('click', () => {
+      const card = document.getElementById('profile-edit-card');
+      if (card) card.hidden = true;
+    });
+    document.getElementById('btn-save-profile')?.addEventListener('click', () => this.saveProfileName());
+    document.getElementById('profile-avatar-input')?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (file) this.handleAvatarUpload(file);
+    });
+    document.getElementById('btn-seed-recipes')?.addEventListener('click', () => this.seedDefaultRecipes());
+
     document.querySelectorAll('.recipe-card').forEach(el => el.addEventListener('click', e => {
       if (e.target.closest('[data-save-card]')) return;
       this.nav('recipe', el.dataset.id);
@@ -1153,6 +1226,80 @@ const App = {
     Store.delete(id);
     if(this.user){const{error}=await db.from('recipes').delete().eq('id',id);if(error)this.toast('⚠️ Erreur : '+error.message);}
     this.nav('list');this.toast(this.t('recipeDeleted'));
+  },
+
+  async saveProfileName() {
+    const name = document.getElementById('profile-name-input')?.value?.trim();
+    if (!name || !this.user) return;
+    const { error } = await db.from('profiles').update({ name }).eq('id', this.user.id);
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    this.user.name = name;
+    document.getElementById('profile-edit-card').hidden = true;
+    this.render();
+    this.toast('Profil mis à jour !');
+  },
+
+  handleAvatarUpload(file) {
+    if (!file || !this.user) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size = 200;
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size / img.width, size / img.height);
+        const sw = size / scale, sh = size / scale;
+        const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
+        const b64 = canvas.toDataURL('image/jpeg', 0.85);
+        this.avatarImg = b64;
+        localStorage.setItem('gustos_avatar_' + this.user.id, b64);
+        const preview = document.getElementById('profile-avatar-preview');
+        if (preview) preview.innerHTML = `<img src="${b64}" class="avatar-photo-large" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover">`;
+        // Update header avatar live
+        const hdr = document.getElementById('btn-go-account');
+        if (hdr) hdr.innerHTML = `<img src="${b64}" class="avatar-photo" alt="">`;
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+
+  async seedDefaultRecipes() {
+    const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+    const recipes = [
+      {
+        id: uid(), name: 'Lasagnes au pesto', category: 'Pâtes',
+        description: 'Des lasagnes crémeuses au pesto vert — rapides, parfumées et toujours appréciées.',
+        basePeople: 4, prepTime: 15, cookTime: 35, tags: ['végétarien', 'pesto', 'pâtes', 'gratiné'],
+        ingredients: [
+          { name: 'feuilles de lasagne', qty: 12, unit: 'pièce(s)' },
+          { name: 'pesto vert', qty: 200, unit: 'g' },
+          { name: 'ricotta', qty: 500, unit: 'g' },
+          { name: 'mozzarella', qty: 250, unit: 'g' },
+          { name: 'parmesan râpé', qty: 80, unit: 'g' },
+          { name: 'crème fraîche', qty: 100, unit: 'ml' },
+        ],
+        steps: [
+          'Préchauffer le four à 180°C.',
+          'Mélanger la {ricotta} avec le {pesto vert} et la {crème fraîche}. Saler et poivrer.',
+          'Dans un plat à gratin, déposer une fine couche de mélange au fond.',
+          'Alterner : couche de {feuilles de lasagne}, mélange ricotta-pesto, tranches de {mozzarella}. Répéter sur 3 couches.',
+          'Terminer par le mélange ricotta-pesto et saupoudrer de {parmesan râpé}.',
+          'Enfourner 35 min jusqu\'à ce que le dessus soit doré et bouillonnant.',
+          'Laisser reposer 5 min avant de servir.',
+        ],
+        coverImage: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      },
+    ];
+    for (const r of recipes) {
+      Store.add(r);
+      if (this.user) await db.from('recipes').upsert({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt }).catch(() => {});
+    }
+    this.renderContent();
+    this.toast('Recette ajoutée !');
   },
 
   showUpgradeModal(){
