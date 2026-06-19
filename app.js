@@ -667,8 +667,8 @@ const App = {
           <input type="email" id="profile-email-input" value="${this.escHtml(this.user?.email||'')}">
         </div>
         <div class="profile-edit-actions">
-          <button class="btn-ghost" id="btn-cancel-profile">Annuler</button>
-          <button class="btn-primary" id="btn-save-profile">Enregistrer</button>
+          <button type="button" class="btn-ghost" id="btn-cancel-profile">Annuler</button>
+          <button type="button" class="btn-primary" id="btn-save-profile">Enregistrer</button>
         </div>
       </div>
       <div class="account-stats">
@@ -1220,33 +1220,40 @@ const App = {
     const name = document.getElementById('profile-name-input')?.value?.trim();
     const email = document.getElementById('profile-email-input')?.value?.trim();
     if (!this.user) return;
-    const updates = {};
-    if (name) updates.data = { full_name: name };
-    const emailChanged = email && email !== this.user.email;
-    if (emailChanged) updates.email = email;
-    if (Object.keys(updates).length) {
-      const { error } = await db.auth.updateUser(updates);
-      if (error) { this.toast('Erreur : ' + error.message); return; }
+    const btn = document.getElementById('btn-save-profile');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+    try {
+      // Name: update locally + auth metadata + profiles table
+      if (name && name !== this.user.name) {
+        this.user.name = name;
+        db.auth.updateUser({ data: { full_name: name } }).catch(() => {});
+        db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
+      }
+      // Email: send change request (requires confirmation)
+      const emailChanged = email && email !== this.user.email;
+      if (emailChanged) {
+        const { error } = await db.auth.updateUser({ email });
+        if (error) { this.toast('Erreur email : ' + error.message); }
+        else { this.toast('Un lien de confirmation a été envoyé à ' + email); }
+      }
+      // Avatar: commit pending upload
+      if (this._pendingAvatarImg) {
+        this.avatarImg = this._pendingAvatarImg;
+        localStorage.setItem('gustos_avatar_' + this.user.id, this._pendingAvatarImg);
+        this._pendingAvatarImg = null;
+        const hdr = document.getElementById('btn-go-account');
+        if (hdr) hdr.innerHTML = `<img src="${this.avatarImg}" class="avatar-photo" alt="">`;
+      }
+      // Update DOM in place
+      const nameEl = document.querySelector('.account-display-name');
+      if (nameEl && name) nameEl.textContent = name;
+      document.getElementById('profile-edit-card').hidden = true;
+      if (!(email && email !== this.user.email)) this.toast('Profil mis à jour !');
+    } catch(e) {
+      this.toast('Erreur : ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer'; }
     }
-    if (name) {
-      await db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
-      this.user.name = name;
-    }
-    // Avatar: save pending upload now
-    if (this._pendingAvatarImg) {
-      this.avatarImg = this._pendingAvatarImg;
-      localStorage.setItem('gustos_avatar_' + this.user.id, this._pendingAvatarImg);
-      this._pendingAvatarImg = null;
-      const hdr = document.getElementById('btn-go-account');
-      if (hdr) hdr.innerHTML = `<img src="${this.avatarImg}" class="avatar-photo" alt="">`;
-    }
-    document.getElementById('profile-edit-card').hidden = true;
-    // Update display name in place without full re-render
-    const nameEl = document.querySelector('.account-display-name');
-    if (nameEl && name) nameEl.textContent = name;
-    const emailSub = document.querySelector('.account-email-sub');
-    if (emailSub && emailChanged) emailSub.textContent = email + ' (en attente de confirmation)';
-    this.toast(emailChanged ? 'Email : un lien de confirmation a été envoyé.' : 'Profil mis à jour !');
   },
 
   handleAvatarUpload(file) {
