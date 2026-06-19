@@ -308,19 +308,7 @@ const App = {
       console.error('[onSignIn]', e);
     }
     // Check for post-reload instruction (e.g. after profile save)
-    const afterReload = localStorage.getItem('gustos_after_reload');
-    if (afterReload) {
-      try {
-        const { view, toast, name } = JSON.parse(afterReload);
-        localStorage.removeItem('gustos_after_reload');
-        if (name) this.user.name = name;
-        this.view = view || 'list';
-        this.render();
-        if (toast) setTimeout(() => this.toast(toast), 300);
-      } catch { this.view = 'list'; this.render(); }
-    } else {
-      this.view = 'list'; this.render();
-    }
+    this.view = 'list'; this.render();
   },
 
   async syncRecipes() {
@@ -1232,21 +1220,26 @@ const App = {
     const name = document.getElementById('profile-name-input')?.value?.trim();
     const email = document.getElementById('profile-email-input')?.value?.trim();
     if (!this.user) return;
-    // Fire-and-forget — don't await, reload immediately
+    // Apply name locally, sync to Supabase in background (no await)
+    if (name) {
+      this.user.name = name;
+      db.auth.updateUser({ data: { full_name: name } }).catch(() => {});
+      db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
+    }
+    // Email change: send confirmation link in background
     const emailChanged = email && email !== this.user.email;
-    const updates = {};
-    if (name) updates.data = { full_name: name };
-    if (emailChanged) updates.email = email;
-    if (Object.keys(updates).length) db.auth.updateUser(updates).catch(() => {});
-    if (name) db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
-    // Pass name through localStorage so it's available right after reload
-    const toastMsg = emailChanged
-      ? 'Un email de confirmation a été envoyé à ' + email
-      : 'Profil mis à jour !';
-    localStorage.setItem('gustos_after_reload', JSON.stringify({
-      view: 'account', toast: toastMsg, name: name || null
-    }));
-    location.reload();
+    if (emailChanged) {
+      db.auth.updateUser({ email }).catch(() => {});
+    }
+    // Update DOM in place — no render, no reload
+    document.getElementById('profile-edit-card').hidden = true;
+    const nameEl = document.querySelector('.account-display-name');
+    if (nameEl && name) nameEl.textContent = name;
+    if (!this.avatarImg && name) {
+      const hdr = document.getElementById('btn-go-account');
+      if (hdr) hdr.textContent = name[0].toUpperCase();
+    }
+    this.toast(emailChanged ? 'Email : un lien de confirmation a été envoyé.' : 'Profil mis à jour !');
   },
 
   handleAvatarUpload(file) {
