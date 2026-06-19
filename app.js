@@ -311,8 +311,9 @@ const App = {
     const afterReload = localStorage.getItem('gustos_after_reload');
     if (afterReload) {
       try {
-        const { view, toast } = JSON.parse(afterReload);
+        const { view, toast, name } = JSON.parse(afterReload);
         localStorage.removeItem('gustos_after_reload');
+        if (name) this.user.name = name;
         this.view = view || 'list';
         this.render();
         if (toast) setTimeout(() => this.toast(toast), 300);
@@ -1059,7 +1060,6 @@ const App = {
     document.getElementById('btn-cancel-profile')?.addEventListener('click', () => {
       const card = document.getElementById('profile-edit-card');
       if (card) card.hidden = true;
-      this._pendingAvatarImg = null;
     });
     document.getElementById('btn-save-profile')?.addEventListener('click', () => this.saveProfile());
     document.getElementById('profile-avatar-input')?.addEventListener('change', e => {
@@ -1228,35 +1228,25 @@ const App = {
     this.nav('list');this.toast(this.t('recipeDeleted'));
   },
 
-  async saveProfile() {
+  saveProfile() {
     const name = document.getElementById('profile-name-input')?.value?.trim();
     const email = document.getElementById('profile-email-input')?.value?.trim();
     if (!this.user) return;
-    const btn = document.getElementById('btn-save-profile');
-    if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
-    try {
-      const emailChanged = email && email !== this.user.email;
-      // Update auth metadata (name + optional email)
-      const updates = {};
-      if (name) updates.data = { full_name: name };
-      if (emailChanged) updates.email = email;
-      if (Object.keys(updates).length) await db.auth.updateUser(updates).catch(() => {});
-      // Update profiles table
-      if (name) await db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
-      // Avatar: persist pending upload to localStorage before reload
-      if (this._pendingAvatarImg) {
-        localStorage.setItem('gustos_avatar_' + this.user.id, this._pendingAvatarImg);
-      }
-      // Store post-reload instructions then reload
-      const toastMsg = emailChanged
-        ? 'Un email de confirmation a été envoyé à ' + email
-        : 'Profil mis à jour !';
-      localStorage.setItem('gustos_after_reload', JSON.stringify({ view: 'account', toast: toastMsg }));
-      location.reload();
-    } catch(e) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer'; }
-      this.toast('Erreur : ' + e.message);
-    }
+    // Fire-and-forget — don't await, reload immediately
+    const emailChanged = email && email !== this.user.email;
+    const updates = {};
+    if (name) updates.data = { full_name: name };
+    if (emailChanged) updates.email = email;
+    if (Object.keys(updates).length) db.auth.updateUser(updates).catch(() => {});
+    if (name) db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
+    // Pass name through localStorage so it's available right after reload
+    const toastMsg = emailChanged
+      ? 'Un email de confirmation a été envoyé à ' + email
+      : 'Profil mis à jour !';
+    localStorage.setItem('gustos_after_reload', JSON.stringify({
+      view: 'account', toast: toastMsg, name: name || null
+    }));
+    location.reload();
   },
 
   handleAvatarUpload(file) {
@@ -1274,9 +1264,12 @@ const App = {
         const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
         ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
         const b64 = canvas.toDataURL('image/jpeg', 0.85);
-        this._pendingAvatarImg = b64;
+        this.avatarImg = b64;
+        localStorage.setItem('gustos_avatar_' + this.user.id, b64);
         const preview = document.getElementById('profile-avatar-preview');
         if (preview) preview.innerHTML = `<img src="${b64}" class="avatar-photo-large" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover">`;
+        const hdr = document.getElementById('btn-go-account');
+        if (hdr) hdr.innerHTML = `<img src="${b64}" class="avatar-photo" alt="">`;
       };
       img.src = e.target.result;
     };
