@@ -275,7 +275,12 @@ const App = {
         if (session) await this.onSignIn(session.user);
         else { this.view = 'auth'; this.authError = ''; this.render(); }
       } else if (event === 'SIGNED_IN') {
-        await this.onSignIn(session.user);
+        if (!this.user) await this.onSignIn(session.user);
+      } else if (event === 'USER_UPDATED') {
+        if (this.user && session?.user?.user_metadata?.full_name) {
+          this.user.name = session.user.user_metadata.full_name;
+        }
+        if (this.user && session?.user?.email) this.user.email = session.user.email;
       } else if (event === 'SIGNED_OUT') {
         this.user = null; Store.clear();
         this.likedIds = new Set(); this.savedIds = new Set(); this.likeCounts = {};
@@ -657,9 +662,9 @@ const App = {
           <label for="profile-name-input">Prénom / Nom affiché</label>
           <input type="text" id="profile-name-input" value="${this.escHtml(this.user?.name||'')}">
         </div>
-        <div class="form-group">
-          <label>Email <span class="label-note">(non modifiable)</span></label>
-          <div class="readonly-field">${this.escHtml(this.user?.email||'')}</div>
+        <div class="form-group" style="margin-top:12px">
+          <label for="profile-email-input">Email</label>
+          <input type="email" id="profile-email-input" value="${this.escHtml(this.user?.email||'')}">
         </div>
         <div class="profile-edit-actions">
           <button class="btn-ghost" id="btn-cancel-profile">Annuler</button>
@@ -1042,8 +1047,9 @@ const App = {
     document.getElementById('btn-cancel-profile')?.addEventListener('click', () => {
       const card = document.getElementById('profile-edit-card');
       if (card) card.hidden = true;
+      this._pendingAvatarImg = null;
     });
-    document.getElementById('btn-save-profile')?.addEventListener('click', () => this.saveProfileName());
+    document.getElementById('btn-save-profile')?.addEventListener('click', () => this.saveProfile());
     document.getElementById('profile-avatar-input')?.addEventListener('change', e => {
       const file = e.target.files?.[0];
       if (file) this.handleAvatarUpload(file);
@@ -1210,16 +1216,37 @@ const App = {
     this.nav('list');this.toast(this.t('recipeDeleted'));
   },
 
-  async saveProfileName() {
+  async saveProfile() {
     const name = document.getElementById('profile-name-input')?.value?.trim();
-    if (!name || !this.user) return;
-    const { error } = await db.auth.updateUser({ data: { full_name: name } });
-    if (error) { this.toast('Erreur : ' + error.message); return; }
-    await db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
-    this.user.name = name;
+    const email = document.getElementById('profile-email-input')?.value?.trim();
+    if (!this.user) return;
+    const updates = {};
+    if (name) updates.data = { full_name: name };
+    const emailChanged = email && email !== this.user.email;
+    if (emailChanged) updates.email = email;
+    if (Object.keys(updates).length) {
+      const { error } = await db.auth.updateUser(updates);
+      if (error) { this.toast('Erreur : ' + error.message); return; }
+    }
+    if (name) {
+      await db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
+      this.user.name = name;
+    }
+    // Avatar: save pending upload now
+    if (this._pendingAvatarImg) {
+      this.avatarImg = this._pendingAvatarImg;
+      localStorage.setItem('gustos_avatar_' + this.user.id, this._pendingAvatarImg);
+      this._pendingAvatarImg = null;
+      const hdr = document.getElementById('btn-go-account');
+      if (hdr) hdr.innerHTML = `<img src="${this.avatarImg}" class="avatar-photo" alt="">`;
+    }
     document.getElementById('profile-edit-card').hidden = true;
-    this.render();
-    this.toast('Profil mis à jour !');
+    // Update display name in place without full re-render
+    const nameEl = document.querySelector('.account-display-name');
+    if (nameEl && name) nameEl.textContent = name;
+    const emailSub = document.querySelector('.account-email-sub');
+    if (emailSub && emailChanged) emailSub.textContent = email + ' (en attente de confirmation)';
+    this.toast(emailChanged ? 'Email : un lien de confirmation a été envoyé.' : 'Profil mis à jour !');
   },
 
   handleAvatarUpload(file) {
@@ -1237,13 +1264,9 @@ const App = {
         const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
         ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
         const b64 = canvas.toDataURL('image/jpeg', 0.85);
-        this.avatarImg = b64;
-        localStorage.setItem('gustos_avatar_' + this.user.id, b64);
+        this._pendingAvatarImg = b64;
         const preview = document.getElementById('profile-avatar-preview');
         if (preview) preview.innerHTML = `<img src="${b64}" class="avatar-photo-large" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover">`;
-        // Update header avatar live
-        const hdr = document.getElementById('btn-go-account');
-        if (hdr) hdr.innerHTML = `<img src="${b64}" class="avatar-photo" alt="">`;
       };
       img.src = e.target.result;
     };
