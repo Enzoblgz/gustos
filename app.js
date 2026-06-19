@@ -420,29 +420,44 @@ const App = {
 
   renderAuth() {
     const isLogin = this.authMode === 'login';
+    const langBar = Object.entries(LANG_META).map(([code, m]) =>
+      `<button class="lang-option-auth${this.lang===code?' active':''}" data-lang-auth="${code}" title="${m.name}">
+        <span class="lang-flag">${m.flag}</span>
+      </button>`).join('');
     return `<div class="view-auth">
-      <div class="lang-switcher-auth">${Object.entries(LANG_META).map(([code, m]) =>
-        `<button class="lang-option-auth${this.lang===code?' active':''}" data-lang-auth="${code}" title="${m.name}">
-          <span class="lang-flag">${m.flag}</span>
-        </button>`).join('')}</div>
-      <div class="auth-card">
-        <div class="auth-logo">🍴</div>
-        <h1 class="auth-title">${this.t('appTitle')}</h1>
-        <p class="auth-subtitle">${this.t('appSubtitle')}</p>
-        <div class="auth-tabs">
-          <button class="auth-tab${isLogin?' active':''}" data-auth-mode="login">${this.t('login')}</button>
-          <button class="auth-tab${!isLogin?' active':''}" data-auth-mode="register">${this.t('register')}</button>
+      <div class="auth-brand">
+        <div class="auth-brand-logo">
+          <svg width="26" height="26" viewBox="0 0 22 22" fill="none">
+            <line x1="7" y1="2" x2="7" y2="20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M5 2v5.5c0 1.1.9 2 2 2s2-.9 2-2V2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <line x1="15" y1="2" x2="15" y2="20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M13 2c0 0 4 3 4 7h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <span>Gustos</span>
         </div>
-        <form id="auth-form" autocomplete="on">
-          ${!isLogin?`<div class="form-group"><label for="auth-name">${this.t('firstName')}</label><input type="text" id="auth-name" placeholder="${this.t('firstNamePh')}" autocomplete="given-name"></div>`:''}
-          <div class="form-group"><label for="auth-email">${this.t('email')}</label><input type="email" id="auth-email" placeholder="${this.t('emailPh')}" autocomplete="email" required></div>
-          <div class="form-group"><label for="auth-pass">${this.t('password')}</label><input type="password" id="auth-pass" placeholder="${this.t('passPh')}" autocomplete="${isLogin?'current-password':'new-password'}" required></div>
-          ${!isLogin?`<div class="form-group"><label for="auth-pass2">${this.t('passwordConfirm')}</label><input type="password" id="auth-pass2" placeholder="${this.t('passPh')}" autocomplete="new-password" required></div>`:''}
-          ${this.authError?`<div class="auth-error">${this.escHtml(this.authError)}</div>`:''}
-          <button type="submit" class="btn-primary btn-full" id="btn-auth-submit">${isLogin?this.t('signIn'):this.t('createAccount')}</button>
-        </form>
-        ${isLogin?`<p class="auth-reset"><a href="#" id="btn-reset-pw">${this.t('forgotPw')}</a></p>`:''}
-        ${!isLogin?`<p class="auth-trial-note">${this.t('trialNote')}</p>`:''}
+        <div class="auth-brand-mascot">
+          <img src="Images/logo-gustos.png" alt="Gustos" class="auth-mascot-img">
+        </div>
+        <p class="auth-brand-tagline">${this.t('appSubtitle')}</p>
+      </div>
+      <div class="auth-panel">
+        <div class="lang-switcher-auth">${langBar}</div>
+        <div class="auth-form-wrap">
+          <div class="auth-tabs">
+            <button class="auth-tab${isLogin?' active':''}" data-auth-mode="login">${this.t('login')}</button>
+            <button class="auth-tab${!isLogin?' active':''}" data-auth-mode="register">${this.t('register')}</button>
+          </div>
+          <form id="auth-form" autocomplete="on">
+            ${!isLogin?`<div class="form-group"><label for="auth-name">${this.t('firstName')}</label><input type="text" id="auth-name" placeholder="${this.t('firstNamePh')}" autocomplete="given-name"></div>`:''}
+            <div class="form-group"><label for="auth-email">${this.t('email')}</label><input type="email" id="auth-email" placeholder="${this.t('emailPh')}" autocomplete="email" required></div>
+            <div class="form-group"><label for="auth-pass">${this.t('password')}</label><input type="password" id="auth-pass" placeholder="${this.t('passPh')}" autocomplete="${isLogin?'current-password':'new-password'}" required></div>
+            ${!isLogin?`<div class="form-group"><label for="auth-pass2">${this.t('passwordConfirm')}</label><input type="password" id="auth-pass2" placeholder="${this.t('passPh')}" autocomplete="new-password" required></div>`:''}
+            ${this.authError?`<div class="auth-error">${this.escHtml(this.authError)}</div>`:''}
+            <button type="submit" class="btn-primary btn-full" id="btn-auth-submit">${isLogin?this.t('signIn'):this.t('createAccount')}</button>
+          </form>
+          ${isLogin?`<p class="auth-reset"><a href="#" id="btn-reset-pw">${this.t('forgotPw')}</a></p>`:''}
+          ${!isLogin?`<p class="auth-trial-note">${this.t('trialNote')}</p>`:''}
+        </div>
       </div>
     </div>`;
   },
