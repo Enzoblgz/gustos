@@ -43,7 +43,8 @@ const TR = {
     forgotPw: 'Mot de passe oublié ?', trialNote: '✨ Gratuit et instantané — aucune carte requise',
     emailSent: 'Email de réinitialisation envoyé !', enterEmail: 'Entre ton email d\'abord.',
     accountCreated: 'Compte créé ! Vérifie ton email.',
-    heroTitle: 'Toutes les <em>recettes</em>', heroSub: 'Ajuste les portions en un clic — les quantités s\'adaptent automatiquement.',
+    heroGreeting: 'Bonjour', heroSearchPh: 'Chercher une recette, un ingrédient, un tag…',
+    heroTitle: 'Qu\'est-ce qu\'on cuisine <em>aujourd\'hui</em> ?', heroSub: 'Ajuste les portions en un clic — les quantités s\'adaptent automatiquement.',
     statRecipes: 'Recettes', statCats: 'Catégories', statAvg: 'Min. en moy.',
     allCat: 'Tout', allRecipesLabel: 'Toutes les recettes',
     searchResults: (n,q) => `${n} résultat${n!==1?'s':''} pour « ${q} »`,
@@ -96,7 +97,8 @@ const TR = {
     forgotPw: 'Forgot password?', trialNote: '✨ Free and instant — no card required',
     emailSent: 'Reset email sent!', enterEmail: 'Enter your email first.',
     accountCreated: 'Account created! Check your email.',
-    heroTitle: 'All <em>recipes</em>', heroSub: 'Adjust servings in one click — quantities update automatically.',
+    heroGreeting: 'Hello', heroSearchPh: 'Search a recipe, an ingredient, a tag…',
+    heroTitle: 'What are we <em>cooking</em> today?', heroSub: 'Adjust servings in one click — quantities update automatically.',
     statRecipes: 'Recipes', statCats: 'Categories', statAvg: 'Avg. min.',
     allCat: 'All', allRecipesLabel: 'All recipes',
     searchResults: (n,q) => `${n} result${n!==1?'s':''} for « ${q} »`,
@@ -149,7 +151,8 @@ const TR = {
     forgotPw: '¿Olvidaste tu contraseña?', trialNote: '✨ Gratis e instantáneo — sin tarjeta',
     emailSent: '¡Email de restablecimiento enviado!', enterEmail: 'Introduce tu email primero.',
     accountCreated: '¡Cuenta creada! Revisa tu email.',
-    heroTitle: 'Todas las <em>recetas</em>', heroSub: 'Ajusta las porciones con un clic — las cantidades se adaptan automáticamente.',
+    heroGreeting: 'Hola', heroSearchPh: 'Buscar receta, ingrediente, etiqueta…',
+    heroTitle: '¿Qué <em>cocinamos</em> hoy?', heroSub: 'Ajusta las porciones con un clic — las cantidades se adaptan automáticamente.',
     statRecipes: 'Recetas', statCats: 'Categorías', statAvg: 'Min. promedio',
     allCat: 'Todo', allRecipesLabel: 'Todas las recetas',
     searchResults: (n,q) => `${n} resultado${n!==1?'s':''} para « ${q} »`,
@@ -202,7 +205,8 @@ const TR = {
     forgotPw: 'Password dimenticata?', trialNote: '✨ Gratuito e istantaneo — nessuna carta richiesta',
     emailSent: 'Email di reimpostazione inviata!', enterEmail: 'Inserisci prima la tua email.',
     accountCreated: 'Account creato! Controlla la tua email.',
-    heroTitle: 'Tutte le <em>ricette</em>', heroSub: 'Regola le porzioni con un clic — le quantità si adattano automaticamente.',
+    heroGreeting: 'Ciao', heroSearchPh: 'Cerca una ricetta, un ingrediente, un tag…',
+    heroTitle: 'Cosa <em>cuciniamo</em> oggi?', heroSub: 'Regola le porzioni con un clic — le quantità si adattano automaticamente.',
     statRecipes: 'Ricette', statCats: 'Categorie', statAvg: 'Min. medi',
     allCat: 'Tutto', allRecipesLabel: 'Tutte le ricette',
     searchResults: (n,q) => `${n} risultat${n!==1?'i':'o'} per « ${q} »`,
@@ -521,12 +525,7 @@ const App = {
     return `<header>
       <div class="header-left">
         <div class="logo" id="nav-home">
-          <svg class="logo-mark" width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <line x1="7" y1="2" x2="7" y2="20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            <path d="M5 2v5.5c0 1.1.9 2 2 2s2-.9 2-2V2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <line x1="15" y1="2" x2="15" y2="20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            <path d="M13 2c0 0 4 3 4 7h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </svg>
+          <img class="logo-mark-img" src="Images/gustos-logo-transparent-background.png" alt="Gustos">
           <span>Gustos</span>
         </div>
       </div>
@@ -695,10 +694,21 @@ const App = {
     const sectionLabel = this.searchQuery
       ? this.t('searchResults', shown.length, this.escHtml(this.searchQuery))
       : (this.activeCategory === ALL_CAT ? this.t('allRecipesLabel') : this.activeCategory);
+    const displayName = this.user?.name || this.user?.email?.split('@')[0] || '';
     return `<div class="view-list">
       <div class="hero">
-        <h1>${this.t('heroTitle')}</h1>
-        <p>${this.t('heroSub')}</p>
+        <p class="hero-greeting">${this.t('heroGreeting')}, <strong>${this.escHtml(displayName)}</strong> 👋</p>
+        <h1 class="hero-title">${this.t('heroTitle')}</h1>
+        <div class="hero-search-wrap">
+          <div class="hero-search-bar">
+            <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
+            ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
+          </div>
+        </div>
         <div class="stats-bar">
           <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
           <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
@@ -709,11 +719,41 @@ const App = {
         <button class="category-pill${this.activeCategory===ALL_CAT?' active':''}" data-cat="${ALL_CAT}">${this.t('allCat')}</button>
         ${rawCats.map(c=>`<button class="category-pill${this.activeCategory===c?' active':''}" data-cat="${this.escHtml(c)}">${c}</button>`).join('')}
       </div>
-      <p class="section-title">${sectionLabel}</p>
-      ${shown.length===0
-        ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
-        :`<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`}
+      <p class="section-title" id="section-title">${sectionLabel}</p>
+      <div id="results-area">
+        ${shown.length===0
+          ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
+          :`<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`}
+      </div>
     </div>`;
+  },
+
+  updateHeroResults() {
+    const all = Store.get();
+    let shown = all;
+    if (this.activeCategory !== ALL_CAT) shown = shown.filter(r => r.category === this.activeCategory);
+    if (this.searchQuery) {
+      const q = this.searchQuery.toLowerCase();
+      shown = shown.filter(r => r.name.toLowerCase().includes(q) || (r.description||'').toLowerCase().includes(q) || r.ingredients.some(i=>i.name.toLowerCase().includes(q)) || (r.tags||[]).some(t=>t.toLowerCase().includes(q)));
+    }
+    const sectionLabel = this.searchQuery
+      ? this.t('searchResults', shown.length, this.escHtml(this.searchQuery))
+      : (this.activeCategory === ALL_CAT ? this.t('allRecipesLabel') : this.activeCategory);
+    const titleEl = document.getElementById('section-title');
+    if (titleEl) titleEl.textContent = sectionLabel;
+    const area = document.getElementById('results-area');
+    if (!area) return;
+    area.innerHTML = shown.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
+      : `<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`;
+    document.querySelectorAll('#results-area .recipe-card').forEach(el => el.addEventListener('click', e => {
+      if (e.target.closest('[data-save-card]')) return;
+      this.nav('recipe', el.dataset.id);
+    }));
+    document.querySelectorAll('#results-area [data-save-card]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      this.toggleSave(btn.dataset.saveCard).catch(err => this.toast('Erreur : '+err.message));
+    }));
   },
 
   renderCard(r) {
@@ -939,6 +979,21 @@ const App = {
   },
 
   bindContent() {
+    const heroInput = document.getElementById('hero-search-input');
+    if (heroInput) {
+      heroInput.addEventListener('input', e => {
+        this.searchQuery = e.target.value;
+        const hdr = document.getElementById('search-input');
+        if (hdr) hdr.value = e.target.value;
+        this.updateHeroResults();
+      });
+    }
+    document.getElementById('hero-search-clear')?.addEventListener('click', () => {
+      this.searchQuery = '';
+      const hdr = document.getElementById('search-input');
+      if (hdr) hdr.value = '';
+      this.renderContent();
+    });
     document.querySelectorAll('.recipe-card').forEach(el => el.addEventListener('click', e => {
       if (e.target.closest('[data-save-card]')) return;
       this.nav('recipe', el.dataset.id);
