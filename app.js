@@ -307,7 +307,19 @@ const App = {
     } catch (e) {
       console.error('[onSignIn]', e);
     }
-    this.view = 'list'; this.render();
+    // Check for post-reload instruction (e.g. after profile save)
+    const afterReload = localStorage.getItem('gustos_after_reload');
+    if (afterReload) {
+      try {
+        const { view, toast } = JSON.parse(afterReload);
+        localStorage.removeItem('gustos_after_reload');
+        this.view = view || 'list';
+        this.render();
+        if (toast) setTimeout(() => this.toast(toast), 300);
+      } catch { this.view = 'list'; this.render(); }
+    } else {
+      this.view = 'list'; this.render();
+    }
   },
 
   async syncRecipes() {
@@ -1223,36 +1235,27 @@ const App = {
     const btn = document.getElementById('btn-save-profile');
     if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
     try {
-      // Name: update locally + auth metadata + profiles table
-      if (name && name !== this.user.name) {
-        this.user.name = name;
-        db.auth.updateUser({ data: { full_name: name } }).catch(() => {});
-        db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
-      }
-      // Email: send change request (requires confirmation)
       const emailChanged = email && email !== this.user.email;
-      if (emailChanged) {
-        const { error } = await db.auth.updateUser({ email });
-        if (error) { this.toast('Erreur email : ' + error.message); }
-        else { this.toast('Un lien de confirmation a été envoyé à ' + email); }
-      }
-      // Avatar: commit pending upload
+      // Update auth metadata (name + optional email)
+      const updates = {};
+      if (name) updates.data = { full_name: name };
+      if (emailChanged) updates.email = email;
+      if (Object.keys(updates).length) await db.auth.updateUser(updates).catch(() => {});
+      // Update profiles table
+      if (name) await db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
+      // Avatar: persist pending upload to localStorage before reload
       if (this._pendingAvatarImg) {
-        this.avatarImg = this._pendingAvatarImg;
         localStorage.setItem('gustos_avatar_' + this.user.id, this._pendingAvatarImg);
-        this._pendingAvatarImg = null;
-        const hdr = document.getElementById('btn-go-account');
-        if (hdr) hdr.innerHTML = `<img src="${this.avatarImg}" class="avatar-photo" alt="">`;
       }
-      // Update DOM in place
-      const nameEl = document.querySelector('.account-display-name');
-      if (nameEl && name) nameEl.textContent = name;
-      document.getElementById('profile-edit-card').hidden = true;
-      if (!(email && email !== this.user.email)) this.toast('Profil mis à jour !');
+      // Store post-reload instructions then reload
+      const toastMsg = emailChanged
+        ? 'Un email de confirmation a été envoyé à ' + email
+        : 'Profil mis à jour !';
+      localStorage.setItem('gustos_after_reload', JSON.stringify({ view: 'account', toast: toastMsg }));
+      location.reload();
     } catch(e) {
-      this.toast('Erreur : ' + e.message);
-    } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+      this.toast('Erreur : ' + e.message);
     }
   },
 
