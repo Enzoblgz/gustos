@@ -1037,8 +1037,9 @@ const App = {
     const mine = all.filter(r => r.authorId === this.user?.id);
     const liked = all.filter(r => this.likedIds.has(r.id));
     const saved = all.filter(r => this.savedIds.has(r.id));
+    const approved = all.filter(r => (r.approvedBy || []).includes(this.user?.id));
     const tab = this.accountTab;
-    const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : mine;
+    const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : tab === 'approved' ? approved : mine;
     const isAdmin = this.user?.role === 'admin';
     const displayName = this.user?.username || this.user?.email?.split('@')[0] || '?';
     const initial = displayName[0].toUpperCase();
@@ -1046,8 +1047,8 @@ const App = {
     const planClass = this.user?.plan === 'pro' ? 'pro' : (days > 0 ? 'trial' : 'free');
     const planLabel = this.user?.plan === 'pro' ? 'Pro' : (days > 0 ? this.t('trialDays', days) : this.t('freePlan'));
     const totalLikes = Object.values(this.likeCounts).reduce((a, b) => a + b, 0);
-    const emptyIcon = tab === 'liked' ? '❤️' : tab === 'saved' ? '🔖' : '🍽️';
-    const emptyText = tab === 'liked' ? this.t('noLiked') : tab === 'saved' ? this.t('noSaved') : this.t('noRecipesAcc');
+    const emptyIcon = tab === 'liked' ? '❤️' : tab === 'saved' ? '🔖' : tab === 'approved' ? '👍' : '🍽️';
+    const emptyText = tab === 'liked' ? this.t('noLiked') : tab === 'saved' ? this.t('noSaved') : tab === 'approved' ? 'Aucune recette approuvée' : this.t('noRecipesAcc');
     const emptySub  = tab === 'mine' ? this.t('createFirst') : this.t('exploreHint');
     const avatarLarge = this.avatarImg
       ? `<img src="${this.escHtml(this.avatarImg)}" class="account-avatar-large avatar-photo-large" alt="">`
@@ -1121,6 +1122,7 @@ const App = {
         <button class="account-tab-btn${tab==='mine'?' active':''}" data-tab="mine">${this.t('myRecipes')} <span class="tab-count">${mine.length}</span></button>
         <button class="account-tab-btn${tab==='liked'?' active':''}" data-tab="liked">${this.t('liked')} <span class="tab-count">${liked.length}</span></button>
         <button class="account-tab-btn${tab==='saved'?' active':''}" data-tab="saved">${this.t('bookmarked')} <span class="tab-count">${saved.length}</span></button>
+        <button class="account-tab-btn${tab==='approved'?' active':''}" data-tab="approved">👍 Approuvées <span class="tab-count">${approved.length}</span></button>
       </div>
       ${shown.length === 0
         ? `<div class="empty-state"><div class="empty-icon">${emptyIcon}</div><h3>${emptyText}</h3><p>${emptySub}</p></div>`
@@ -1300,7 +1302,7 @@ const App = {
       <div class="recipe-header">
         <button class="btn-ghost" id="btn-back">${this.t('back')}</button>
         <div class="recipe-header-actions">
-          ${isAdmin && !isOwnRecipe && !r.isCertified ? `<button class="btn-approve btn-approve-admin" data-approve="${r.id}">⭐ Certifier</button>` : ''}
+          ${isAdmin && !r.isCertified ? `<button class="btn-approve btn-approve-admin" data-approve="${r.id}">⭐ Certifier</button>` : ''}
           ${isAdmin && r.isCertified ? `<button class="btn-revoke" id="btn-revoke-cert" data-revoke="${r.id}">✕ Retirer certification</button>` : ''}
           ${canEdit ? `<button class="btn-secondary" id="btn-edit">${this.t('edit')}</button>
           <button class="btn-danger" id="btn-delete">${this.t('delete')}</button>` : ''}
@@ -1745,6 +1747,8 @@ const App = {
     document.querySelectorAll('[data-del-item]').forEach(btn => btn.addEventListener('click', () => this.removeShoppingItem(btn.dataset.delItem)));
     document.getElementById('btn-clear-checked')?.addEventListener('click', () => this.clearCheckedItems());
     document.getElementById('btn-regen')?.addEventListener('click', () => { this.generateShoppingList(); this.renderContent(); });
+    document.getElementById('btn-export-pdf')?.addEventListener('click', () => this.exportShoppingPDF());
+    document.getElementById('btn-export-img')?.addEventListener('click', () => this.exportShoppingImage());
     document.getElementById('btn-add-manual')?.addEventListener('click', () => {
       const name = document.getElementById('manual-name')?.value || '';
       const qty  = document.getElementById('manual-qty')?.value || '';
@@ -2677,6 +2681,79 @@ const App = {
     this.generateShoppingList(); this.savePlan();
   },
 
+  exportShoppingPDF() {
+    window.print();
+  },
+
+  exportShoppingImage() {
+    const items = this.shopping;
+    if (!items.length) return;
+    const W = 640, pad = 32, lineH = 40, titleH = 80;
+    const H = titleH + items.length * lineH + pad * 2;
+    const canvas = document.createElement('canvas');
+    const dpr = 2;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // Background
+    ctx.fillStyle = '#FDFAF7';
+    ctx.roundRect(0, 0, W, H, 16);
+    ctx.fill();
+
+    // Header
+    ctx.fillStyle = '#C7522A';
+    ctx.font = 'bold 22px Georgia, serif';
+    ctx.fillText('🛒 Liste de courses', pad, pad + 26);
+    ctx.fillStyle = '#9C7B5C';
+    ctx.font = '13px system-ui, sans-serif';
+    const weekStr = this.planWeek ? `Semaine du ${new Date(this.planWeek).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}` : '';
+    ctx.fillText(weekStr, pad, pad + 48);
+
+    // Divider
+    ctx.strokeStyle = '#E8D5C4'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, titleH); ctx.lineTo(W - pad, titleH); ctx.stroke();
+
+    // Items
+    let y = titleH + pad;
+    for (const item of items) {
+      const done = item.checked;
+      // Checkbox
+      ctx.strokeStyle = done ? '#C8B8A8' : '#C7522A'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.roundRect(pad, y - 13, 15, 15, 3); ctx.stroke();
+      if (done) {
+        ctx.strokeStyle = '#C7522A'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(pad + 3, y - 6); ctx.lineTo(pad + 7, y - 2); ctx.lineTo(pad + 13, y - 11); ctx.stroke();
+      }
+      // Text
+      ctx.fillStyle = done ? '#B0A090' : '#3D2B1F';
+      ctx.font = done ? '14px system-ui' : '500 14px system-ui';
+      const qty = item.qty ? `${this.fmtQty(item.qty)} ${item.unit}  ` : '';
+      const label = `${qty}${item.name}`;
+      ctx.fillText(label, pad + 22, y);
+      if (done) {
+        ctx.strokeStyle = '#B0A090'; ctx.lineWidth = 1;
+        const w = ctx.measureText(label).width;
+        ctx.beginPath(); ctx.moveTo(pad + 22, y - 5); ctx.lineTo(pad + 22 + w, y - 5); ctx.stroke();
+      }
+      y += lineH;
+    }
+
+    // Footer
+    ctx.fillStyle = '#C8B8A8'; ctx.font = '11px system-ui';
+    ctx.fillText('Gustos', pad, H - 12);
+
+    canvas.toBlob(async blob => {
+      const file = new File([blob], 'liste-courses-gustos.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'Liste de courses Gustos' }); return; } catch {}
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'liste-courses-gustos.png'; a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  },
+
   generateShoppingList() {
     const merged = {};
     for (const date of this.getWeekDays(this.planWeek)) {
@@ -2785,6 +2862,8 @@ const App = {
             ${total > 0 ? `<span class="shop-progress">${checked}/${total}</span>` : ''}
             ${checked > 0 ? `<button class="btn-ghost btn-sm" id="btn-clear-checked">${this.t('clearChecked')}</button>` : ''}
             <button class="btn-secondary btn-sm" id="btn-regen">${this.t('refreshList')}</button>
+            ${total > 0 ? `<button class="btn-ghost btn-sm" id="btn-export-pdf" title="Imprimer / PDF">🖨 PDF</button>
+            <button class="btn-ghost btn-sm" id="btn-export-img" title="Enregistrer en image">📷 Image</button>` : ''}
           </div>
         </div>
         ${total === 0 ? `<div class="shopping-empty"><span>🛒</span><p>${this.t('shoppingEmpty')}</p></div>` : ''}
