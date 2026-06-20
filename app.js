@@ -456,6 +456,24 @@ const App = {
     this.planWeek = this.getWeekStart(new Date());
     try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
     try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
+    // Tooltip global pour le bouton épingle (hors overflow:hidden)
+    const _tip = document.createElement('div');
+    _tip.id = '_save-tip'; _tip.className = 'save-tip-global';
+    document.body.appendChild(_tip);
+    document.addEventListener('mouseover', e => {
+      const btn = e.target.closest('.card-save-btn');
+      if (!btn) return;
+      const isSaved = this.savedIds.has(btn.dataset.saveCard);
+      _tip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
+      _tip.classList.toggle('tip-saved', isSaved);
+      const r = btn.getBoundingClientRect();
+      _tip.style.top = (r.top + window.scrollY + r.height / 2) + 'px';
+      _tip.style.left = (r.left + window.scrollX - 8) + 'px';
+      _tip.style.opacity = '1';
+    });
+    document.addEventListener('mouseout', e => {
+      if (e.target.closest('.card-save-btn')) _tip.style.opacity = '0';
+    });
     document.addEventListener('click', e => {
       if (e.target.closest('#btn-save-profile')) this.saveProfile();
       if (e.target.closest('#btn-add-ing')) {
@@ -765,8 +783,8 @@ const App = {
       if (!email || !pass) return;
       if (this.authMode === 'register') {
         const { score } = this._pwStrength(pass);
-        if (score < 3) { this.authError = 'Mot de passe trop faible — remplis les 3 critères.'; this.render(); return; }
-        if (pass !== pass2) { this.authError = 'Les mots de passe ne correspondent pas.'; this.render(); return; }
+        if (score < 3) { this._setAuthError('Mot de passe trop faible — remplis les 3 critères.'); return; }
+        if (pass !== pass2) { this._setAuthError('Les mots de passe ne correspondent pas.'); return; }
       }
       if (btn) { btn.disabled = true; btn.textContent = this.t('loading'); }
       let error;
@@ -1476,6 +1494,16 @@ const App = {
     const upper  = /[A-Z]/.test(pw);
     const numSym = /[0-9!@#$%^&*()\-_=+\[\]{}|;:,.<>?]/.test(pw);
     return { len, upper, numSym, score: [len, upper, numSym].filter(Boolean).length };
+  },
+
+  _setAuthError(msg) {
+    this.authError = msg;
+    let el = document.querySelector('.auth-error');
+    if (el) { el.textContent = msg; return; }
+    el = document.createElement('div');
+    el.className = 'auth-error';
+    el.textContent = msg;
+    document.getElementById('btn-auth-submit')?.before(el);
   },
 
   _addIngFromInput() {
