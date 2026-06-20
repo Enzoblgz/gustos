@@ -1041,11 +1041,12 @@ const App = {
     const tab = this.accountTab;
     const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : tab === 'approved' ? approved : mine;
     const isAdmin = this.user?.role === 'admin';
+    const isPro = isAdmin || this.user?.plan === 'pro';
     const displayName = this.user?.username || this.user?.email?.split('@')[0] || '?';
     const initial = displayName[0].toUpperCase();
     const days = this.trialDaysLeft();
-    const planClass = this.user?.plan === 'pro' ? 'pro' : (days > 0 ? 'trial' : 'free');
-    const planLabel = this.user?.plan === 'pro' ? 'Pro' : (days > 0 ? this.t('trialDays', days) : this.t('freePlan'));
+    const planClass = isPro ? (isAdmin ? 'admin' : 'pro') : (days > 0 ? 'trial' : 'free');
+    const planLabel = isPro ? (isAdmin ? 'Admin' : 'Pro') : (days > 0 ? this.t('trialDays', days) : this.t('freePlan'));
     const totalLikes = Object.values(this.likeCounts).reduce((a, b) => a + b, 0);
     const emptyIcon = tab === 'liked' ? '❤️' : tab === 'saved' ? '🔖' : tab === 'approved' ? '👍' : '🍽️';
     const emptyText = tab === 'liked' ? this.t('noLiked') : tab === 'saved' ? this.t('noSaved') : tab === 'approved' ? 'Aucune recette approuvée' : this.t('noRecipesAcc');
@@ -1064,13 +1065,13 @@ const App = {
           <p class="account-email-sub">${this.escHtml(this.user?.email||'')}</p>
           <div class="subscription-info">
             <span class="plan-badge plan-${planClass}">${planLabel}</span>
-            ${this.user?.plan !== 'pro' && days > 0 ? `
+            ${!isPro && days > 0 ? `
               <div class="trial-progress-bar"><div class="trial-progress-fill" style="width:${Math.round((14-days)/14*100)}%"></div></div>
               <p class="trial-days-hint">${days} jour${days>1?'s':''} restant${days>1?'s':''} sur les 14 jours d'essai</p>` : ''}
-            ${this.user?.plan !== 'pro' && days === 0 && this.user?.trial_ends_at ? `<p class="trial-days-hint trial-expired-hint">Essai expiré</p>` : ''}
+            ${!isPro && days === 0 && this.user?.trial_ends_at ? `<p class="trial-days-hint trial-expired-hint">Essai expiré</p>` : ''}
             <div class="subscription-actions">
-              ${this.user?.plan !== 'pro' && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
-              <button class="btn-hiw-profile" id="btn-how-it-works">Comment ça marche ?</button>
+              ${!isPro && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
+              ${!isAdmin ? `<button class="btn-hiw-profile" id="btn-how-it-works">Comment ça marche ?</button>` : ''}
             </div>
           </div>
         </div>
