@@ -2947,3 +2947,13 @@ textarea.drop-target {
   .shop-add-field-qty { width: 70px; }
   .shop-add-field-unit { width: 90px; }
 }
+
+/* ===== PRINT (liste de courses) ===== */
+@media print {
+  body > *:not(#app) { display: none !important; }
+  header, .view-planner > *:not(.shopping-section), .shopping-hdr-actions,
+  .shopping-add-row, .picker-modal, .planner-grid, .plan-nav { display: none !important; }
+  .shopping-section { box-shadow: none !important; border: none !important; }
+  .shop-item-remove { display: none !important; }
+  @page { margin: 20mm; }
+}
