@@ -456,24 +456,11 @@ const App = {
     this.planWeek = this.getWeekStart(new Date());
     try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
     try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
-    // Tooltip global pour le bouton épingle (hors overflow:hidden)
+    // Tooltip global épingle — créé une fois, attaché au body (hors overflow:hidden)
     const _tip = document.createElement('div');
     _tip.id = '_save-tip'; _tip.className = 'save-tip-global';
     document.body.appendChild(_tip);
-    document.addEventListener('mouseover', e => {
-      const btn = e.target.closest('.card-save-btn');
-      if (!btn) return;
-      const isSaved = this.savedIds.has(btn.dataset.saveCard);
-      _tip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
-      _tip.classList.toggle('tip-saved', isSaved);
-      const r = btn.getBoundingClientRect();
-      _tip.style.top = (r.top + r.height / 2) + 'px';
-      _tip.style.left = (r.left - 8) + 'px';
-      _tip.style.opacity = '1';
-    });
-    document.addEventListener('mouseout', e => {
-      if (e.target.closest('.card-save-btn')) _tip.style.opacity = '0';
-    });
+    this._saveTip = _tip;
     document.addEventListener('click', e => {
       if (e.target.closest('#btn-save-profile')) this.saveProfile();
       if (e.target.closest('#btn-add-ing')) {
@@ -1311,6 +1298,21 @@ const App = {
   },
 
   bindContent() {
+    // Tooltip mouseenter/mouseleave sur chaque bouton épingle (précis, sans bubbling)
+    if (this._saveTip) {
+      document.querySelectorAll('.card-save-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+          const isSaved = this.savedIds.has(btn.dataset.saveCard);
+          this._saveTip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
+          this._saveTip.classList.toggle('tip-saved', isSaved);
+          const r = btn.getBoundingClientRect();
+          this._saveTip.style.top = (r.top + r.height / 2) + 'px';
+          this._saveTip.style.left = (r.left - 8) + 'px';
+          this._saveTip.style.opacity = '1';
+        });
+        btn.addEventListener('mouseleave', () => { this._saveTip.style.opacity = '0'; });
+      });
+    }
     const heroInput = document.getElementById('hero-search-input');
     if (heroInput) {
       heroInput.addEventListener('input', e => {
@@ -1349,11 +1351,10 @@ const App = {
     document.querySelectorAll('[data-save-card]').forEach(btn => btn.addEventListener('click', e => {
       e.stopPropagation();
       this.toggleSave(btn.dataset.saveCard).then(() => {
-        const tip = document.getElementById('_save-tip');
-        if (tip && tip.style.opacity === '1') {
+        if (this._saveTip && this._saveTip.style.opacity === '1') {
           const isSaved = this.savedIds.has(btn.dataset.saveCard);
-          tip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
-          tip.classList.toggle('tip-saved', isSaved);
+          this._saveTip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
+          this._saveTip.classList.toggle('tip-saved', isSaved);
         }
       }).catch(err => this.toast('Erreur : '+err.message));
     }));
