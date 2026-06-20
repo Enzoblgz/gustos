@@ -1746,7 +1746,6 @@ const App = {
     document.querySelectorAll('[data-check-item]').forEach(btn => btn.addEventListener('click', () => this.toggleShoppingItem(btn.dataset.checkItem)));
     document.querySelectorAll('[data-del-item]').forEach(btn => btn.addEventListener('click', () => this.removeShoppingItem(btn.dataset.delItem)));
     document.getElementById('btn-clear-checked')?.addEventListener('click', () => this.clearCheckedItems());
-    document.getElementById('btn-regen')?.addEventListener('click', () => { this.generateShoppingList(); this.renderContent(); });
     document.getElementById('btn-export-pdf')?.addEventListener('click', () => this.exportShoppingPDF());
     document.getElementById('btn-export-img')?.addEventListener('click', () => this.exportShoppingImage());
     document.getElementById('btn-add-manual')?.addEventListener('click', () => {
@@ -2861,7 +2860,6 @@ const App = {
           <div class="shopping-hdr-actions">
             ${total > 0 ? `<span class="shop-progress">${checked}/${total}</span>` : ''}
             ${checked > 0 ? `<button class="btn-ghost btn-sm" id="btn-clear-checked">${this.t('clearChecked')}</button>` : ''}
-            <button class="btn-secondary btn-sm" id="btn-regen">${this.t('refreshList')}</button>
             ${total > 0 ? `<button class="btn-ghost btn-sm" id="btn-export-pdf" title="Imprimer / PDF">🖨 PDF</button>
             <button class="btn-ghost btn-sm" id="btn-export-img" title="Enregistrer en image">📷 Image</button>` : ''}
           </div>
