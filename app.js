@@ -526,9 +526,12 @@ const App = {
     // Push local recipes to Supabase first (handles pre-table era + offline creates)
     const local = Store.get();
     if (local.length) {
-      const { error: pushErr } = await db.from('recipes')
-        .upsert(local.map(r => ({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt || new Date().toISOString() })), { onConflict: 'id' });
-      if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
+      const mine = local.filter(r => !r.authorId || r.authorId === this.user.id);
+      if (mine.length) {
+        const { error: pushErr } = await db.from('recipes')
+          .upsert(mine.map(r => ({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt || new Date().toISOString() })), { onConflict: 'id' });
+        if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
+      }
     }
     // Fetch all recipes + author name from profiles (JOIN via FK)
     const { data, error } = await db.from('recipes').select('data, user_id, profiles(name, email, username)').order('created_at', { ascending: true });
