@@ -571,6 +571,15 @@ const App = {
           <img class="logo-mark-img" src="Images/gustos-logo-transparent-background.png" alt="Gustos">
           <span>Gustos</span>
         </div>
+        <button class="btn-plan-nav" id="btn-plan">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="2.5" width="12" height="10.5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+            <line x1="1" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.3"/>
+            <line x1="4.5" y1="1" x2="4.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="9.5" y1="1" x2="9.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Planning
+        </button>
       </div>
       <div class="header-center">
         <div class="search-bar">
@@ -583,15 +592,6 @@ const App = {
         </div>
       </div>
       <div class="header-right">
-        <button class="btn-plan-nav" id="btn-plan">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect x="1" y="2.5" width="12" height="10.5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-            <line x1="1" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.3"/>
-            <line x1="4.5" y1="1" x2="4.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <line x1="9.5" y1="1" x2="9.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Planning
-        </button>
         <button class="btn-primary btn-new" id="btn-new">${this.t('newRecipe')}</button>
         <div class="header-sep"></div>
         <div class="lang-switcher" id="lang-switcher">
@@ -648,7 +648,10 @@ const App = {
             ${this.user?.plan !== 'pro' && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
           </div>
         </div>
-        <button class="btn-ghost btn-logout-header" id="btn-logout-account">${this.t('disconnectBtn')}</button>
+        <div class="account-actions-col">
+          <button class="btn-ghost btn-logout-header" id="btn-logout-account">${this.t('disconnectBtn')}</button>
+          <button type="button" class="btn-delete-account" id="btn-delete-account">Supprimer le compte</button>
+        </div>
       </div>
       <div class="profile-edit-card" id="profile-edit-card" hidden>
         <h3>Modifier le profil</h3>
@@ -749,22 +752,29 @@ const App = {
     const firstName = this.user?.name || '';
     return `<div class="view-list">
       <div class="hero">
-        <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
-        <h1 class="hero-title">${this.t('heroTitle')}</h1>
-        <div class="hero-search-wrap">
-          <div class="hero-search-bar">
-            <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
-            ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
+        <div class="hero-inner">
+          <div class="hero-main">
+            <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
+            <h1 class="hero-title">${this.t('heroTitle')}</h1>
+            <div class="hero-search-wrap">
+              <div class="hero-search-bar">
+                <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
+                ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
+              </div>
+            </div>
+            <div class="stats-bar">
+              <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
+              <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
+              <div class="stat"><span class="stat-value">${avg||'—'}</span><span class="stat-label">${this.t('statAvg')}</span></div>
+            </div>
           </div>
-        </div>
-        <div class="stats-bar">
-          <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
-          <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
-          <div class="stat"><span class="stat-value">${avg||'—'}</span><span class="stat-label">${this.t('statAvg')}</span></div>
+          <div class="hero-mascot-wrap">
+            <img src="Images/gustos-logo-transparent-background.png" alt="" class="hero-mascot-img" draggable="false">
+          </div>
         </div>
       </div>
       <div class="categories">
@@ -1088,6 +1098,7 @@ const App = {
     document.querySelectorAll('[data-set-plan]').forEach(btn => btn.addEventListener('click', () => this.adminSetPlan(btn.dataset.setPlan, btn.dataset.plan)));
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
+    document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
     document.getElementById('btn-upgrade-account')?.addEventListener('click', () => this.showUpgradeModal());
     document.getElementById('btn-go-planning')?.addEventListener('click', () => this.nav('planning'));
 
@@ -1217,29 +1228,77 @@ const App = {
   },
 
   saveProfile() {
-    const name = document.getElementById('profile-name-input')?.value?.trim();
-    const email = document.getElementById('profile-email-input')?.value?.trim();
+    const name = (document.getElementById('profile-name-input')?.value || '').trim();
+    const email = (document.getElementById('profile-email-input')?.value || '').trim();
     if (!this.user) return;
-    // Apply name locally, sync to Supabase in background (no await)
+    const emailChanged = email && email !== this.user.email;
+    // Apply changes to local state immediately
+    if (name) this.user.name = name;
+    // Fire Supabase in background — never await
     if (name) {
-      this.user.name = name;
       db.auth.updateUser({ data: { full_name: name } }).catch(() => {});
       db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
     }
-    // Email change: send confirmation link in background
-    const emailChanged = email && email !== this.user.email;
-    if (emailChanged) {
-      db.auth.updateUser({ email }).catch(() => {});
-    }
-    // Update DOM in place — no render, no reload
-    document.getElementById('profile-edit-card').hidden = true;
-    const nameEl = document.querySelector('.account-display-name');
-    if (nameEl && name) nameEl.textContent = name;
-    if (!this.avatarImg && name) {
-      const hdr = document.getElementById('btn-go-account');
-      if (hdr) hdr.textContent = name[0].toUpperCase();
-    }
-    this.toast(emailChanged ? 'Email : un lien de confirmation a été envoyé.' : 'Profil mis à jour !');
+    if (emailChanged) db.auth.updateUser({ email }).catch(() => {});
+    // Full re-render of account page with updated state
+    this.view = 'account';
+    this.render();
+    setTimeout(() => this.toast(emailChanged ? 'Email : un lien de confirmation a été envoyé.' : 'Profil mis à jour !'), 80);
+  },
+
+  confirmDeleteAccount() {
+    const overlay = document.createElement('div');
+    overlay.className = 'upgrade-overlay';
+    overlay.innerHTML = `
+      <div class="upgrade-modal" style="max-width:420px">
+        <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
+        <h2 style="color:#C0392B;margin-bottom:12px">Supprimer le compte</h2>
+        <p style="color:var(--brown);line-height:1.6">Cette action est <strong>irréversible</strong>. Toutes tes recettes, likes et données seront définitivement supprimés.</p>
+        <p style="margin-top:14px;color:var(--brown);font-size:0.9rem">Tape <strong>SUPPRIMER</strong> pour confirmer :</p>
+        <input type="text" id="delete-confirm-input" placeholder="SUPPRIMER" autocomplete="off"
+          style="margin-top:10px;text-transform:uppercase;letter-spacing:0.08em;text-align:center">
+        <div class="upgrade-actions" style="margin-top:20px">
+          <button type="button" class="btn-ghost btn-full" id="btn-cancel-delete">Annuler</button>
+          <button type="button" class="btn-full" id="btn-confirm-delete" disabled
+            style="background:#C0392B;color:white;border:none;padding:12px 24px;border-radius:50px;font-family:var(--font-sans);font-size:0.9rem;font-weight:600;cursor:pointer;opacity:0.45;transition:opacity 0.2s">
+            Supprimer définitivement
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const input = overlay.querySelector('#delete-confirm-input');
+    const confirmBtn = overlay.querySelector('#btn-confirm-delete');
+    input.focus();
+    input.addEventListener('input', () => {
+      const ok = input.value.toUpperCase() === 'SUPPRIMER';
+      confirmBtn.disabled = !ok;
+      confirmBtn.style.opacity = ok ? '1' : '0.45';
+    });
+    overlay.querySelector('#btn-cancel-delete').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    confirmBtn.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Suppression…';
+      await this.deleteAccount();
+      overlay.remove();
+    });
+  },
+
+  async deleteAccount() {
+    if (!this.user) return;
+    const uid = this.user.id;
+    // Delete all user data from Supabase
+    await db.from('recipes').delete().eq('user_id', uid).catch(() => {});
+    await db.from('likes').delete().eq('user_id', uid).catch(() => {});
+    await db.from('saves').delete().eq('user_id', uid).catch(() => {});
+    await db.from('profiles').delete().eq('id', uid).catch(() => {});
+    // Try RPC for full auth deletion (requires migration_delete_account.sql)
+    await db.rpc('delete_my_account').catch(() => {});
+    // Clear local data
+    localStorage.removeItem('gustos_avatar_' + uid);
+    localStorage.removeItem('gustos_seeded_v1');
+    Store.clear();
+    await db.auth.signOut();
   },
 
   handleAvatarUpload(file) {
