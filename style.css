@@ -1300,6 +1300,12 @@ select { cursor: pointer; }
   position: relative;
   z-index: 1;
 }
+.auth-brand-mark {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18));
+}
 .auth-brand-mascot {
   flex: 1;
   display: flex;

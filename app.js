@@ -25,6 +25,7 @@ const ALL_CAT = '__all__';
 const LANG_META = {
   fr: { flag: '🇫🇷', name: 'Français' },
   en: { flag: '🇬🇧', name: 'English' },
+  de: { flag: '🇩🇪', name: 'Deutsch' },
   es: { flag: '🇪🇸', name: 'Español' },
   it: { flag: '🇮🇹', name: 'Italiano' },
 };
@@ -246,6 +247,60 @@ const TR = {
     limitText: n => `Hai raggiunto il limite di <strong>${n} ricette</strong> del piano gratuito.`,
     limitText2: 'Passa al piano <strong>Pro</strong> per accesso illimitato.',
     upgradeProBtn: 'Passa a Pro — prossimamente', laterBtn: 'Non ora', comingSoon: 'Prossimamente!',
+  },
+  de: {
+    newRecipe: '+ Neues Rezept', search: 'Rezept, Zutat oder Tag suchen…',
+    myAccount: 'Mein Konto', logout: 'Abmelden', adminPanel: 'Admin',
+    appTitle: 'Gustos', appSubtitle: 'Ein geteiltes Rezeptheft für den Alltag',
+    login: 'Anmelden', register: 'Neues Konto',
+    email: 'E-Mail', password: 'Passwort', passwordConfirm: 'Bestätigen',
+    emailPh: 'du@beispiel.de', passPh: '••••••••',
+    signIn: 'Anmelden', createAccount: 'Konto erstellen', loading: 'Lädt…',
+    firstName: 'Vorname', firstNamePh: 'Dein Vorname',
+    forgotPw: 'Passwort vergessen?', trialNote: '✨ Kostenlos und sofort — keine Karte nötig',
+    emailSent: 'Zurücksetz-E-Mail gesendet!', enterEmail: 'Gib zuerst deine E-Mail ein.',
+    accountCreated: 'Konto erstellt! Überprüfe deine E-Mail.',
+    heroGreeting: 'Hallo', heroSearchPh: 'Rezept, Zutat oder Tag suchen…',
+    heroTitle: 'Was kochen wir <em>heute</em>?', heroSub: 'Portionen per Klick anpassen — Mengen aktualisieren sich automatisch.',
+    statRecipes: 'Rezepte', statCats: 'Kategorien', statAvg: 'Min. Ø',
+    allCat: 'Alle', allRecipesLabel: 'Alle Rezepte',
+    searchResults: (n,q) => `${n} Ergebnis${n!==1?'se':''} für « ${q} »`,
+    noResults: 'Keine Ergebnisse', noResultsSub: 'Versuche einen anderen Begriff.',
+    noRecipes: 'Noch keine Rezepte', noRecipesSub: 'Klicke auf „+ Neues Rezept" um zu beginnen.',
+    noCat: 'Ohne Kategorie', persons: n => `${n} Pers.`, ingrs: n => `${n} Zut.`,
+    back: '← Zurück', edit: 'Bearbeiten', delete: 'Löschen', deleteConfirm: 'Dieses Rezept löschen?',
+    prep: 'Vorbereitung', cook: 'Kochzeit', total: 'Gesamt',
+    like: 'Gefällt mir', save: 'Speichern', saved: 'Gespeichert',
+    adjustPortions: 'Portionen anpassen',
+    base: n => `Basis: ${n} Portion${n>1?'en':''}`, person: n => `Portion${n>1?'en':''}`,
+    ingsTitle: 'Zutaten', stepsTitle: 'Zubereitung',
+    myRecipes: 'Meine Rezepte', liked: '❤️ Gemocht', bookmarked: '🔖 Gespeichert',
+    statCreated: 'Erstellt', statLiked: 'Gemocht ❤️', statSaved: 'Gespeichert 🔖', statLikesRx: 'Erhaltene Likes',
+    trialDays: n => `Test — noch ${n} Tag${n!==1?'e':''}`, freePlan: 'Gratisplan', upgradeBtn: 'Zu Pro →',
+    disconnectBtn: '↩ Abmelden',
+    noLiked: 'Keine gemochten Rezepte', noSaved: 'Keine gespeicherten Rezepte', noRecipesAcc: 'Keine Rezepte',
+    createFirst: 'Erstelle dein erstes Rezept!', exploreHint: 'Entdecke Rezepte und füge ❤️ oder 🔖 hinzu',
+    newRecipeTitle: 'Neues Rezept', editRecipeTitle: 'Rezept bearbeiten',
+    generalInfo: 'Allgemeine Infos', nameLbl: 'Name *', namePh: 'z.B. Apfelkuchen',
+    catLbl: 'Kategorie', chooseCat: 'Wählen…', portionsLbl: 'Basisportionen',
+    prepLbl: 'Vorbereitung (Min.)', cookLbl: 'Kochzeit (Min.)', descLbl: 'Beschreibung',
+    coverTitle: 'Titelbild', coverHint: 'Miniatur auf der Karte und oben im Rezept.',
+    coverAdd: 'Titelbild hinzufügen', coverOne: '1 Foto — die Miniatur',
+    coverChange: 'Ändern', coverRm: 'Entfernen',
+    ingsLbl: 'Zutaten', dragHint: 'Ziehe ⠿ zum Neuordnen.',
+    ingNamePh: 'z.B. Mehl', ingQtyPh: '200', addIng: '+ Zutat hinzufügen',
+    stepsLbl: 'Zubereitungsschritte',
+    dynHelper: '💡 <strong>Dynamische Mengen</strong> — schreibe <code>{Name}</code> in einen Schritt.',
+    stepPh: 'Beschreibe diesen Schritt… {Name} für Mengen.', addStep: '+ Schritt hinzufügen', addStepPhoto: '📷 Foto hinzufügen',
+    tagsLbl: 'Tags', tagsInputLbl: 'Stichwörter — Enter oder Komma', tagsPh: 'vegetarisch, schnell…',
+    cancelBtn: 'Abbrechen', saveBtn: 'Speichern', createBtn: 'Rezept erstellen', deleteBtn: 'Löschen',
+    nameWarn: '⚠️ Gib dem Rezept einen Namen.',
+    recipeUpdated: 'Rezept aktualisiert!', recipeCreated: 'Rezept erstellt!', recipeDeleted: 'Rezept gelöscht.',
+    syncErr: '⚠️ Sync-Fehler: ',
+    limitTitle: 'Limit erreicht',
+    limitText: n => `Du hast das Limit von <strong>${n} Rezepten</strong> des Gratisplans erreicht.`,
+    limitText2: 'Wechsle zum <strong>Pro</strong>-Plan für unbegrenzten Zugriff.',
+    upgradeProBtn: 'Zu Pro — demnächst', laterBtn: 'Nicht jetzt', comingSoon: 'Demnächst!',
   }
 };
 
@@ -449,12 +504,7 @@ const App = {
     return `<div class="view-auth">
       <div class="auth-brand">
         <div class="auth-brand-logo">
-          <svg width="26" height="26" viewBox="0 0 22 22" fill="none">
-            <line x1="7" y1="2" x2="7" y2="20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            <path d="M5 2v5.5c0 1.1.9 2 2 2s2-.9 2-2V2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <line x1="15" y1="2" x2="15" y2="20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            <path d="M13 2c0 0 4 3 4 7h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </svg>
+          <img src="Images/gustos-logo-transparent-background.png" alt="" class="auth-brand-mark">
           <span>Gustos</span>
         </div>
         <div class="auth-brand-mascot">
@@ -713,7 +763,7 @@ const App = {
     const ta = u => u.trial_ends_at && new Date(u.trial_ends_at) > new Date();
     const fmt = d => new Date(d).toLocaleDateString('fr-FR');
     return `<div class="view-admin">
-      <div class="admin-header"><button class="btn-ghost" id="btn-back">← Retour</button><h2>Admin — ${stats.length} utilisateur${stats.length>1?'s':''}</h2></div>
+      <div class="admin-header"><button class="btn-ghost" id="btn-back">← Retour</button><h2>Admin — ${stats.length} utilisateur${stats.length>1?'s':''}</h2><button class="btn-secondary btn-sm" id="btn-admin-reseed">⟳ Reseed recettes</button></div>
       <div class="admin-kpis">
         <div class="admin-kpi"><div class="kpi-val">${stats.length}</div><div class="kpi-lbl">Comptes</div></div>
         <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>u.plan==='pro').length}</div><div class="kpi-lbl">Pro</div></div>
@@ -1094,6 +1144,13 @@ const App = {
     });
     document.getElementById('btn-save')?.addEventListener('click', () => this.saveRecipe().catch(e=>this.toast('Erreur : '+e.message)));
     document.querySelectorAll('[data-set-plan]').forEach(btn => btn.addEventListener('click', () => this.adminSetPlan(btn.dataset.setPlan, btn.dataset.plan)));
+    document.getElementById('btn-admin-reseed')?.addEventListener('click', async () => {
+      localStorage.removeItem('gustos_seeded_v1');
+      localStorage.removeItem('gustos_seeded_v2');
+      await this.seedDefaultRecipes(false).catch(e => this.toast('Erreur : ' + e.message));
+      localStorage.setItem('gustos_seeded_v2', '1');
+      this.render();
+    });
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
