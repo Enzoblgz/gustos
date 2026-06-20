@@ -620,6 +620,11 @@ const App = {
       const { data: profile, error } = await db.from('profiles').select('*').eq('id', authUser.id).single();
       if (error) console.warn('[Auth]', error.message);
       this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
+      // Admins are always pro
+      if (this.user.role === 'admin' && this.user.plan !== 'pro') {
+        await db.from('profiles').update({ plan: 'pro' }).eq('id', this.user.id).catch(() => {});
+        this.user.plan = 'pro';
+      }
       // Load avatar: Supabase first, localStorage fallback
       this.avatarImg = profile?.avatar_url || localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
@@ -1137,10 +1142,11 @@ const App = {
         <div class="admin-kpi"><div class="kpi-val">${stats.reduce((s,u)=>s+(u.recipe_count||0),0)}</div><div class="kpi-lbl">${this.t('statRecipes')}</div></div>
       </div>
       <div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>${this.t('adminColEmail')}</th><th>${this.t('adminColPlan')}</th><th>${this.t('adminColTrialCol')}</th><th>${this.t('adminColRecipes')}</th><th>${this.t('adminColJoined')}</th><th>${this.t('adminColAction')}</th></tr></thead>
+        <thead><tr><th>${this.t('adminColEmail')}</th><th>${this.t('adminColPlan')}</th><th>Rôle</th><th>${this.t('adminColTrialCol')}</th><th>${this.t('adminColRecipes')}</th><th>${this.t('adminColJoined')}</th><th>${this.t('adminColAction')}</th></tr></thead>
         <tbody>${stats.map(u=>`<tr>
-          <td class="td-email">${this.escHtml(u.email)}${u.role==='admin'?' <span class="plan-badge plan-admin">admin</span>':''}</td>
+          <td class="td-email">${this.escHtml(u.email)}</td>
           <td><span class="plan-badge plan-${u.plan}">${u.plan}</span></td>
+          <td>${u.role==='admin'?`<span class="plan-badge plan-admin">admin</span>`:`<button class="btn-small btn-ghost" data-set-role="${u.id}">→ Admin</button>`}</td>
           <td>${u.trial_ends_at?(ta(u)?`<span class="trial-active">→ ${fmt(u.trial_ends_at)}</span>`:`<span class="trial-expired">Expiré</span>`):'—'}</td>
           <td>${u.recipe_count??0}</td><td>${fmt(u.created_at)}</td>
           <td>${u.role!=='admin'?(u.plan==='pro'?`<button class="btn-small btn-ghost" data-set-plan="${u.id}" data-plan="free">→ Free</button>`:`<button class="btn-small btn-primary" data-set-plan="${u.id}" data-plan="pro">→ Pro</button>`):'—'}</td>
@@ -1154,6 +1160,14 @@ const App = {
     if (error) { this.toast('Erreur : ' + error.message); return; }
     const { data } = await db.rpc('get_admin_stats');
     this.adminStats = data || []; this.render(); this.toast('Plan mis à jour.');
+  },
+
+  async adminSetRole(userId) {
+    if (!confirm('Nommer cet utilisateur administrateur ? Cette action est irréversible depuis l\'interface.')) return;
+    const { error } = await db.from('profiles').update({ role: 'admin', plan: 'pro' }).eq('id', userId);
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    const { data } = await db.rpc('get_admin_stats');
+    this.adminStats = data || []; this.render(); this.toast('Utilisateur promu admin (+ plan Pro).');
   },
 
   renderList() {
@@ -1665,6 +1679,7 @@ const App = {
     });
     document.getElementById('btn-save')?.addEventListener('click', () => this.saveRecipe().catch(e=>this.toast('Erreur : '+e.message)));
     document.querySelectorAll('[data-set-plan]').forEach(btn => btn.addEventListener('click', () => this.adminSetPlan(btn.dataset.setPlan, btn.dataset.plan)));
+    document.querySelectorAll('[data-set-role]').forEach(btn => btn.addEventListener('click', () => this.adminSetRole(btn.dataset.setRole)));
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
