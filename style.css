@@ -798,6 +798,7 @@ main {
 .subscription-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 6px;
   margin-top: 4px;
 }
