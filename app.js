@@ -628,8 +628,10 @@ const App = {
       // Load avatar: Supabase first, localStorage fallback
       this.avatarImg = profile?.avatar_url || localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
-      if (!localStorage.getItem('gustos_seeded_v2') || Store.get().length === 0) {
-        await this.seedDefaultRecipes(true).catch(() => {});
+      console.log('[onSignIn] store après sync:', Store.get().length, 'recettes');
+      if (Store.get().length === 0) {
+        console.log('[onSignIn] store vide → re-seed');
+        await this.seedDefaultRecipes(false).catch(e => console.error('[Seed]', e));
         localStorage.setItem('gustos_seeded_v2', '1');
       }
       await this.loadSocial().catch(e => console.warn('[Social]', e));
@@ -1155,6 +1157,9 @@ const App = {
           <td>${u.role!=='admin'?(u.plan==='pro'?`<button class="btn-small btn-ghost" data-set-plan="${u.id}" data-plan="free">→ Free</button>`:`<button class="btn-small btn-primary" data-set-plan="${u.id}" data-plan="pro">→ Pro</button>`):'—'}</td>
         </tr>`).join('')}</tbody>
       </table></div>
+      <div class="admin-actions-row">
+        <button class="btn-ghost" id="btn-admin-reseed">🔄 Réseeder les recettes par défaut</button>
+      </div>
     </div>`;
   },
 
@@ -1683,6 +1688,7 @@ const App = {
     document.getElementById('btn-save')?.addEventListener('click', () => this.saveRecipe().catch(e=>this.toast('Erreur : '+e.message)));
     document.querySelectorAll('[data-set-plan]').forEach(btn => btn.addEventListener('click', () => this.adminSetPlan(btn.dataset.setPlan, btn.dataset.plan)));
     document.querySelectorAll('[data-set-role]').forEach(btn => btn.addEventListener('click', () => this.adminSetRole(btn.dataset.setRole)));
+    document.getElementById('btn-admin-reseed')?.addEventListener('click', () => this.seedDefaultRecipes(false).then(() => { this.nav('list'); }).catch(e => this.toast('Erreur seed : ' + e.message)));
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
