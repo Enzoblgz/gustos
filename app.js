@@ -533,14 +533,20 @@ const App = {
         if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
       }
     }
-    // Fetch all recipes + author name from profiles (JOIN via FK)
-    const { data, error } = await db.from('recipes').select('data, user_id, profiles(email, username)').order('created_at', { ascending: true });
+    // Fetch all recipes
+    const { data, error } = await db.from('recipes').select('data, user_id').order('created_at', { ascending: true });
     if (error) { console.warn('[Sync fetch]', error.message); return; }
-    Store.saveCache(data ? data.map(r => ({
-      ...r.data,
-      authorId: r.user_id,
-      authorName: r.profiles?.username || r.data.authorName || r.profiles?.email?.split('@')[0] || ''
-    })) : local);
+    // Fetch séparé des profils — pas de FK nécessaire, toujours à jour
+    const { data: profiles } = await db.from('profiles').select('id, username, email');
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+    Store.saveCache(data ? data.map(r => {
+      const profile = profileMap.get(r.user_id);
+      return {
+        ...r.data,
+        authorId: r.user_id,
+        authorName: profile?.username || r.data.authorName || profile?.email?.split('@')[0] || ''
+      };
+    }) : local);
   },
 
   async loadSocial() {
@@ -1596,6 +1602,8 @@ const App = {
         const { error: updateErr } = await db.from('profiles').update({ username }).eq('id', this.user.id);
         if (updateErr) { this.toast('⚠️ Erreur : ' + updateErr.message); if (btn) btn.disabled = false; return; }
         this.user.username = username;
+        // Mettre à jour le cache local pour que les recettes reflètent le nouveau pseudo immédiatement
+        Store.saveCache(Store.get().map(r => r.authorId === this.user.id ? { ...r, authorName: username } : r));
       }
       const emailChanged = email && email !== this.user.email;
       if (emailChanged) await db.auth.updateUser({ email });
