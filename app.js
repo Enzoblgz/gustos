@@ -1590,7 +1590,8 @@ const App = {
       if (username && username !== this.user.username) {
         const { data: taken } = await db.from('profiles').select('id').ilike('username', username).neq('id', this.user.id).maybeSingle();
         if (taken) { this.toast(this.t('usernameTaken')); if (btn) btn.disabled = false; return; }
-        await db.from('profiles').update({ username }).eq('id', this.user.id);
+        const { error: updateErr } = await db.from('profiles').update({ username }).eq('id', this.user.id);
+        if (updateErr) { this.toast('⚠️ Erreur : ' + updateErr.message); if (btn) btn.disabled = false; return; }
         this.user.username = username;
       }
       const emailChanged = email && email !== this.user.email;
