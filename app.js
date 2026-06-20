@@ -648,18 +648,32 @@ const App = {
         if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
       }
     }
-    // Fetch all recipes
+    // Fetch all recipes + profiles + approvals in parallel
     const { data, error } = await db.from('recipes').select('data, user_id').order('created_at', { ascending: true });
     if (error) { console.warn('[Sync fetch]', error.message); return; }
-    // Fetch séparé des profils — pas de FK nécessaire, toujours à jour
-    const { data: profiles } = await db.from('profiles').select('id, username, email');
+    const [{ data: profiles }, { data: approvals }] = await Promise.all([
+      db.from('profiles').select('id, username, email'),
+      db.from('recipe_approvals').select('recipe_id, user_id, is_admin')
+    ]);
     const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+    const approvalMap = {};
+    (approvals || []).forEach(a => {
+      if (!approvalMap[a.recipe_id]) approvalMap[a.recipe_id] = { memberCount: 0, adminApproved: false, approvedBy: [] };
+      approvalMap[a.recipe_id].approvedBy.push(a.user_id);
+      if (a.is_admin) approvalMap[a.recipe_id].adminApproved = true;
+      else approvalMap[a.recipe_id].memberCount++;
+    });
     Store.saveCache(data ? data.map(r => {
       const profile = profileMap.get(r.user_id);
+      const ap = approvalMap[r.data.id] || { memberCount: 0, adminApproved: false, approvedBy: [] };
       return {
         ...r.data,
         authorId: r.user_id,
-        authorName: profile?.username || r.data.authorName || profile?.email?.split('@')[0] || ''
+        authorName: profile?.username || r.data.authorName || profile?.email?.split('@')[0] || '',
+        approvalCount: ap.memberCount,
+        adminApproved: ap.adminApproved,
+        approvedBy: ap.approvedBy,
+        isCertified: ap.adminApproved || ap.memberCount >= 10
       };
     }) : local);
   },
@@ -929,7 +943,7 @@ const App = {
         const r = await db.auth.signUp({ email, password: pass });
         error = r.error;
         if (!error) {
-          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, username }).catch(() => {});
+          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, username, trial_ends_at: new Date(Date.now() + 14 * 86400000).toISOString(), plan: 'free' }).catch(() => {});
           this.toast(this.t('accountCreated')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return;
         }
         if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); }
@@ -1046,6 +1060,9 @@ const App = {
             <span class="plan-badge plan-${planClass}">${planLabel}</span>
             ${this.user?.plan !== 'pro' && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
           </div>
+          <button class="how-it-works-link" id="btn-how-it-works">Comment ça marche ?</button>
+          ${this.user?.plan !== 'pro' && days > 0 ? `<div class="trial-progress-bar"><div class="trial-progress-fill" style="width:${Math.round((14-days)/14*100)}%"></div></div><p class="trial-days-hint">${days} jour${days>1?'s':''} restant${days>1?'s':''} sur votre essai gratuit de 14 jours</p>` : ''}
+          ${this.user?.plan !== 'pro' && days === 0 && this.user?.trial_ends_at ? `<p class="trial-days-hint trial-expired-hint">Essai expiré — passez à l'abonnement ou continuez en mode gratuit limité.</p>` : ''}
         </div>
         <div class="account-actions-col">
           ${isAdmin ? `<button type="button" class="btn-secondary btn-sm btn-admin-panel" id="btn-go-admin-account">⚙ Admin</button>` : ''}
@@ -1226,6 +1243,7 @@ const App = {
       <div class="card-body">
         <div class="card-category-row">
           <span class="card-category">${r.category||this.t('noCat')}</span>
+          ${r.isCertified?`<span class="certified-badge">✓ Certifiée</span>`:''}
           ${r.authorName?`<span class="card-author">par ${this.escHtml(r.authorName)}</span>`:''}
         </div>
         <div class="card-title">${this.escHtml(r.name)}</div>
@@ -1256,10 +1274,15 @@ const App = {
       total?`<div class="meta-box"><div class="meta-box-value">${total} min</div><div class="meta-box-label">${this.t('total')}</div></div>`:''
     ].filter(Boolean).join('');
     const canEdit = this.user?.role === 'admin' || (r.authorId === this.user?.id) || (!r.authorId && !r.authorName);
+    const isAdmin = this.user?.role === 'admin';
+    const isOwnRecipe = r.authorId === this.user?.id;
+    const alreadyApproved = this.user && (r.approvedBy || []).includes(this.user.id);
+    const approvalCount = r.approvalCount || 0;
     return `<div class="view-recipe">
       <div class="recipe-header">
         <button class="btn-ghost" id="btn-back">${this.t('back')}</button>
         <div class="recipe-header-actions">
+          ${isAdmin && !isOwnRecipe && !r.isCertified ? `<button class="btn-approve btn-approve-admin" data-approve="${r.id}">⭐ Certifier</button>` : ''}
           ${canEdit ? `<button class="btn-secondary" id="btn-edit">${this.t('edit')}</button>
           <button class="btn-danger" id="btn-delete">${this.t('delete')}</button>` : ''}
         </div>
@@ -1267,9 +1290,18 @@ const App = {
       <div class="recipe-hero">
         <div class="recipe-main-image">${cover?`<img src="${cover}" alt="${this.escHtml(r.name)}">`:`<span style="font-size:7rem">${emoji}</span>`}</div>
         <div class="recipe-info">
-          <span class="recipe-category-badge">${r.category||this.t('noCat')}</span>
+          <div class="recipe-category-row">
+            <span class="recipe-category-badge">${r.category||this.t('noCat')}</span>
+            ${r.isCertified?`<span class="certified-badge certified-badge--lg">✓ Certifiée</span>`:''}
+          </div>
           <h1 class="recipe-title">${this.escHtml(r.name)}</h1>
           ${r.authorName?`<p class="recipe-author">Par ${this.escHtml(r.authorName)}</p>`:''}
+          ${!isOwnRecipe && this.user && !r.isCertified ? `<div class="approve-row">
+            <button class="btn-approve${alreadyApproved?' btn-approve--done':''}" data-approve="${r.id}" ${alreadyApproved?'disabled':''}>
+              ${alreadyApproved?'✓ Approuvé':'👍 Approuver cette recette'}
+            </button>
+            <span class="approve-counter">${approvalCount}/10 approbations</span>
+          </div>` : ''}
           ${r.description?`<p class="recipe-description">${this.escHtml(r.description)}</p>`:''}
           ${metaBoxes?`<div class="recipe-meta-grid">${metaBoxes}</div>`:''}
           <div class="social-actions">
@@ -1631,6 +1663,10 @@ const App = {
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
     document.getElementById('btn-upgrade-account')?.addEventListener('click', () => this.showUpgradeModal());
+    document.getElementById('btn-how-it-works')?.addEventListener('click', () => this.showHowItWorksModal());
+    document.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', e => {
+      this.handleApprove(e.currentTarget.dataset.approve).catch(err => this.toast('Erreur : ' + err.message));
+    }));
     document.getElementById('btn-go-planning')?.addEventListener('click', () => this.nav('planning'));
 
     // ===== PLANNING HANDLERS =====
@@ -2437,6 +2473,79 @@ const App = {
     m.querySelector('#btn-upgrade-pro')?.addEventListener('click',()=>{this.toast(this.t('comingSoon'));m.remove();});
     m.querySelector('#btn-upgrade-later')?.addEventListener('click',()=>m.remove());
     m.addEventListener('click',e=>{if(e.target===m)m.remove();});
+  },
+
+  showHowItWorksModal() {
+    const m = document.createElement('div'); m.className = 'upgrade-overlay';
+    m.innerHTML = `<div class="hiw-modal">
+      <button class="hiw-close" id="btn-hiw-close">✕</button>
+      <h2>Comment fonctionne Gustos ?</h2>
+      <div class="hiw-section">
+        <div class="hiw-icon">🎁</div>
+        <h3>14 jours d'essai gratuit</h3>
+        <p>À votre inscription, vous bénéficiez de 14 jours d'accès complet à toutes les fonctionnalités de Gustos — sans carte bancaire.</p>
+      </div>
+      <div class="hiw-section">
+        <h3>Après l'essai : deux options</h3>
+        <div class="hiw-plans">
+          <div class="hiw-plan">
+            <div class="hiw-plan-name">Abonnement</div>
+            <ul>
+              <li>Accès complet au planificateur repas</li>
+              <li>Création illimitée de recettes</li>
+              <li>Accès à toute la bibliothèque</li>
+            </ul>
+          </div>
+          <div class="hiw-plan hiw-plan--free">
+            <div class="hiw-plan-name">Mode gratuit</div>
+            <ul>
+              <li class="hiw-limit">✗ Pas de planificateur</li>
+              <li class="hiw-limit">✗ Création de recettes limitée</li>
+              <li class="hiw-limit">✗ Accès limité à la bibliothèque</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="hiw-section hiw-community">
+        <div class="hiw-icon">⭐</div>
+        <h3>Un mois premium offert par la communauté</h3>
+        <p>Créez <strong>10 recettes de qualité</strong> certifiées par la communauté, et recevez automatiquement <strong>1 mois de premium offert</strong>.</p>
+        <p class="hiw-cert-rule">Une recette est certifiée si elle reçoit <strong>10 approbations</strong> de membres ou <strong>1 validation</strong> d'un administrateur. Le badge <span class="certified-badge" style="display:inline-block;position:static;transform:none;font-size:0.75rem">✓ Certifiée</span> apparaît alors sur la recette.</p>
+      </div>
+    </div>`;
+    document.body.appendChild(m);
+    m.querySelector('#btn-hiw-close')?.addEventListener('click', () => m.remove());
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  },
+
+  async handleApprove(recipeId) {
+    if (!this.user) return;
+    const r = Store.byId(recipeId);
+    if (!r) return;
+    if ((r.approvedBy || []).includes(this.user.id)) return;
+    const isAdmin = this.user.role === 'admin';
+    const { error } = await db.from('recipe_approvals').insert({ recipe_id: recipeId, user_id: this.user.id, is_admin: isAdmin });
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    const approvedBy = [...(r.approvedBy || []), this.user.id];
+    const memberCount = r.approvalCount + (isAdmin ? 0 : 1);
+    const adminApproved = r.adminApproved || isAdmin;
+    const isCertified = adminApproved || memberCount >= 10;
+    const updated = Store.get().map(rec => rec.id === recipeId ? { ...rec, approvedBy, approvalCount: memberCount, adminApproved, isCertified } : rec);
+    Store.saveCache(updated);
+    if (isCertified && !r.isCertified) {
+      const certCount = updated.filter(rec => rec.authorId === r.authorId && rec.isCertified).length;
+      if (certCount >= 10 && r.authorId) {
+        const until = new Date(Date.now() + 30 * 86400000).toISOString();
+        await db.from('profiles').update({ plan: 'pro', trial_ends_at: until }).eq('id', r.authorId);
+        if (r.authorId === this.user?.id) { this.user.plan = 'pro'; this.user.trial_ends_at = until; }
+        this.toast('🎉 10 recettes certifiées → 1 mois premium offert à l\'auteur !');
+      } else {
+        this.toast(isAdmin ? '⭐ Recette certifiée !' : '✓ Approbation enregistrée — recette certifiée !');
+      }
+    } else {
+      this.toast(`✓ Approbation enregistrée (${memberCount}/10)`);
+    }
+    this.render();
   },
 
   showLightbox(src){
