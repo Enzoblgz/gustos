@@ -1528,9 +1528,9 @@ select { cursor: pointer; }
 }
 .pw-req.met { background: #d4edda; color: #27ae60; }
 
-/* Tooltip global épingle (hors overflow:hidden) */
+/* Tooltip global épingle (fixed = hors overflow:hidden, hors scroll) */
 .save-tip-global {
-  position: absolute;
+  position: fixed;
   background: rgba(44,24,16,0.88);
   color: #fff;
   padding: 5px 11px;

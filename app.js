@@ -467,8 +467,8 @@ const App = {
       _tip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
       _tip.classList.toggle('tip-saved', isSaved);
       const r = btn.getBoundingClientRect();
-      _tip.style.top = (r.top + window.scrollY + r.height / 2) + 'px';
-      _tip.style.left = (r.left + window.scrollX - 8) + 'px';
+      _tip.style.top = (r.top + r.height / 2) + 'px';
+      _tip.style.left = (r.left - 8) + 'px';
       _tip.style.opacity = '1';
     });
     document.addEventListener('mouseout', e => {
