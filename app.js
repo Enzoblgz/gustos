@@ -607,7 +607,7 @@ const App = {
       } else if (event === 'USER_UPDATED') {
         if (this.user && session?.user?.email) this.user.email = session.user.email;
       } else if (event === 'SIGNED_OUT') {
-        this.user = null; Store.clear();
+        this.user = null;
         this.likedIds = new Set(); this.savedIds = new Set(); this.likeCounts = {};
         this.searchQuery = ''; this.activeCategory = ALL_CAT;
         this.view = 'auth'; this.authError = ''; this.render();
