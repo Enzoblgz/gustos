@@ -459,21 +459,13 @@ const App = {
     document.addEventListener('click', e => {
       if (e.target.closest('#btn-save-profile')) this.saveProfile();
       if (e.target.closest('#btn-add-ing')) {
-        const input = document.getElementById('ing-add-input');
-        const name = (input?.value || '').trim();
-        this.formData.ingredients.push({ name, qty: '', unit: 'g' });
-        this.rebuildIngs();
-        if (input) { input.value = ''; input.focus(); }
+        this._addIngFromInput();
       }
     });
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter' && e.target.id === 'ing-add-input') {
         e.preventDefault();
-        const name = e.target.value.trim();
-        if (!name) return;
-        this.formData.ingredients.push({ name, qty: '', unit: 'g' });
-        this.rebuildIngs();
-        e.target.value = '';
+        this._addIngFromInput();
       }
     });
     db.auth.onAuthStateChange(async (event, session) => {
@@ -502,7 +494,8 @@ const App = {
       if (error) console.warn('[Auth]', error.message);
       this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
       if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
-      this.avatarImg = localStorage.getItem('gustos_avatar_' + authUser.id) || null;
+      // Load avatar: Supabase first, localStorage fallback
+      this.avatarImg = profile?.avatar_url || localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
       if (!localStorage.getItem('gustos_seeded_v2')) {
         await this.seedDefaultRecipes(true).catch(() => {});
@@ -1184,10 +1177,12 @@ const App = {
       </div>
       <div class="form-section"><h3>${this.t('ingsLbl')}</h3>
         <datalist id="ing-names-list">${allIngNames.map(n=>`<option value="${this.escHtml(n)}">`).join('')}</datalist>
-        ${fd.ingredients.length>0?`<p class="form-hint">${this.t('dragHint')}</p><div class="ing-header"><span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span></div>`:''}
+        <div class="ing-header${fd.ingredients.length===0?' ing-header-hidden':''}"><span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span></div>
         <div class="ingredients-builder" id="ing-builder">${fd.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('')}</div>
         <div class="ing-quick-add">
-          <input type="text" id="ing-add-input" placeholder="${this.t('addIng')}" list="ing-names-list" autocomplete="off">
+          <input type="text" id="ing-add-input" placeholder="${this.t('addIng')}" list="ing-names-list" autocomplete="off" class="ing-qa-name">
+          <input type="number" id="ing-add-qty" placeholder="${this.t('ingQtyPh')}" min="0" step="any" class="ing-qa-qty">
+          <select id="ing-add-unit" class="ing-qa-unit">${UNITS.map(u=>`<option>${u}</option>`).join('')}</select>
           <button type="button" class="btn-add-ing-quick" id="btn-add-ing">+</button>
         </div>
       </div>
@@ -1432,12 +1427,24 @@ const App = {
     document.getElementById('tags-box')?.addEventListener('click',e=>{const btn=e.target.closest('.tag-remove');if(btn){this.formData.tags.splice(+btn.dataset.tag,1);this.rebuildTags();}else document.getElementById('tag-input')?.focus();});
   },
 
+  _addIngFromInput() {
+    const nameInput = document.getElementById('ing-add-input');
+    const name = (nameInput?.value || '').trim();
+    if (!name) { nameInput?.focus(); return; }
+    const qty = parseFloat(document.getElementById('ing-add-qty')?.value) || '';
+    const unit = document.getElementById('ing-add-unit')?.value || 'g';
+    this.formData.ingredients.push({ name, qty, unit });
+    this.rebuildIngs();
+    if (nameInput) { nameInput.value = ''; nameInput.focus(); }
+    const qtyInput = document.getElementById('ing-add-qty');
+    if (qtyInput) qtyInput.value = '';
+  },
+
   rebuildIngs(){
     const b=document.getElementById('ing-builder');if(!b)return;
-    const hasRows=this.formData.ingredients.length>0;
     b.innerHTML=this.formData.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('');
-    const h=document.querySelector('.ing-header');if(h)h.style.display=hasRows?'':'none';
-    const hint=b.previousElementSibling?.classList?.contains('form-hint')?b.previousElementSibling:null;if(hint)hint.style.display=hasRows?'':'none';
+    const h=document.querySelector('.ing-header');
+    if(h)h.classList.toggle('ing-header-hidden', this.formData.ingredients.length===0);
     this.updateIngHelper();
   },
   rebuildSteps(){const b=document.getElementById('steps-builder');if(!b)return;b.innerHTML=this.formData.steps.map((s,i)=>this.renderStepRow(s,i)).join('');},
@@ -1466,21 +1473,29 @@ const App = {
     this.nav('list');this.toast(this.t('recipeDeleted'));
   },
 
-  saveProfile() {
+  async saveProfile() {
     const name = (document.getElementById('profile-name-input')?.value || '').trim();
     const email = (document.getElementById('profile-email-input')?.value || '').trim();
     if (!this.user) return;
-    const emailChanged = email && email !== this.user.email;
-    // Apply changes to local state immediately
-    if (name) this.user.name = name;
-    // Fire Supabase in background — never await
-    if (name) {
-      db.auth.updateUser({ data: { full_name: name } }).catch(() => {});
-      db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
+    const btn = document.querySelector('#btn-save-profile');
+    if (btn) btn.disabled = true;
+    try {
+      const emailChanged = email && email !== this.user.email;
+      if (name) {
+        await db.from('profiles').update({ name }).eq('id', this.user.id);
+        await db.auth.updateUser({ data: { full_name: name } });
+        this.user.name = name;
+      }
+      if (emailChanged) await db.auth.updateUser({ email });
+      const card = document.getElementById('profile-edit-card');
+      if (card) card.hidden = true;
+      this.renderContent();
+      this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved'));
+    } catch(e) {
+      this.toast('⚠️ Erreur : ' + e.message);
+    } finally {
+      if (btn) btn.disabled = false;
     }
-    if (emailChanged) db.auth.updateUser({ email }).catch(() => {});
-    this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved'));
-    setTimeout(() => location.reload(), 150);
   },
 
   confirmDeleteAccount() {
@@ -1556,6 +1571,7 @@ const App = {
         const b64 = canvas.toDataURL('image/jpeg', 0.85);
         this.avatarImg = b64;
         localStorage.setItem('gustos_avatar_' + this.user.id, b64);
+        if (this.user) db.from('profiles').update({ avatar_url: b64 }).eq('id', this.user.id).catch(() => {});
         const preview = document.getElementById('profile-avatar-preview');
         if (preview) preview.innerHTML = `<img src="${b64}" class="avatar-photo-large" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover">`;
         const hdr = document.getElementById('btn-go-account');
