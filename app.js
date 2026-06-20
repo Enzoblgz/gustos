@@ -2793,6 +2793,12 @@ const App = {
     el.classList.toggle('checked', item.checked);
     const btn = el.querySelector('[data-check-item]');
     if (btn) { btn.classList.toggle('ticked', item.checked); btn.textContent = item.checked ? '✓' : ''; }
+    const newChecked = this.shopping.filter(i => i.checked).length;
+    const total = this.shopping.length;
+    const prog = document.getElementById('shop-progress');
+    if (prog) { prog.textContent = `${newChecked}/${total}`; prog.hidden = total === 0; }
+    const clearBtn = document.getElementById('btn-clear-checked');
+    if (clearBtn) clearBtn.hidden = newChecked === 0;
   },
   removeShoppingItem(id) {
     this.shopping = this.shopping.filter(i => i.id !== id);
@@ -2859,8 +2865,8 @@ const App = {
         <div class="shopping-header">
           <h3>${this.t('shoppingTitle')}</h3>
           <div class="shopping-hdr-actions">
-            ${total > 0 ? `<span class="shop-progress">${checked}/${total}</span>` : ''}
-            ${checked > 0 ? `<button class="btn-ghost btn-sm" id="btn-clear-checked">${this.t('clearChecked')}</button>` : ''}
+            <span class="shop-progress" id="shop-progress"${total === 0 ? ' hidden' : ''}>${checked}/${total}</span>
+            <button class="btn-ghost btn-sm" id="btn-clear-checked"${checked === 0 ? ' hidden' : ''}>${this.t('clearChecked')}</button>
             ${total > 0 ? `<button class="btn-ghost btn-sm" id="btn-export-pdf" title="Imprimer / PDF">🖨 PDF</button>
             <button class="btn-ghost btn-sm" id="btn-export-img" title="Enregistrer en image">📷 Image</button>` : ''}
           </div>
