@@ -1342,6 +1342,43 @@ textarea.drop-target {
 
 /* ===== PREPARATIONS (multiple prep sections) ===== */
 .prep-section { margin-bottom: 4px; }
+.prep-section--multiple {
+  border: 1.5px solid rgba(199,82,42,0.22);
+  border-radius: var(--radius);
+  padding: 0 0 16px;
+  margin-bottom: 20px;
+  background: var(--white);
+  box-shadow: 0 2px 8px rgba(199,82,42,0.06);
+}
+.prep-section--multiple .form-section { padding: 0 16px; }
+.prep-section--multiple .prep-header {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border: none;
+  border-bottom: 1.5px solid rgba(199,82,42,0.15);
+  margin-bottom: 12px;
+}
+
+.ing-empty-hint {
+  color: var(--brown-light);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 10px 4px;
+  margin: 0;
+}
+
+.ing-ref-example {
+  font-size: 0.8rem;
+  color: var(--brown-light);
+  margin: 2px 0 8px;
+  font-style: italic;
+  line-height: 1.4;
+}
+.ing-ref-example em {
+  color: var(--terracotta);
+  font-style: normal;
+  font-weight: 600;
+}
+
 .prep-header {
   display: flex;
   align-items: center;
