@@ -1211,13 +1211,143 @@ select { cursor: pointer; }
   line-height: 1.6;
 }
 .ing-ref-helper code {
-  background: rgba(59,110,165,0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: rgba(59,110,165,0.12);
+  padding: 3px 8px;
+  border-radius: 5px;
   font-family: monospace;
-  font-size: 0.9em;
+  font-size: 0.88em;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+  border: 1px solid rgba(59,110,165,0.2);
 }
-.ing-ref-names { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ing-ref-helper code:hover { background: #3B6EA5; color: #fff; border-color: #3B6EA5; }
+.ing-ref-helper code[draggable="true"] { cursor: grab; }
+.ing-ref-helper code[draggable="true"]:active { cursor: grabbing; opacity: 0.7; }
+.ing-ref-click-hint { font-style: italic; opacity: 0.8; }
+.ing-ref-names { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* Drop target highlight for textareas */
+textarea.drop-target { border-color: #3B6EA5 !important; background: rgba(59,110,165,0.05) !important; }
+
+/* ===== STEP TOOLBAR (bold button) ===== */
+.step-toolbar { display: flex; gap: 6px; margin-bottom: 4px; }
+.btn-bold {
+  padding: 2px 10px;
+  border: 1px solid var(--cream-dark);
+  border-radius: 5px;
+  background: var(--cream);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brown-light);
+  transition: all 0.15s;
+  line-height: 1.6;
+}
+.btn-bold:hover { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+
+/* ===== INGREDIENT AUTOCOMPLETE ===== */
+.ing-qa-autocomplete { position: relative; flex: 1; }
+.ing-autocomplete-wrap { position: relative; }
+.ing-autocomplete-wrap .ing-add-input { width: 100%; }
+.ing-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(44,24,16,0.13);
+}
+.ing-suggestion-item {
+  padding: 9px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  transition: background 0.1s;
+}
+.ing-suggestion-item:hover { background: var(--terracotta-bg); }
+.ing-suggestion-cat {
+  padding: 5px 14px 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brown-light);
+  background: var(--cream);
+  border-top: 1px solid var(--cream-dark);
+  position: sticky;
+  top: 0;
+}
+.ing-suggestion-cat:first-child { border-top: none; }
+.ing-sugg-unit { font-size: 0.78rem; color: var(--brown-light); margin-left: 8px; flex-shrink: 0; }
+
+/* ===== PREPARATIONS (multiple prep sections) ===== */
+.prep-section { margin-bottom: 4px; }
+.prep-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--terracotta-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0;
+  border: 1px solid rgba(199,82,42,0.15);
+}
+.prep-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--terracotta);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.prep-title-input {
+  flex: 1;
+  border: 1px solid rgba(199,82,42,0.25);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background: var(--white);
+  color: var(--brown);
+  min-width: 0;
+}
+.prep-title-input:focus { outline: none; border-color: var(--terracotta); }
+.btn-del-prep { flex-shrink: 0; color: var(--terracotta); }
+
+.btn-add-prep {
+  display: block;
+  width: 100%;
+  margin: 8px 0 20px;
+  padding: 12px 20px;
+  border: 2px dashed var(--cream-dark);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--brown-light);
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add-prep:hover { border-color: var(--terracotta); color: var(--terracotta); background: var(--terracotta-bg); }
+
+/* ===== PREP SECTION TITLE in recipe view ===== */
+.prep-section-divider { margin: 28px 0 0; }
+.prep-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--terracotta);
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--terracotta-bg);
+  margin-bottom: 2px;
+}
 
 /* ===== COVER IMAGE FORM ===== */
 .cover-upload-empty {
