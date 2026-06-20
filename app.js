@@ -2525,7 +2525,13 @@ const App = {
     if ((r.approvedBy || []).includes(this.user.id)) return;
     const isAdmin = this.user.role === 'admin';
     const { error } = await db.from('recipe_approvals').insert({ recipe_id: recipeId, user_id: this.user.id, is_admin: isAdmin });
-    if (error) { this.toast('Erreur : ' + error.message); return; }
+    if (error) {
+      console.error('[Approve error]', error.code, error.message);
+      if (error.code === '42P01') this.toast('⚠️ Migration SQL manquante — lance migration_approvals.sql dans Supabase');
+      else if (error.code === '23505') this.toast('Tu as déjà approuvé cette recette.');
+      else this.toast('Erreur : ' + error.message);
+      return;
+    }
     const approvedBy = [...(r.approvedBy || []), this.user.id];
     const memberCount = r.approvalCount + (isAdmin ? 0 : 1);
     const adminApproved = r.adminApproved || isAdmin;
