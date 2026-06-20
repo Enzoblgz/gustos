@@ -1019,25 +1019,43 @@ select { cursor: pointer; }
 }
 .btn-add:hover { border-color: var(--terracotta); color: var(--terracotta); background: #FFF8F5; }
 
-/* Ingredient quick-add */
+/* Ingredient header hidden state */
+.ing-header-hidden { visibility: hidden; }
+
+/* Ingredient quick-add — aligned with ingredient-row columns (skip drag-handle col via padding) */
 .ing-quick-add {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr 90px 130px 36px;
+  gap: 10px;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 10px;
+  padding-left: 38px;
 }
-.ing-quick-add input {
-  flex: 1;
+.ing-qa-name, .ing-qa-qty {
   border: 1.5px solid var(--cream-dark);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 9px 12px;
   font-family: var(--font-sans);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   background: var(--white);
   color: var(--brown);
   transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
-.ing-quick-add input:focus { outline: none; border-color: var(--terracotta); }
+.ing-qa-name:focus, .ing-qa-qty:focus { outline: none; border-color: var(--terracotta); }
+.ing-qa-unit {
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  padding: 9px 4px;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  background: var(--white);
+  color: var(--brown);
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
 .btn-add-ing-quick {
   width: 38px;
   height: 38px;
