@@ -2239,54 +2239,37 @@ select { cursor: pointer; }
 /* Manual add row */
 .shopping-add-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  align-items: flex-end;
   padding-top: 16px;
   border-top: 1px solid var(--cream-dark);
-  align-items: center;
+  margin-top: 8px;
 }
-.manual-input-group {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
+.shop-add-field { display: flex; flex-direction: column; gap: 5px; }
+.shop-add-field:first-child { flex: 1; }
+.shop-add-field-qty { width: 88px; flex-shrink: 0; }
+.shop-add-field-unit { width: 120px; flex-shrink: 0; }
+.shop-add-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.shop-add-field input, .shop-add-field select {
   border: 1.5px solid var(--cream-dark);
-  border-radius: 50px;
-  background: var(--cream);
-  padding: 0 12px;
-  gap: 0;
-  transition: border-color 0.2s, background 0.2s;
-}
-.manual-input-group:focus-within {
-  border-color: var(--terracotta);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
   background: var(--white);
-}
-.manual-divider { width: 1px; height: 16px; background: var(--cream-dark); flex-shrink: 0; margin: 0 6px; }
-.manual-name-input {
-  flex: 1;
-  min-width: 0;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  -webkit-appearance: none; appearance: none;
-  padding: 9px 4px !important;
-  font-family: var(--font-sans);
-  font-size: 0.87rem;
   color: var(--brown);
-  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
-.manual-qty-input {
-  width: 44px;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  -webkit-appearance: none; appearance: none;
-  padding: 9px 4px !important;
-  text-align: center;
-  font-family: var(--font-sans);
-  font-size: 0.87rem;
-  color: var(--brown);
-  outline: none;
-}
+.shop-add-field input:focus, .shop-add-field select:focus { outline: none; border-color: var(--terracotta); }
+/* Legacy classes kept for JS refs that still use them */
 .manual-unit-select {
   border: none !important;
   background: transparent !important;
@@ -2571,6 +2554,6 @@ select { cursor: pointer; }
   .picker-grid { grid-template-columns: 1fr; }
   .picker-modal { max-height: 90vh; }
   .shopping-add-row { flex-wrap: wrap; }
-  .manual-input-group { min-width: 0; }
-  .manual-unit-select { max-width: 64px; }
+  .shop-add-field-qty { width: 70px; }
+  .shop-add-field-unit { width: 90px; }
 }
