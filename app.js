@@ -563,7 +563,7 @@ const App = {
   adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT,
   portionCount: 4, editingId: null,
   formData: { preparations: [{ id: '', title: '', ingredients: [], steps: [] }], coverImage: null, tags: [] },
-  _lastStepFocus: null, _dragIngSrc: null,
+  _lastStepFocus: null, _dragIngSrc: null, _chipDragName: null,
   likedIds: new Set(), savedIds: new Set(), likeCounts: {}, accountTab: 'mine',
   lang: localStorage.getItem('recettes_lang') || 'fr',
   planWeek: '', plan: {}, planPortions: {}, shopping: [], pickerOpen: null, pickerQuery: '', pickerTab: 'all',
@@ -1323,6 +1323,8 @@ const App = {
     const normalized = text.replace(/[｛❴{]/g, '{').replace(/[｝❵}]/g, '}');
     let escaped = this.escHtml(normalized);
     escaped = escaped.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    escaped = escaped.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    escaped = escaped.replace(/__([^_\n]+)__/g, '<u>$1</u>');
     return escaped.replace(/\{([^}]+)\}/g, (_, raw) => {
       const name = raw.trim();
       const ing = (ingredients || []).find(i => i.name.trim().toLowerCase() === name.toLowerCase());
@@ -1441,10 +1443,13 @@ const App = {
       <div class="form-section">
         <h3>${this.t('stepsLbl')}</h3>
         <div class="ing-ref-helper" id="ing-ref-helper-${pi}"${ingNames.length ? '' : ' style="display:none"'}>
-          ${this.t('dynHelper')}<span class="ing-ref-click-hint"> — cliquer ou glisser dans une étape</span><br>
-          <span class="ing-ref-names" id="ing-ref-names-${pi}">
-            ${ingNames.map(n => `<code draggable="true" data-ing-chip="${this.escHtml(n)}">{${this.escHtml(n)}}</code>`).join(' ')}
-          </span>
+          <div class="ing-ref-header">
+            <span class="ing-ref-title">Quantités dynamiques</span>
+            <span class="ing-ref-hint">👆 Cliquez ou ✋ glissez dans l'étape</span>
+          </div>
+          <div class="ing-ref-names" id="ing-ref-names-${pi}">
+            ${ingNames.map(n => `<span class="ing-chip" draggable="true" data-ing-chip="${this.escHtml(n)}" title="Cliquer ou glisser dans une étape"><span class="ing-chip-icon">⠿</span>${this.escHtml(n)}</span>`).join('')}
+          </div>
         </div>
         <div class="steps-builder" id="steps-builder-${pi}">
           ${(prep.steps || []).map((s, i) => this.renderStepRow(s, i, pi)).join('')}
@@ -1475,7 +1480,10 @@ const App = {
       <div class="step-num-badge">${i + 1}</div>
       <div class="step-field">
         <div class="step-toolbar">
-          <button type="button" class="btn-bold" data-bold="${i}" data-pi="${pi}" title="Mettre en gras (sélectionner du texte d'abord)"><b>G</b></button>
+          <span class="toolbar-label">Mise en forme — sélectionner du texte puis :</span>
+          <button type="button" class="btn-format" data-format="bold" data-step="${i}" data-pi="${pi}" title="Gras"><strong>G</strong></button>
+          <button type="button" class="btn-format" data-format="italic" data-step="${i}" data-pi="${pi}" title="Italique"><em>I</em></button>
+          <button type="button" class="btn-format" data-format="underline" data-step="${i}" data-pi="${pi}" title="Souligné"><u>S</u></button>
         </div>
         <textarea placeholder="${this.t('stepPh')}" data-si="${i}" data-pi="${pi}">${this.escHtml(step.text)}</textarea>
         <div class="step-img-zone" id="step-img-zone-${pi}-${i}">${this.renderStepImgZone(step, i, pi)}</div>
@@ -1703,7 +1711,7 @@ const App = {
     });
 
     prepsWrap.addEventListener('mousedown', e => {
-      if (e.target.closest('[data-bold]') || e.target.closest('[data-ing-chip]')) e.preventDefault();
+      if (e.target.closest('[data-format]') || e.target.closest('[data-ing-chip],.ing-chip')) e.preventDefault();
     });
 
     prepsWrap.addEventListener('click', e => {
@@ -1733,23 +1741,25 @@ const App = {
         const pi = +rmImg.dataset.pi, i = +rmImg.dataset.rmStepImg;
         this.formData.preparations[pi].steps[i].image = null; this.rebuildStepImgZone(pi, i); return;
       }
-      const boldBtn = e.target.closest('[data-bold]');
-      if (boldBtn) {
-        const pi = +boldBtn.dataset.pi, i = +boldBtn.dataset.bold;
+      const fmtBtn = e.target.closest('[data-format]');
+      if (fmtBtn) {
+        const fmt = fmtBtn.dataset.format, pi = +fmtBtn.dataset.pi, i = +fmtBtn.dataset.step;
         const ta = prepsWrap.querySelector(`[data-si="${i}"][data-pi="${pi}"]`);
         if (!ta) return;
         const start = ta.selectionStart, end = ta.selectionEnd;
-        if (start === end) return;
+        if (start === end) { ta.focus(); return; }
         const sel = ta.value.slice(start, end);
-        if (sel.startsWith('**') && sel.endsWith('**') && sel.length > 4) {
-          const inner = sel.slice(2, -2);
+        const markers = { bold: ['**','**'], italic: ['*','*'], underline: ['__','__'] };
+        const [open, close] = markers[fmt] || ['**','**'];
+        if (sel.startsWith(open) && sel.endsWith(close) && sel.length > open.length + close.length) {
+          const inner = sel.slice(open.length, -close.length);
           ta.value = ta.value.slice(0, start) + inner + ta.value.slice(end);
           ta.selectionStart = start; ta.selectionEnd = start + inner.length;
         } else {
-          ta.value = ta.value.slice(0, start) + '**' + sel + '**' + ta.value.slice(end);
-          ta.selectionStart = start; ta.selectionEnd = end + 4;
+          ta.value = ta.value.slice(0, start) + open + sel + close + ta.value.slice(end);
+          ta.selectionStart = start; ta.selectionEnd = end + open.length + close.length;
         }
-        ta.dispatchEvent(new Event('input')); return;
+        ta.dispatchEvent(new Event('input')); ta.focus(); return;
       }
       const chip = e.target.closest('[data-ing-chip]');
       if (chip) { this._insertIngChip(chip.dataset.ingChip); return; }
@@ -1818,11 +1828,13 @@ const App = {
     prepsWrap.addEventListener('dragstart', e => {
       const chip = e.target.closest('[data-ing-chip]');
       if (chip) {
-        e.dataTransfer.setData('text/ing-chip', `{${chip.dataset.ingChip}}`);
+        this._chipDragName = chip.dataset.ingChip;
+        e.dataTransfer.setData('text/plain', `{${chip.dataset.ingChip}}`);
         e.dataTransfer.effectAllowed = 'copy'; return;
       }
       const row = e.target.closest('.ingredient-row');
       if (row) {
+        this._chipDragName = null;
         this._dragIngSrc = { i: +row.dataset.ing, pi: +row.dataset.prep };
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(row.dataset.ing));
@@ -1830,14 +1842,14 @@ const App = {
       }
     });
     prepsWrap.addEventListener('dragend', () => {
-      prepsWrap.querySelectorAll('.dragging,.drag-over').forEach(el => el.classList.remove('dragging', 'drag-over'));
-      this._dragIngSrc = null;
+      prepsWrap.querySelectorAll('.dragging,.drag-over,.drop-target').forEach(el => el.classList.remove('dragging', 'drag-over', 'drop-target'));
+      this._dragIngSrc = null; this._chipDragName = null;
     });
     prepsWrap.addEventListener('dragover', e => {
       const ta = e.target.closest('[data-si][data-pi]');
-      if (ta && e.dataTransfer.types.includes('text/ing-chip')) {
+      if (ta && this._chipDragName) {
         e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
-        prepsWrap.querySelectorAll('textarea.drop-target').forEach(el => el.classList.remove('drop-target'));
+        prepsWrap.querySelectorAll('textarea.drop-target').forEach(el => { if (el !== ta) el.classList.remove('drop-target'); });
         ta.classList.add('drop-target'); return;
       }
       const row = e.target.closest('.ingredient-row');
@@ -1849,18 +1861,19 @@ const App = {
     });
     prepsWrap.addEventListener('dragleave', e => {
       const ta = e.target.closest('[data-si][data-pi]');
-      if (ta) ta.classList.remove('drop-target');
+      if (ta && !ta.contains(e.relatedTarget)) ta.classList.remove('drop-target');
       if (!prepsWrap.contains(e.relatedTarget)) prepsWrap.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     });
     prepsWrap.addEventListener('drop', e => {
       const ta = e.target.closest('[data-si][data-pi]');
-      const chipText = e.dataTransfer.getData('text/ing-chip');
-      if (ta && chipText) {
+      if (ta && this._chipDragName) {
         e.preventDefault(); ta.classList.remove('drop-target');
-        const pos = ta.selectionStart, val = ta.value;
-        ta.value = val.slice(0, pos) + chipText + val.slice(ta.selectionEnd);
-        ta.selectionStart = ta.selectionEnd = pos + chipText.length;
-        ta.dispatchEvent(new Event('input')); ta.focus(); return;
+        const ref = `{${this._chipDragName}}`;
+        const pos = ta.value.length; // append at end for reliability
+        ta.value = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
+        ta.selectionStart = ta.selectionEnd = pos + ref.length;
+        ta.dispatchEvent(new Event('input')); ta.focus();
+        this._chipDragName = null; return;
       }
       const row = e.target.closest('.ingredient-row');
       if (row && this._dragIngSrc) {
@@ -1980,7 +1993,7 @@ const App = {
     const names = this.formData.preparations[pi].ingredients.filter(i => i.name.trim()).map(i => i.name.trim());
     h.style.display = names.length ? '' : 'none';
     const span = document.getElementById(`ing-ref-names-${pi}`);
-    if (span) span.innerHTML = names.map(n => `<code draggable="true" data-ing-chip="${this.escHtml(n)}">{${this.escHtml(n)}}</code>`).join(' ');
+    if (span) span.innerHTML = names.map(n => `<span class="ing-chip" draggable="true" data-ing-chip="${this.escHtml(n)}" title="Cliquer ou glisser dans une étape"><span class="ing-chip-icon">⠿</span>${this.escHtml(n)}</span>`).join('');
   },
 
   async saveRecipe() {
