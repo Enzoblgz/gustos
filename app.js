@@ -442,6 +442,7 @@ const App = {
   likedIds: new Set(), savedIds: new Set(), likeCounts: {}, accountTab: 'mine',
   lang: localStorage.getItem('recettes_lang') || 'fr',
   planWeek: '', plan: {}, planPortions: {}, shopping: [], pickerOpen: null, pickerQuery: '', pickerTab: 'all',
+  navStack: [],
 
   t(key, ...args) {
     const d = TR[this.lang] || TR.fr;
@@ -457,6 +458,7 @@ const App = {
     try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
     document.addEventListener('click', e => {
       if (e.target.id === 'btn-save-profile') this.saveProfile();
+      if (e.target.id === 'btn-add-ing') { this.formData.ingredients.push({name:'',qty:'',unit:'g'}); this.rebuildIngs(); }
     });
     db.auth.onAuthStateChange(async (event, session) => {
       if (event === 'INITIAL_SESSION') {
@@ -579,7 +581,25 @@ const App = {
     return Math.max(0, Math.ceil((new Date(this.user.trial_ends_at) - new Date()) / 86400000));
   },
 
+  goBack() {
+    const prev = this.navStack.pop();
+    if (!prev) { this.view = 'list'; this.render(); return; }
+    this.view = prev.view;
+    if (prev.view === 'recipe') { this.currentId = prev.id; this.portionCount = prev.portions || 4; }
+    if (prev.view === 'edit') {
+      this.editingId = prev.editingId;
+      const r = Store.byId(prev.editingId);
+      if (r) this.formData = { ingredients: r.ingredients.map(i=>({...i})), steps: r.steps.map(s=>this.normalizeStep(s)), coverImage: this.getCover(r), tags: [...(r.tags||[])] };
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.render();
+  },
+
   nav(view, id = null, opts = {}) {
+    if (this.view !== 'loading' && this.view !== 'auth') {
+      this.navStack.push({ view: this.view, id: this.currentId, portions: this.portionCount, editingId: this.editingId });
+      if (this.navStack.length > 25) this.navStack.shift();
+    }
     this.view = view;
     if (view === 'recipe') { this.currentId = id; const r = Store.byId(id); this.portionCount = opts.portions ?? (r ? r.basePeople : 4); }
     if (view === 'create') { this.editingId = null; this.formData = { ingredients: [{ name:'',qty:'',unit:'g' }], steps: [{ text:'',image:null }], coverImage: null, tags: [] }; }
@@ -1252,7 +1272,7 @@ const App = {
       e.stopPropagation();
       this.toggleSave(btn.dataset.saveCard).catch(err => this.toast('Erreur : '+err.message));
     }));
-    document.getElementById('btn-back')?.addEventListener('click', () => this.nav('list'));
+    document.getElementById('btn-back')?.addEventListener('click', () => this.goBack());
     document.getElementById('btn-edit')?.addEventListener('click', () => this.nav('edit', this.currentId));
     document.getElementById('btn-delete')?.addEventListener('click', () => {
       if(confirm(this.t('deleteConfirm'))) this.deleteRecipeById(this.currentId).catch(e=>this.toast('Erreur : '+e.message));
@@ -1268,7 +1288,7 @@ const App = {
     document.querySelector('[data-save]')?.addEventListener('click', e => {
       this.toggleSave(e.currentTarget.dataset.save).catch(err=>this.toast('Erreur : '+err.message));
     });
-    document.getElementById('btn-cancel')?.addEventListener('click', () => this.nav('list'));
+    document.getElementById('btn-cancel')?.addEventListener('click', () => this.goBack());
     document.getElementById('btn-del-form')?.addEventListener('click', () => {
       if(confirm(this.t('deleteConfirm'))) this.deleteRecipeById(this.editingId).catch(e=>this.toast('Erreur : '+e.message));
     });
@@ -1284,7 +1304,7 @@ const App = {
     document.querySelectorAll('[data-goto-week]').forEach(btn => btn.addEventListener('click', () => {
       this.planWeek = btn.dataset.gotoWeek; this.generateShoppingList(); this.renderContent();
     }));
-    document.getElementById('btn-back-planner')?.addEventListener('click', () => this.nav('account'));
+    document.getElementById('btn-back-planner')?.addEventListener('click', () => this.goBack());
     document.querySelectorAll('[data-add-date]').forEach(btn => btn.addEventListener('click', () => {
       this.pickerOpen = { date: btn.dataset.addDate, meal: btn.dataset.addMeal };
       this.pickerQuery = ''; this.pickerTab = 'all'; this.renderContent();
@@ -1347,7 +1367,6 @@ const App = {
     this.bindCoverEvents();
     const ingBuilder=document.getElementById('ing-builder');
     if(ingBuilder)this.bindIngEvents(ingBuilder);
-    document.getElementById('btn-add-ing')?.addEventListener('click',()=>{this.formData.ingredients.push({name:'',qty:'',unit:'g'});this.rebuildIngs();});
     const stepsBuilder=document.getElementById('steps-builder');
     if(stepsBuilder)this.bindStepEvents(stepsBuilder);
     document.getElementById('btn-add-step')?.addEventListener('click',()=>{this.formData.steps.push({text:'',image:null});this.rebuildSteps();});
@@ -1408,11 +1427,14 @@ const App = {
     if(this.user){const{error}=await db.from('recipes').upsert({id:recipe.id,user_id:this.user.id,data:recipe,updated_at:recipe.updatedAt});if(error)this.toast(this.t('syncErr')+error.message);}
     this.toast(this.editingId?this.t('recipeUpdated'):this.t('recipeCreated'));
     this.nav('recipe',recipe.id);
+    // Remove the create/edit entry nav() just pushed so back goes to list, not the form
+    this.navStack = this.navStack.filter(e => e.view !== 'create' && e.view !== 'edit');
   },
 
   async deleteRecipeById(id){
     Store.delete(id);
     if(this.user){const{error}=await db.from('recipes').delete().eq('id',id);if(error)this.toast('⚠️ Erreur : '+error.message);}
+    this.navStack = [];
     this.nav('list');this.toast(this.t('recipeDeleted'));
   },
 
@@ -1429,10 +1451,8 @@ const App = {
       db.from('profiles').update({ name }).eq('id', this.user.id).catch(() => {});
     }
     if (emailChanged) db.auth.updateUser({ email }).catch(() => {});
-    // Full re-render of account page with updated state
-    this.view = 'account';
-    this.render();
-    setTimeout(() => this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved')), 80);
+    this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved'));
+    setTimeout(() => location.reload(), 150);
   },
 
   confirmDeleteAccount() {
