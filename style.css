@@ -2144,6 +2144,17 @@ select { cursor: pointer; }
   padding: 1px 7px;
   border-radius: 50px;
 }
+.shop-new-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--terracotta);
+  background: rgba(199,82,42,0.1);
+  border-radius: 20px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
 .shop-source {
   font-size: 0.72rem;
   color: var(--brown-light);
