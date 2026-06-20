@@ -1076,7 +1076,7 @@ const App = {
         </div>
       </div>
       <div class="account-stats">
-        <div class="astat"><span class="astat-val">${all.length}</span><span class="astat-lbl">${this.t('statCreated')}</span></div>
+        <div class="astat"><span class="astat-val">${mine.length}</span><span class="astat-lbl">${this.t('statCreated')}</span></div>
         <div class="astat"><span class="astat-val">${liked.length}</span><span class="astat-lbl">${this.t('statLiked')}</span></div>
         <div class="astat"><span class="astat-val">${saved.length}</span><span class="astat-lbl">${this.t('statSaved')}</span></div>
         <div class="astat"><span class="astat-val">${totalLikes}</span><span class="astat-lbl">${this.t('statLikesRx')}</span></div>

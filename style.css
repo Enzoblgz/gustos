@@ -1030,8 +1030,6 @@ select { cursor: pointer; }
   gap: 10px;
   align-items: flex-end;
   margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--cream-dark);
 }
 .ing-qa-field { display: flex; flex-direction: column; gap: 5px; }
 .ing-qa-field:first-child { flex: 1; }
