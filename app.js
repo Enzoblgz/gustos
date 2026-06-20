@@ -1348,7 +1348,14 @@ const App = {
     document.querySelectorAll('.category-pill').forEach(el => el.addEventListener('click', () => { this.activeCategory=el.dataset.cat; this.renderContent(); }));
     document.querySelectorAll('[data-save-card]').forEach(btn => btn.addEventListener('click', e => {
       e.stopPropagation();
-      this.toggleSave(btn.dataset.saveCard).catch(err => this.toast('Erreur : '+err.message));
+      this.toggleSave(btn.dataset.saveCard).then(() => {
+        const tip = document.getElementById('_save-tip');
+        if (tip && tip.style.opacity === '1') {
+          const isSaved = this.savedIds.has(btn.dataset.saveCard);
+          tip.textContent = isSaved ? '✓ Enregistrée — visible dans votre profil' : 'Enregistrer la recette';
+          tip.classList.toggle('tip-saved', isSaved);
+        }
+      }).catch(err => this.toast('Erreur : '+err.message));
     }));
     document.getElementById('btn-back')?.addEventListener('click', () => this.goBack());
     document.getElementById('btn-edit')?.addEventListener('click', () => this.nav('edit', this.currentId));
