@@ -2797,8 +2797,6 @@ const App = {
     const total = this.shopping.length;
     const prog = document.getElementById('shop-progress');
     if (prog) { prog.textContent = `${newChecked}/${total}`; prog.hidden = total === 0; }
-    const clearBtn = document.getElementById('btn-clear-checked');
-    if (clearBtn) clearBtn.hidden = newChecked === 0;
   },
   removeShoppingItem(id) {
     this.shopping = this.shopping.filter(i => i.id !== id);
@@ -2866,7 +2864,6 @@ const App = {
           <h3>${this.t('shoppingTitle')}</h3>
           <div class="shopping-hdr-actions">
             <span class="shop-progress" id="shop-progress"${total === 0 ? ' hidden' : ''}>${checked}/${total}</span>
-            <button class="btn-ghost btn-sm" id="btn-clear-checked"${checked === 0 ? ' hidden' : ''}>${this.t('clearChecked')}</button>
             ${total > 0 ? `<button class="btn-ghost btn-sm" id="btn-export-pdf" title="Imprimer / PDF">🖨 PDF</button>
             <button class="btn-ghost btn-sm" id="btn-export-img" title="Enregistrer en image">📷 Image</button>` : ''}
           </div>
