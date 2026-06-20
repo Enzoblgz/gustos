@@ -1321,16 +1321,30 @@ const App = {
   parseStepText(text, ingredients, ratio) {
     if (!text) return '';
     const normalized = text.replace(/[｛❴{]/g, '{').replace(/[｝❵}]/g, '}');
-    let escaped = this.escHtml(normalized);
-    escaped = escaped.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-    escaped = escaped.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
-    escaped = escaped.replace(/__([^_\n]+)__/g, '<u>$1</u>');
-    return escaped.replace(/\{([^}]+)\}/g, (_, raw) => {
+    const processRefs = html => html.replace(/\{([^}]+)\}/g, (_, raw) => {
       const name = raw.trim();
       const ing = (ingredients || []).find(i => i.name.trim().toLowerCase() === name.toLowerCase());
       if (!ing) return `<span class="ing-ref-miss">{${this.escHtml(name)}}</span>`;
       return `<span class="ing-ref">${this.fmtQty(ing.qty * ratio)} ${this.escHtml(ing.unit)} de <strong>${this.escHtml(ing.name)}</strong></span>`;
     });
+    // HTML format (WYSIWYG): contains tags → use directly
+    if (/<[a-z][\s\S]*>/i.test(normalized)) return processRefs(normalized);
+    // Legacy markdown
+    let escaped = this.escHtml(normalized);
+    escaped = escaped.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    escaped = escaped.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    escaped = escaped.replace(/__([^_\n]+)__/g, '<u>$1</u>');
+    return processRefs(escaped);
+  },
+
+  _stepTextToHtml(text) {
+    if (!text) return '';
+    if (/<[a-z][\s\S]*>/i.test(text)) return text;
+    let html = this.escHtml(text);
+    html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    html = html.replace(/__([^_\n]+)__/g, '<u>$1</u>');
+    return html;
   },
 
   fmtQty(n) {
@@ -1433,7 +1447,7 @@ const App = {
           </div>
           <div class="ing-qa-field ing-qa-field-qty">
             <label class="ing-qa-label">Qté</label>
-            <input type="number" class="ing-add-qty" id="ing-add-qty-${pi}" placeholder="100" min="0" step="any">
+            <input type="number" class="ing-add-qty" id="ing-add-qty-${pi}" min="0" step="any">
           </div>
           <div class="ing-qa-field ing-qa-field-unit">
             <label class="ing-qa-label">Unité</label>
@@ -1471,7 +1485,7 @@ const App = {
     return `<div class="ingredient-row" data-ing="${i}" data-prep="${pi}" draggable="true">
       <div class="drag-handle">⠿</div>
       <input type="text" placeholder="${this.t('ingNamePh')}" value="${this.escHtml(ing.name)}" data-f="name" data-i="${i}" data-pi="${pi}">
-      <input type="number" placeholder="${this.t('ingQtyPh')}" value="${ing.qty}" data-f="qty" data-i="${i}" data-pi="${pi}" min="0" step="any">
+      <input type="number" value="${ing.qty}" data-f="qty" data-i="${i}" data-pi="${pi}" min="0" step="any">
       <select data-f="unit" data-i="${i}" data-pi="${pi}">${UNITS.map(u => `<option${ing.unit === u ? ' selected' : ''}>${u}</option>`).join('')}</select>
       <button class="btn-icon btn-remove" data-del-ing="${i}" data-pi="${pi}">✕</button>
     </div>`;
@@ -1479,16 +1493,16 @@ const App = {
 
   renderStepRow(s, i, pi) {
     const step = this.normalizeStep(s);
+    const ph = this.t('stepPh');
     return `<div class="step-row" data-step="${i}" data-prep="${pi}">
       <div class="step-num-badge">${i + 1}</div>
       <div class="step-field">
         <div class="step-toolbar">
-          <span class="toolbar-label">Mise en forme — sélectionner du texte puis :</span>
           <button type="button" class="btn-format" data-format="bold" data-step="${i}" data-pi="${pi}" title="Gras"><strong>G</strong></button>
           <button type="button" class="btn-format" data-format="italic" data-step="${i}" data-pi="${pi}" title="Italique"><em>I</em></button>
           <button type="button" class="btn-format" data-format="underline" data-step="${i}" data-pi="${pi}" title="Souligné"><u>S</u></button>
         </div>
-        <textarea placeholder="${this.t('stepPh')}" data-si="${i}" data-pi="${pi}">${this.escHtml(step.text)}</textarea>
+        <div class="step-textarea" contenteditable="true" data-si="${i}" data-pi="${pi}" data-placeholder="${this.escHtml(ph)}">${this._stepTextToHtml(step.text)}</div>
         <div class="step-img-zone" id="step-img-zone-${pi}-${i}">${this.renderStepImgZone(step, i, pi)}</div>
       </div>
       <button class="btn-icon btn-remove" data-del-step="${i}" data-pi="${pi}">✕</button>
@@ -1747,22 +1761,10 @@ const App = {
       const fmtBtn = e.target.closest('[data-format]');
       if (fmtBtn) {
         const fmt = fmtBtn.dataset.format, pi = +fmtBtn.dataset.pi, i = +fmtBtn.dataset.step;
-        const ta = prepsWrap.querySelector(`[data-si="${i}"][data-pi="${pi}"]`);
-        if (!ta) return;
-        const start = ta.selectionStart, end = ta.selectionEnd;
-        if (start === end) { ta.focus(); return; }
-        const sel = ta.value.slice(start, end);
-        const markers = { bold: ['**','**'], italic: ['*','*'], underline: ['__','__'] };
-        const [open, close] = markers[fmt] || ['**','**'];
-        if (sel.startsWith(open) && sel.endsWith(close) && sel.length > open.length + close.length) {
-          const inner = sel.slice(open.length, -close.length);
-          ta.value = ta.value.slice(0, start) + inner + ta.value.slice(end);
-          ta.selectionStart = start; ta.selectionEnd = start + inner.length;
-        } else {
-          ta.value = ta.value.slice(0, start) + open + sel + close + ta.value.slice(end);
-          ta.selectionStart = start; ta.selectionEnd = end + open.length + close.length;
-        }
-        ta.dispatchEvent(new Event('input')); ta.focus(); return;
+        document.execCommand(fmt);
+        const ce = prepsWrap.querySelector(`.step-textarea[data-si="${i}"][data-pi="${pi}"]`);
+        if (ce) this.formData.preparations[pi].steps[i].text = ce.innerHTML;
+        return;
       }
       const chip = e.target.closest('[data-ing-chip]');
       if (chip) { this._insertIngChip(chip.dataset.ingChip); return; }
@@ -1779,8 +1781,8 @@ const App = {
     });
 
     prepsWrap.addEventListener('input', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta) { this.formData.preparations[+ta.dataset.pi].steps[+ta.dataset.si].text = ta.value; return; }
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce) { this.formData.preparations[+ce.dataset.pi].steps[+ce.dataset.si].text = ce.innerHTML; return; }
       const ingInput = e.target.closest('[data-f][data-i][data-pi]');
       if (ingInput) {
         const pi = +ingInput.dataset.pi, i = +ingInput.dataset.i, f = ingInput.dataset.f;
@@ -1816,16 +1818,16 @@ const App = {
     });
 
     prepsWrap.addEventListener('focus', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta) this._lastStepFocus = { el: ta, pos: ta.selectionStart };
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce) this._lastStepFocus = { el: ce };
     }, true);
     prepsWrap.addEventListener('keyup', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta) this._lastStepFocus = { el: ta, pos: ta.selectionStart };
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce) this._lastStepFocus = { el: ce };
     });
     prepsWrap.addEventListener('mouseup', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta) this._lastStepFocus = { el: ta, pos: ta.selectionStart };
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce) this._lastStepFocus = { el: ce };
     });
 
     prepsWrap.addEventListener('dragstart', e => {
@@ -1849,11 +1851,11 @@ const App = {
       this._dragIngSrc = null; this._chipDragName = null;
     });
     prepsWrap.addEventListener('dragover', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta && this._chipDragName) {
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce && this._chipDragName) {
         e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
-        prepsWrap.querySelectorAll('textarea.drop-target').forEach(el => { if (el !== ta) el.classList.remove('drop-target'); });
-        ta.classList.add('drop-target'); return;
+        prepsWrap.querySelectorAll('.step-textarea.drop-target').forEach(el => { if (el !== ce) el.classList.remove('drop-target'); });
+        ce.classList.add('drop-target'); return;
       }
       const row = e.target.closest('.ingredient-row');
       if (row && this._dragIngSrc) {
@@ -1863,19 +1865,21 @@ const App = {
       }
     });
     prepsWrap.addEventListener('dragleave', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta && !ta.contains(e.relatedTarget)) ta.classList.remove('drop-target');
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce && !ce.contains(e.relatedTarget)) ce.classList.remove('drop-target');
       if (!prepsWrap.contains(e.relatedTarget)) prepsWrap.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     });
     prepsWrap.addEventListener('drop', e => {
-      const ta = e.target.closest('[data-si][data-pi]');
-      if (ta && this._chipDragName) {
-        e.preventDefault(); ta.classList.remove('drop-target');
+      const ce = e.target.closest('.step-textarea[data-si]');
+      if (ce && this._chipDragName) {
+        e.preventDefault(); ce.classList.remove('drop-target');
         const ref = `{${this._chipDragName}}`;
-        const pos = ta.value.length; // append at end for reliability
-        ta.value = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
-        ta.selectionStart = ta.selectionEnd = pos + ref.length;
-        ta.dispatchEvent(new Event('input')); ta.focus();
+        ce.focus();
+        const range = document.createRange();
+        range.selectNodeContents(ce); range.collapse(false);
+        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        document.execCommand('insertText', false, ref);
+        this.formData.preparations[+ce.dataset.pi].steps[+ce.dataset.si].text = ce.innerHTML;
         this._chipDragName = null; return;
       }
       const row = e.target.closest('.ingredient-row');
@@ -1897,11 +1901,9 @@ const App = {
     const f = this._lastStepFocus;
     if (!f || !f.el || !f.el.isConnected) return;
     const ref = `{${name}}`;
-    const ta = f.el, pos = f.pos !== undefined ? f.pos : ta.value.length;
-    ta.value = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
-    ta.selectionStart = ta.selectionEnd = pos + ref.length;
-    this._lastStepFocus.pos = pos + ref.length;
-    ta.focus(); ta.dispatchEvent(new Event('input'));
+    f.el.focus();
+    document.execCommand('insertText', false, ref);
+    this.formData.preparations[+f.el.dataset.pi].steps[+f.el.dataset.si].text = f.el.innerHTML;
   },
 
   _showIngSuggestions(pi, query) {

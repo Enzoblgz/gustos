@@ -1101,6 +1101,29 @@ select { cursor: pointer; }
 
 .step-field { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .step-field textarea { min-height: 72px; }
+
+.step-textarea {
+  min-height: 80px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  color: var(--brown);
+  background: var(--white);
+  outline: none;
+  cursor: text;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.step-textarea:focus { border-color: var(--terracotta); box-shadow: 0 0 0 3px rgba(199,82,42,0.08); }
+.step-textarea:empty::before {
+  content: attr(data-placeholder);
+  color: var(--brown-light);
+  pointer-events: none;
+}
+.step-textarea.drop-target { border-color: var(--terracotta); background: var(--terracotta-bg); }
 .step-row .btn-icon { margin-top: 34px; }
 .step-img-zone { display: flex; align-items: flex-start; }
 
@@ -1268,18 +1291,8 @@ textarea.drop-target {
 .step-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  padding: 6px 10px;
-  background: var(--cream);
-  border: 1px solid var(--cream-dark);
-  border-radius: 7px;
-}
-.toolbar-label {
-  font-size: 0.72rem;
-  color: var(--brown-light);
-  flex: 1;
-  white-space: nowrap;
+  gap: 4px;
+  margin-bottom: 4px;
 }
 .btn-format {
   padding: 3px 10px;
@@ -1345,17 +1358,27 @@ textarea.drop-target {
 .prep-section--multiple {
   border: 1.5px solid rgba(199,82,42,0.22);
   border-radius: var(--radius);
-  padding: 0 0 16px;
   margin-bottom: 20px;
   background: var(--white);
   box-shadow: 0 2px 8px rgba(199,82,42,0.06);
+  overflow: hidden;
 }
-.prep-section--multiple .form-section { padding: 0 16px; }
+.prep-section--multiple .form-section {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  margin-bottom: 0;
+  padding: 16px 20px;
+}
+.prep-section--multiple .form-section + .form-section {
+  border-top: 1px solid var(--cream-dark);
+}
 .prep-section--multiple .prep-header {
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: 0;
   border: none;
   border-bottom: 1.5px solid rgba(199,82,42,0.15);
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .ing-empty-hint {
