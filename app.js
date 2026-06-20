@@ -534,7 +534,7 @@ const App = {
       }
     }
     // Fetch all recipes + author name from profiles (JOIN via FK)
-    const { data, error } = await db.from('recipes').select('data, user_id, profiles(name, email, username)').order('created_at', { ascending: true });
+    const { data, error } = await db.from('recipes').select('data, user_id, profiles(email, username)').order('created_at', { ascending: true });
     if (error) { console.warn('[Sync fetch]', error.message); return; }
     Store.saveCache(data ? data.map(r => ({
       ...r.data,
