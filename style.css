@@ -1517,16 +1517,33 @@ select { cursor: pointer; }
 .btn-toggle-pw:hover { opacity: 1; }
 
 /* Password strength meter */
-.pw-strength-wrap { margin: 6px 0 14px; }
-.pw-strength-bar { height: 4px; background: var(--cream-dark); border-radius: 2px; overflow: hidden; }
-.pw-strength-fill { height: 100%; width: 0%; border-radius: 2px; transition: width 0.25s, background 0.25s; }
-.pw-reqs { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.pw-strength-wrap { margin: 8px 0 16px; }
+.pw-strength-bar { height: 5px; background: #d9cfc7; border-radius: 3px; overflow: hidden; }
+.pw-strength-fill { height: 100%; width: 0%; border-radius: 3px; transition: width 0.25s, background 0.25s; }
+.pw-reqs { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .pw-req {
-  font-size: 0.73rem; padding: 2px 8px; border-radius: 20px;
-  background: var(--cream-dark); color: var(--brown-light);
+  font-size: 0.72rem; padding: 3px 9px; border-radius: 20px;
+  background: #ede5dd; color: #9b8070;
   transition: background 0.2s, color 0.2s;
 }
 .pw-req.met { background: #d4edda; color: #27ae60; }
+
+/* Tooltip global épingle (hors overflow:hidden) */
+.save-tip-global {
+  position: absolute;
+  background: rgba(44,24,16,0.88);
+  color: #fff;
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-100%, -50%);
+  transition: opacity 0.15s;
+  z-index: 2000;
+}
+.save-tip-global.tip-saved { background: #27ae60; }
 
 /* Profile edit card */
 .account-avatar-wrap { position: relative; display: inline-flex; }
