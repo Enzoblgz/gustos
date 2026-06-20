@@ -699,7 +699,16 @@ const App = {
                 </button>
               </div>
             </div>
-            ${!isLogin?`<div class="form-group"><label for="auth-pass2">${this.t('passwordConfirm')}</label>
+            ${!isLogin?`
+            <div class="pw-strength-wrap" id="pw-strength-wrap">
+              <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
+              <div class="pw-reqs">
+                <span class="pw-req" id="pw-req-len">8 caractères min.</span>
+                <span class="pw-req" id="pw-req-upper">1 majuscule</span>
+                <span class="pw-req" id="pw-req-num">1 chiffre ou symbole</span>
+              </div>
+            </div>
+            <div class="form-group"><label for="auth-pass2">${this.t('passwordConfirm')}</label>
               <div class="password-input-wrap">
                 <input type="password" id="auth-pass2" placeholder="${this.t('passPh')}" autocomplete="new-password" required>
                 <button type="button" class="btn-toggle-pw" data-target="auth-pass2" title="Voir/masquer">
@@ -734,6 +743,19 @@ const App = {
       btn.querySelector('.eye-closed').style.display = show ? 'none' : '';
       btn.querySelector('.eye-open').style.display = show ? '' : 'none';
     }));
+    document.getElementById('auth-pass')?.addEventListener('input', e => {
+      if (this.authMode !== 'register') return;
+      const { len, upper, numSym, score } = this._pwStrength(e.target.value);
+      const fill = document.getElementById('pw-strength-fill');
+      if (fill) {
+        const colors = ['#e8e0d8', '#e74c3c', '#f39c12', '#27ae60'];
+        fill.style.width = ['0%','33%','66%','100%'][score];
+        fill.style.background = colors[score];
+      }
+      document.getElementById('pw-req-len')?.classList.toggle('met', len);
+      document.getElementById('pw-req-upper')?.classList.toggle('met', upper);
+      document.getElementById('pw-req-num')?.classList.toggle('met', numSym);
+    });
     document.getElementById('auth-form')?.addEventListener('submit', async e => {
       e.preventDefault();
       const email = document.getElementById('auth-email')?.value?.trim();
@@ -741,7 +763,11 @@ const App = {
       const pass2 = document.getElementById('auth-pass2')?.value;
       const btn   = document.getElementById('btn-auth-submit');
       if (!email || !pass) return;
-      if (this.authMode === 'register' && pass !== pass2) { this.authError = 'Les mots de passe ne correspondent pas.'; this.render(); return; }
+      if (this.authMode === 'register') {
+        const { score } = this._pwStrength(pass);
+        if (score < 3) { this.authError = 'Mot de passe trop faible — remplis les 3 critères.'; this.render(); return; }
+        if (pass !== pass2) { this.authError = 'Les mots de passe ne correspondent pas.'; this.render(); return; }
+      }
       if (btn) { btn.disabled = true; btn.textContent = this.t('loading'); }
       let error;
       if (this.authMode === 'login') {
@@ -1443,6 +1469,13 @@ const App = {
     const tagInput=document.getElementById('tag-input');
     tagInput?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===',')&&tagInput.value.trim()){e.preventDefault();addTag(tagInput.value);}if(e.key==='Backspace'&&!tagInput.value&&this.formData.tags.length){this.formData.tags.pop();this.rebuildTags();}});
     document.getElementById('tags-box')?.addEventListener('click',e=>{const btn=e.target.closest('.tag-remove');if(btn){this.formData.tags.splice(+btn.dataset.tag,1);this.rebuildTags();}else document.getElementById('tag-input')?.focus();});
+  },
+
+  _pwStrength(pw) {
+    const len    = pw.length >= 8;
+    const upper  = /[A-Z]/.test(pw);
+    const numSym = /[0-9!@#$%^&*()\-_=+\[\]{}|;:,.<>?]/.test(pw);
+    return { len, upper, numSym, score: [len, upper, numSym].filter(Boolean).length };
   },
 
   _addIngFromInput() {
