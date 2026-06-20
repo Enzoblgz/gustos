@@ -1056,13 +1056,17 @@ const App = {
         <div class="account-info">
           <h2 class="account-display-name">${this.escHtml(displayName)}</h2>
           <p class="account-email-sub">${this.escHtml(this.user?.email||'')}</p>
-          <div class="account-meta">
+          <div class="subscription-info">
             <span class="plan-badge plan-${planClass}">${planLabel}</span>
-            ${this.user?.plan !== 'pro' && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
+            ${this.user?.plan !== 'pro' && days > 0 ? `
+              <div class="trial-progress-bar"><div class="trial-progress-fill" style="width:${Math.round((14-days)/14*100)}%"></div></div>
+              <p class="trial-days-hint">${days} jour${days>1?'s':''} restant${days>1?'s':''} sur les 14 jours d'essai</p>` : ''}
+            ${this.user?.plan !== 'pro' && days === 0 && this.user?.trial_ends_at ? `<p class="trial-days-hint trial-expired-hint">Essai expiré</p>` : ''}
+            <div class="subscription-actions">
+              ${this.user?.plan !== 'pro' && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
+              <button class="btn-hiw-profile" id="btn-how-it-works">Comment ça marche ?</button>
+            </div>
           </div>
-          <button class="how-it-works-link" id="btn-how-it-works">Comment ça marche ?</button>
-          ${this.user?.plan !== 'pro' && days > 0 ? `<div class="trial-progress-bar"><div class="trial-progress-fill" style="width:${Math.round((14-days)/14*100)}%"></div></div><p class="trial-days-hint">${days} jour${days>1?'s':''} restant${days>1?'s':''} sur votre essai gratuit de 14 jours</p>` : ''}
-          ${this.user?.plan !== 'pro' && days === 0 && this.user?.trial_ends_at ? `<p class="trial-days-hint trial-expired-hint">Essai expiré — passez à l'abonnement ou continuez en mode gratuit limité.</p>` : ''}
         </div>
         <div class="account-actions-col">
           ${isAdmin ? `<button type="button" class="btn-secondary btn-sm btn-admin-panel" id="btn-go-admin-account">⚙ Admin</button>` : ''}
@@ -1238,12 +1242,12 @@ const App = {
     return `<div class="recipe-card" data-id="${r.id}">
       <div class="card-image">
         ${img}
+        ${r.isCertified?`<span class="certified-badge certified-badge--overlay">✓ Certifiée</span>`:''}
         <button class="card-save-btn${isSaved?' saved':''}" data-save-card="${r.id}">${isSaved?'🔖':'📌'}</button>
       </div>
       <div class="card-body">
         <div class="card-category-row">
           <span class="card-category">${r.category||this.t('noCat')}</span>
-          ${r.isCertified?`<span class="certified-badge">✓ Certifiée</span>`:''}
           ${r.authorName?`<span class="card-author">par ${this.escHtml(r.authorName)}</span>`:''}
         </div>
         <div class="card-title">${this.escHtml(r.name)}</div>
@@ -1283,17 +1287,18 @@ const App = {
         <button class="btn-ghost" id="btn-back">${this.t('back')}</button>
         <div class="recipe-header-actions">
           ${isAdmin && !isOwnRecipe && !r.isCertified ? `<button class="btn-approve btn-approve-admin" data-approve="${r.id}">⭐ Certifier</button>` : ''}
+          ${isAdmin && r.isCertified ? `<button class="btn-revoke" id="btn-revoke-cert" data-revoke="${r.id}">✕ Retirer certification</button>` : ''}
           ${canEdit ? `<button class="btn-secondary" id="btn-edit">${this.t('edit')}</button>
           <button class="btn-danger" id="btn-delete">${this.t('delete')}</button>` : ''}
         </div>
       </div>
       <div class="recipe-hero">
-        <div class="recipe-main-image">${cover?`<img src="${cover}" alt="${this.escHtml(r.name)}">`:`<span style="font-size:7rem">${emoji}</span>`}</div>
+        <div class="recipe-main-image" style="position:relative">
+          ${cover?`<img src="${cover}" alt="${this.escHtml(r.name)}">`:`<span style="font-size:7rem">${emoji}</span>`}
+          ${r.isCertified?`<span class="certified-badge certified-badge--overlay">✓ Certifiée</span>`:''}
+        </div>
         <div class="recipe-info">
-          <div class="recipe-category-row">
-            <span class="recipe-category-badge">${r.category||this.t('noCat')}</span>
-            ${r.isCertified?`<span class="certified-badge certified-badge--lg">✓ Certifiée</span>`:''}
-          </div>
+          <span class="recipe-category-badge">${r.category||this.t('noCat')}</span>
           <h1 class="recipe-title">${this.escHtml(r.name)}</h1>
           ${r.authorName?`<p class="recipe-author">Par ${this.escHtml(r.authorName)}</p>`:''}
           ${!isOwnRecipe && this.user && !r.isCertified ? `<div class="approve-row">
@@ -1301,6 +1306,7 @@ const App = {
               ${alreadyApproved?'✓ Approuvé':'👍 Approuver cette recette'}
             </button>
             <span class="approve-counter">${approvalCount}/10 approbations</span>
+            <button class="how-it-works-link" id="btn-hiw-recipe">Comment ça marche ?</button>
           </div>` : ''}
           ${r.description?`<p class="recipe-description">${this.escHtml(r.description)}</p>`:''}
           ${metaBoxes?`<div class="recipe-meta-grid">${metaBoxes}</div>`:''}
@@ -1664,9 +1670,13 @@ const App = {
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
     document.getElementById('btn-upgrade-account')?.addEventListener('click', () => this.showUpgradeModal());
     document.getElementById('btn-how-it-works')?.addEventListener('click', () => this.showHowItWorksModal());
+    document.getElementById('btn-hiw-recipe')?.addEventListener('click', () => this.showHowItWorksModal());
     document.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', e => {
       this.handleApprove(e.currentTarget.dataset.approve).catch(err => this.toast('Erreur : ' + err.message));
     }));
+    document.querySelector('[data-revoke]')?.addEventListener('click', e => {
+      this.handleRevokeCertification(e.currentTarget.dataset.revoke).catch(err => this.toast('Erreur : ' + err.message));
+    });
     document.getElementById('btn-go-planning')?.addEventListener('click', () => this.nav('planning'));
 
     // ===== PLANNING HANDLERS =====
@@ -2551,6 +2561,19 @@ const App = {
     } else {
       this.toast(`✓ Approbation enregistrée (${memberCount}/10)`);
     }
+    this.render();
+  },
+
+  async handleRevokeCertification(recipeId) {
+    if (!this.user || this.user.role !== 'admin') return;
+    if (!confirm('Retirer la certification de cette recette ?')) return;
+    const { error } = await db.from('recipe_approvals').delete().eq('recipe_id', recipeId);
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    const updated = Store.get().map(rec => rec.id === recipeId
+      ? { ...rec, adminApproved: false, isCertified: false, approvalCount: 0, approvedBy: [] }
+      : rec);
+    Store.saveCache(updated);
+    this.toast('Certification retirée.');
     this.render();
   },
 
