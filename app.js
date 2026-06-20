@@ -1406,8 +1406,12 @@ const App = {
   renderPrepSection(prep, pi) {
     const fd = this.formData;
     const hasMultiple = fd.preparations.length > 1;
-    const ingNames = (prep.ingredients || []).filter(i => i.name.trim()).map(i => i.name.trim());
-    return `<div class="prep-section" data-prep="${pi}">
+    const ings = prep.ingredients || [];
+    const ingNames = ings.filter(i => i.name.trim()).map(i => i.name.trim());
+    const ingContent = ings.length === 0
+      ? `<p class="ing-empty-hint">Pas encore d'ingrédients — ajoute le premier avec le bouton ci-dessous.</p>`
+      : ings.map((ing, i) => this.renderIngRow(ing, i, pi)).join('');
+    return `<div class="prep-section${hasMultiple ? ' prep-section--multiple' : ''}" data-prep="${pi}">
       ${hasMultiple ? `<div class="prep-header">
         <span class="prep-label">Préparation ${pi + 1}</span>
         <input type="text" class="prep-title-input" data-prep-title="${pi}" placeholder="Nom (ex : La pâte, La sauce…)" value="${this.escHtml(prep.title || '')}">
@@ -1415,12 +1419,10 @@ const App = {
       </div>` : ''}
       <div class="form-section">
         <h3>${this.t('ingsLbl')}</h3>
-        <div class="ing-header${(prep.ingredients || []).length === 0 ? ' ing-header-hidden' : ''}">
+        <div class="ing-header${ings.length === 0 ? ' ing-header-hidden' : ''}">
           <span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span>
         </div>
-        <div class="ingredients-builder" id="ing-builder-${pi}">
-          ${(prep.ingredients || []).map((ing, i) => this.renderIngRow(ing, i, pi)).join('')}
-        </div>
+        <div class="ingredients-builder" id="ing-builder-${pi}">${ingContent}</div>
         <div class="ing-quick-add">
           <div class="ing-qa-field ing-qa-autocomplete">
             <label class="ing-qa-label">Nom</label>
@@ -1445,8 +1447,9 @@ const App = {
         <div class="ing-ref-helper" id="ing-ref-helper-${pi}"${ingNames.length ? '' : ' style="display:none"'}>
           <div class="ing-ref-header">
             <span class="ing-ref-title">Quantités dynamiques</span>
-            <span class="ing-ref-hint">👆 Cliquez ou ✋ glissez dans l'étape</span>
+            <span class="ing-ref-hint">👆 Clic ou ✋ glisser dans une étape</span>
           </div>
+          <p class="ing-ref-example">ex. "Incorporer <em>{${ingNames[0] || 'Farine'}}</em> puis ajouter <em>{${ingNames[1] || 'Beurre'}}</em>"</p>
           <div class="ing-ref-names" id="ing-ref-names-${pi}">
             ${ingNames.map(n => `<span class="ing-chip" draggable="true" data-ing-chip="${this.escHtml(n)}" title="Cliquer ou glisser dans une étape"><span class="ing-chip-icon">⠿</span>${this.escHtml(n)}</span>`).join('')}
           </div>
@@ -1711,7 +1714,7 @@ const App = {
     });
 
     prepsWrap.addEventListener('mousedown', e => {
-      if (e.target.closest('[data-format]') || e.target.closest('[data-ing-chip],.ing-chip')) e.preventDefault();
+      if (e.target.closest('[data-format]')) e.preventDefault();
     });
 
     prepsWrap.addEventListener('click', e => {
@@ -1969,9 +1972,12 @@ const App = {
   },
   rebuildIngs(pi) {
     const b = document.getElementById(`ing-builder-${pi}`); if (!b) return;
-    b.innerHTML = this.formData.preparations[pi].ingredients.map((ing, i) => this.renderIngRow(ing, i, pi)).join('');
+    const ings = this.formData.preparations[pi].ingredients;
+    b.innerHTML = ings.length === 0
+      ? `<p class="ing-empty-hint">Pas encore d'ingrédients — ajoute le premier avec le bouton ci-dessous.</p>`
+      : ings.map((ing, i) => this.renderIngRow(ing, i, pi)).join('');
     const h = b.closest('.form-section')?.querySelector('.ing-header');
-    if (h) h.classList.toggle('ing-header-hidden', this.formData.preparations[pi].ingredients.length === 0);
+    if (h) h.classList.toggle('ing-header-hidden', ings.length === 0);
     this.updateIngHelper(pi);
   },
   rebuildSteps(pi) {
