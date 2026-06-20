@@ -17,6 +17,119 @@ const Store = {
 // ===== CONSTANTS =====
 const CATEGORIES = ['Entrées','Plats','Pâtes','Soupes','Salades','Desserts','Pâtisseries','Viandes','Poissons','Végétarien','Snacks','Boissons'];
 const UNITS = ['g','kg','ml','cl','L','cuil. à café','cuil. à soupe','pincée','tasse','pièce(s)','botte(s)','tranche(s)','filet(s)','gousse(s)','sachet(s)'];
+const INGREDIENTS_DB = [
+  {n:'Ail',u:'gousse(s)',c:'Légumes'},{n:'Artichaut',u:'pièce(s)',c:'Légumes'},{n:'Asperge',u:'g',c:'Légumes'},
+  {n:'Aubergine',u:'pièce(s)',c:'Légumes'},{n:'Avocat',u:'pièce(s)',c:'Légumes'},{n:'Betterave',u:'pièce(s)',c:'Légumes'},
+  {n:'Brocoli',u:'g',c:'Légumes'},{n:'Carotte',u:'pièce(s)',c:'Légumes'},{n:'Céleri',u:'botte(s)',c:'Légumes'},
+  {n:'Céleri-rave',u:'g',c:'Légumes'},{n:'Champignon de Paris',u:'g',c:'Légumes'},{n:'Chanterelle',u:'g',c:'Légumes'},
+  {n:'Chou',u:'pièce(s)',c:'Légumes'},{n:'Chou de Bruxelles',u:'g',c:'Légumes'},{n:'Chou rouge',u:'pièce(s)',c:'Légumes'},
+  {n:'Chou-fleur',u:'pièce(s)',c:'Légumes'},{n:'Concombre',u:'pièce(s)',c:'Légumes'},{n:'Courgette',u:'pièce(s)',c:'Légumes'},
+  {n:'Échalote',u:'pièce(s)',c:'Légumes'},{n:'Endive',u:'pièce(s)',c:'Légumes'},{n:'Épinard',u:'g',c:'Légumes'},
+  {n:'Fenouil',u:'pièce(s)',c:'Légumes'},{n:'Haricot vert',u:'g',c:'Légumes'},{n:'Laitue',u:'pièce(s)',c:'Légumes'},
+  {n:'Mâche',u:'g',c:'Légumes'},{n:'Maïs',u:'pièce(s)',c:'Légumes'},{n:'Navet',u:'pièce(s)',c:'Légumes'},
+  {n:'Oignon',u:'pièce(s)',c:'Légumes'},{n:'Oignon rouge',u:'pièce(s)',c:'Légumes'},{n:'Panais',u:'pièce(s)',c:'Légumes'},
+  {n:'Patate douce',u:'pièce(s)',c:'Légumes'},{n:'Piment',u:'pièce(s)',c:'Légumes'},{n:'Poireau',u:'pièce(s)',c:'Légumes'},
+  {n:'Poivron',u:'pièce(s)',c:'Légumes'},{n:'Poivron jaune',u:'pièce(s)',c:'Légumes'},{n:'Poivron rouge',u:'pièce(s)',c:'Légumes'},
+  {n:'Poivron vert',u:'pièce(s)',c:'Légumes'},{n:'Pomme de terre',u:'pièce(s)',c:'Légumes'},{n:'Potimarron',u:'pièce(s)',c:'Légumes'},
+  {n:'Potiron',u:'g',c:'Légumes'},{n:'Radis',u:'botte(s)',c:'Légumes'},{n:'Roquette',u:'g',c:'Légumes'},
+  {n:'Tomate',u:'pièce(s)',c:'Légumes'},{n:'Tomate cerise',u:'g',c:'Légumes'},{n:'Topinambour',u:'g',c:'Légumes'},
+  {n:'Edamame',u:'g',c:'Légumineuses'},{n:'Fève',u:'g',c:'Légumineuses'},{n:'Haricot blanc',u:'g',c:'Légumineuses'},
+  {n:'Haricot rouge',u:'g',c:'Légumineuses'},{n:'Lentille corail',u:'g',c:'Légumineuses'},{n:'Lentille rouge',u:'g',c:'Légumineuses'},
+  {n:'Lentille verte',u:'g',c:'Légumineuses'},{n:'Pois cassés',u:'g',c:'Légumineuses'},{n:'Pois chiche',u:'g',c:'Légumineuses'},
+  {n:'Aile de poulet',u:'pièce(s)',c:'Viandes'},{n:'Bacon',u:'tranche(s)',c:'Viandes'},{n:'Blanc de poulet',u:'g',c:'Viandes'},
+  {n:'Bœuf haché',u:'g',c:'Viandes'},{n:'Canard',u:'g',c:'Viandes'},{n:'Chorizo',u:'g',c:'Viandes'},
+  {n:'Côte d\'agneau',u:'pièce(s)',c:'Viandes'},{n:'Côte de bœuf',u:'pièce(s)',c:'Viandes'},{n:'Côte de porc',u:'pièce(s)',c:'Viandes'},
+  {n:'Cuisse de poulet',u:'pièce(s)',c:'Viandes'},{n:'Dinde',u:'g',c:'Viandes'},{n:'Escalope de veau',u:'pièce(s)',c:'Viandes'},
+  {n:'Filet mignon de porc',u:'g',c:'Viandes'},{n:'Gigot d\'agneau',u:'g',c:'Viandes'},{n:'Jambon',u:'tranche(s)',c:'Viandes'},
+  {n:'Jambon blanc',u:'tranche(s)',c:'Viandes'},{n:'Jambon cru',u:'tranche(s)',c:'Viandes'},{n:'Lapin',u:'g',c:'Viandes'},
+  {n:'Lardons',u:'g',c:'Viandes'},{n:'Merguez',u:'pièce(s)',c:'Viandes'},{n:'Poitrine de porc',u:'g',c:'Viandes'},
+  {n:'Poulet entier',u:'pièce(s)',c:'Viandes'},{n:'Rôti de bœuf',u:'g',c:'Viandes'},{n:'Saucisse',u:'pièce(s)',c:'Viandes'},
+  {n:'Steak',u:'pièce(s)',c:'Viandes'},{n:'Veau',u:'g',c:'Viandes'},
+  {n:'Anchois',u:'filet(s)',c:'Poissons'},{n:'Bar',u:'pièce(s)',c:'Poissons'},{n:'Cabillaud',u:'g',c:'Poissons'},
+  {n:'Calamar',u:'g',c:'Poissons'},{n:'Crabe',u:'pièce(s)',c:'Poissons'},{n:'Crevette',u:'g',c:'Poissons'},
+  {n:'Daurade',u:'pièce(s)',c:'Poissons'},{n:'Homard',u:'pièce(s)',c:'Poissons'},{n:'Huître',u:'pièce(s)',c:'Poissons'},
+  {n:'Lotte',u:'g',c:'Poissons'},{n:'Maquereau',u:'pièce(s)',c:'Poissons'},{n:'Moule',u:'g',c:'Poissons'},
+  {n:'Rouget',u:'pièce(s)',c:'Poissons'},{n:'Saint-Jacques',u:'pièce(s)',c:'Poissons'},{n:'Sardine',u:'pièce(s)',c:'Poissons'},
+  {n:'Saumon',u:'g',c:'Poissons'},{n:'Saumon fumé',u:'g',c:'Poissons'},{n:'Sole',u:'pièce(s)',c:'Poissons'},
+  {n:'Thon',u:'g',c:'Poissons'},{n:'Truite',u:'pièce(s)',c:'Poissons'},
+  {n:'Blanc d\'œuf',u:'pièce(s)',c:'Laitier & Œufs'},{n:'Brie',u:'g',c:'Laitier & Œufs'},{n:'Beurre',u:'g',c:'Laitier & Œufs'},
+  {n:'Beurre salé',u:'g',c:'Laitier & Œufs'},{n:'Camembert',u:'pièce(s)',c:'Laitier & Œufs'},{n:'Chèvre frais',u:'g',c:'Laitier & Œufs'},
+  {n:'Comté',u:'g',c:'Laitier & Œufs'},{n:'Cream cheese',u:'g',c:'Laitier & Œufs'},{n:'Crème fraîche',u:'g',c:'Laitier & Œufs'},
+  {n:'Crème fraîche épaisse',u:'g',c:'Laitier & Œufs'},{n:'Crème liquide',u:'ml',c:'Laitier & Œufs'},{n:'Emmental râpé',u:'g',c:'Laitier & Œufs'},
+  {n:'Feta',u:'g',c:'Laitier & Œufs'},{n:'Fromage blanc',u:'g',c:'Laitier & Œufs'},{n:'Gruyère râpé',u:'g',c:'Laitier & Œufs'},
+  {n:'Jaune d\'œuf',u:'pièce(s)',c:'Laitier & Œufs'},{n:'Lait',u:'ml',c:'Laitier & Œufs'},{n:'Lait demi-écrémé',u:'ml',c:'Laitier & Œufs'},
+  {n:'Lait entier',u:'ml',c:'Laitier & Œufs'},{n:'Mascarpone',u:'g',c:'Laitier & Œufs'},{n:'Mozzarella',u:'g',c:'Laitier & Œufs'},
+  {n:'Œuf',u:'pièce(s)',c:'Laitier & Œufs'},{n:'Parmesan',u:'g',c:'Laitier & Œufs'},{n:'Ricotta',u:'g',c:'Laitier & Œufs'},
+  {n:'Yaourt nature',u:'pièce(s)',c:'Laitier & Œufs'},
+  {n:'Boulgour',u:'g',c:'Féculents'},{n:'Chapelure',u:'g',c:'Féculents'},{n:'Farfalle',u:'g',c:'Féculents'},
+  {n:'Farine complète',u:'g',c:'Féculents'},{n:'Farine de maïs',u:'g',c:'Féculents'},{n:'Farine de riz',u:'g',c:'Féculents'},
+  {n:'Farine T45',u:'g',c:'Féculents'},{n:'Farine T55',u:'g',c:'Féculents'},{n:'Farine T65',u:'g',c:'Féculents'},
+  {n:'Fécule de maïs',u:'g',c:'Féculents'},{n:'Fécule de pomme de terre',u:'g',c:'Féculents'},{n:'Flocons d\'avoine',u:'g',c:'Féculents'},
+  {n:'Fusilli',u:'g',c:'Féculents'},{n:'Lasagne',u:'g',c:'Féculents'},{n:'Linguine',u:'g',c:'Féculents'},
+  {n:'Millet',u:'g',c:'Féculents'},{n:'Orge',u:'g',c:'Féculents'},{n:'Pâtes',u:'g',c:'Féculents'},
+  {n:'Penne',u:'g',c:'Féculents'},{n:'Polenta',u:'g',c:'Féculents'},{n:'Quinoa',u:'g',c:'Féculents'},
+  {n:'Riz',u:'g',c:'Féculents'},{n:'Riz arborio',u:'g',c:'Féculents'},{n:'Riz basmati',u:'g',c:'Féculents'},
+  {n:'Riz complet',u:'g',c:'Féculents'},{n:'Riz rond',u:'g',c:'Féculents'},{n:'Sarrasin',u:'g',c:'Féculents'},
+  {n:'Semoule',u:'g',c:'Féculents'},{n:'Spaghetti',u:'g',c:'Féculents'},{n:'Tagliatelles',u:'g',c:'Féculents'},
+  {n:'Abricot',u:'pièce(s)',c:'Fruits'},{n:'Ananas',u:'pièce(s)',c:'Fruits'},{n:'Banane',u:'pièce(s)',c:'Fruits'},
+  {n:'Cerise',u:'g',c:'Fruits'},{n:'Citron',u:'pièce(s)',c:'Fruits'},{n:'Citron vert',u:'pièce(s)',c:'Fruits'},
+  {n:'Clémentine',u:'pièce(s)',c:'Fruits'},{n:'Figue',u:'pièce(s)',c:'Fruits'},{n:'Fraise',u:'g',c:'Fruits'},
+  {n:'Framboise',u:'g',c:'Fruits'},{n:'Fruit de la passion',u:'pièce(s)',c:'Fruits'},{n:'Grenade',u:'pièce(s)',c:'Fruits'},
+  {n:'Kiwi',u:'pièce(s)',c:'Fruits'},{n:'Mangue',u:'pièce(s)',c:'Fruits'},{n:'Mandarine',u:'pièce(s)',c:'Fruits'},
+  {n:'Melon',u:'pièce(s)',c:'Fruits'},{n:'Mûre',u:'g',c:'Fruits'},{n:'Myrtille',u:'g',c:'Fruits'},
+  {n:'Orange',u:'pièce(s)',c:'Fruits'},{n:'Pamplemousse',u:'pièce(s)',c:'Fruits'},{n:'Pastèque',u:'g',c:'Fruits'},
+  {n:'Pêche',u:'pièce(s)',c:'Fruits'},{n:'Poire',u:'pièce(s)',c:'Fruits'},{n:'Pomme',u:'pièce(s)',c:'Fruits'},
+  {n:'Prune',u:'pièce(s)',c:'Fruits'},{n:'Raisin',u:'g',c:'Fruits'},
+  {n:'Ail en poudre',u:'cuil. à café',c:'Épices & Herbes'},{n:'Anis étoilé',u:'pièce(s)',c:'Épices & Herbes'},
+  {n:'Basilic',u:'g',c:'Épices & Herbes'},{n:'Cannelle',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Cardamome',u:'pincée',c:'Épices & Herbes'},{n:'Ciboulette',u:'g',c:'Épices & Herbes'},
+  {n:'Clou de girofle',u:'pièce(s)',c:'Épices & Herbes'},{n:'Coriandre en poudre',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Coriandre fraîche',u:'g',c:'Épices & Herbes'},{n:'Cumin',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Curry',u:'cuil. à café',c:'Épices & Herbes'},{n:'Estragon',u:'g',c:'Épices & Herbes'},
+  {n:'Gingembre',u:'g',c:'Épices & Herbes'},{n:'Gingembre en poudre',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Graines de chia',u:'cuil. à soupe',c:'Épices & Herbes'},{n:'Graines de sésame',u:'cuil. à soupe',c:'Épices & Herbes'},
+  {n:'Herbes de Provence',u:'cuil. à café',c:'Épices & Herbes'},{n:'Laurier',u:'pièce(s)',c:'Épices & Herbes'},
+  {n:'Menthe',u:'g',c:'Épices & Herbes'},{n:'Muscade',u:'pincée',c:'Épices & Herbes'},
+  {n:'Oignon en poudre',u:'cuil. à café',c:'Épices & Herbes'},{n:'Origan',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Paprika',u:'cuil. à café',c:'Épices & Herbes'},{n:'Paprika fumé',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Persil',u:'botte(s)',c:'Épices & Herbes'},{n:'Piment de Cayenne',u:'pincée',c:'Épices & Herbes'},
+  {n:'Poivre',u:'pincée',c:'Épices & Herbes'},{n:'Poivre blanc',u:'pincée',c:'Épices & Herbes'},
+  {n:'Quatre-épices',u:'cuil. à café',c:'Épices & Herbes'},{n:'Ras el hanout',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Romarin',u:'botte(s)',c:'Épices & Herbes'},{n:'Safran',u:'pincée',c:'Épices & Herbes'},
+  {n:'Sel',u:'pincée',c:'Épices & Herbes'},{n:'Sumac',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Thym',u:'botte(s)',c:'Épices & Herbes'},{n:'Turmeric',u:'cuil. à café',c:'Épices & Herbes'},
+  {n:'Graisse de canard',u:'cuil. à soupe',c:'Huiles'},{n:'Huile de coco',u:'cuil. à soupe',c:'Huiles'},
+  {n:'Huile de noix',u:'cuil. à soupe',c:'Huiles'},{n:'Huile de sésame',u:'cuil. à soupe',c:'Huiles'},
+  {n:'Huile de tournesol',u:'cuil. à soupe',c:'Huiles'},{n:'Huile d\'olive',u:'cuil. à soupe',c:'Huiles'},
+  {n:'Margarine',u:'g',c:'Huiles'},
+  {n:'Cassonade',u:'g',c:'Sucres'},{n:'Confiture',u:'cuil. à soupe',c:'Sucres'},{n:'Miel',u:'cuil. à soupe',c:'Sucres'},
+  {n:'Nutella',u:'cuil. à soupe',c:'Sucres'},{n:'Pâte d\'amandes',u:'g',c:'Sucres'},{n:'Sirop d\'agave',u:'cuil. à soupe',c:'Sucres'},
+  {n:'Sirop d\'érable',u:'cuil. à soupe',c:'Sucres'},{n:'Sucre',u:'g',c:'Sucres'},{n:'Sucre glace',u:'g',c:'Sucres'},
+  {n:'Sucre roux',u:'g',c:'Sucres'},{n:'Sucre vanillé',u:'sachet(s)',c:'Sucres'},
+  {n:'Agar-agar',u:'g',c:'Pâtisserie'},{n:'Amande',u:'g',c:'Pâtisserie'},{n:'Bicarbonate de soude',u:'cuil. à café',c:'Pâtisserie'},
+  {n:'Cacao en poudre',u:'g',c:'Pâtisserie'},{n:'Chocolat au lait',u:'g',c:'Pâtisserie'},{n:'Chocolat blanc',u:'g',c:'Pâtisserie'},
+  {n:'Chocolat noir',u:'g',c:'Pâtisserie'},{n:'Cranberry',u:'g',c:'Pâtisserie'},{n:'Extrait de vanille',u:'cuil. à café',c:'Pâtisserie'},
+  {n:'Gélatine',u:'pièce(s)',c:'Pâtisserie'},{n:'Levure boulangère',u:'g',c:'Pâtisserie'},{n:'Levure chimique',u:'g',c:'Pâtisserie'},
+  {n:'Noisette',u:'g',c:'Pâtisserie'},{n:'Noix',u:'g',c:'Pâtisserie'},{n:'Noix de cajou',u:'g',c:'Pâtisserie'},
+  {n:'Noix de coco râpée',u:'g',c:'Pâtisserie'},{n:'Noix de pécan',u:'g',c:'Pâtisserie'},{n:'Pâte brisée',u:'g',c:'Pâtisserie'},
+  {n:'Pâte feuilletée',u:'g',c:'Pâtisserie'},{n:'Pâte sablée',u:'g',c:'Pâtisserie'},{n:'Pépites de chocolat',u:'g',c:'Pâtisserie'},
+  {n:'Pistache',u:'g',c:'Pâtisserie'},{n:'Poudre d\'amandes',u:'g',c:'Pâtisserie'},{n:'Pralin',u:'g',c:'Pâtisserie'},
+  {n:'Raisins secs',u:'g',c:'Pâtisserie'},
+  {n:'Bière',u:'ml',c:'Liquides'},{n:'Bouillon de bœuf',u:'ml',c:'Liquides'},{n:'Bouillon de légumes',u:'ml',c:'Liquides'},
+  {n:'Bouillon de poulet',u:'ml',c:'Liquides'},{n:'Concentré de tomate',u:'cuil. à soupe',c:'Liquides'},
+  {n:'Crème de coco',u:'ml',c:'Liquides'},{n:'Eau',u:'ml',c:'Liquides'},{n:'Jus de citron',u:'cuil. à soupe',c:'Liquides'},
+  {n:'Jus d\'orange',u:'ml',c:'Liquides'},{n:'Lait de coco',u:'ml',c:'Liquides'},{n:'Passata',u:'ml',c:'Liquides'},
+  {n:'Sauce soja',u:'cuil. à soupe',c:'Liquides'},{n:'Sauce tomate',u:'ml',c:'Liquides'},{n:'Sauce Worcester',u:'cuil. à soupe',c:'Liquides'},
+  {n:'Tabasco',u:'filet(s)',c:'Liquides'},{n:'Vinaigre balsamique',u:'cuil. à soupe',c:'Liquides'},
+  {n:'Vinaigre blanc',u:'cuil. à soupe',c:'Liquides'},{n:'Vinaigre de vin rouge',u:'cuil. à soupe',c:'Liquides'},
+  {n:'Vin blanc',u:'ml',c:'Liquides'},{n:'Vin rouge',u:'ml',c:'Liquides'},
+  {n:'Câpres',u:'cuil. à soupe',c:'Conserves'},{n:'Cornichon',u:'pièce(s)',c:'Conserves'},{n:'Harissa',u:'cuil. à café',c:'Conserves'},
+  {n:'Houmous',u:'g',c:'Conserves'},{n:'Ketchup',u:'cuil. à soupe',c:'Conserves'},{n:'Mayonnaise',u:'cuil. à soupe',c:'Conserves'},
+  {n:'Moutarde',u:'cuil. à soupe',c:'Conserves'},{n:'Olive noire',u:'g',c:'Conserves'},{n:'Olive verte',u:'g',c:'Conserves'},
+  {n:'Pesto',u:'cuil. à soupe',c:'Conserves'},{n:'Sardine en boîte',u:'g',c:'Conserves'},{n:'Tahini',u:'cuil. à soupe',c:'Conserves'},
+  {n:'Tapenade',u:'cuil. à soupe',c:'Conserves'},{n:'Thon en boîte',u:'g',c:'Conserves'},{n:'Tomate concassée',u:'g',c:'Conserves'},
+  {n:'Tomate pelée',u:'g',c:'Conserves'},
+];
 const CAT_EMOJI = {'Entrées':'🥗','Plats':'🍽️','Pâtes':'🍝','Soupes':'🍲','Salades':'🥙','Desserts':'🍰','Pâtisseries':'🧁','Viandes':'🥩','Poissons':'🐟','Végétarien':'🥦','Snacks':'🥪','Boissons':'🥤'};
 const FREE_LIMIT = 10;
 const ALL_CAT = '__all__';
@@ -448,7 +561,9 @@ const TR = {
 const App = {
   view: 'loading', user: null, authMode: 'login', authError: '',
   adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT,
-  portionCount: 4, editingId: null, formData: { ingredients: [], steps: [], coverImage: null, tags: [] },
+  portionCount: 4, editingId: null,
+  formData: { preparations: [{ id: '', title: '', ingredients: [], steps: [] }], coverImage: null, tags: [] },
+  _lastStepFocus: null, _dragIngSrc: null,
   likedIds: new Set(), savedIds: new Set(), likeCounts: {}, accountTab: 'mine',
   lang: localStorage.getItem('recettes_lang') || 'fr',
   planWeek: '', plan: {}, planPortions: {}, shopping: [], pickerOpen: null, pickerQuery: '', pickerTab: 'all',
@@ -644,10 +759,18 @@ const App = {
     }
     this.view = view;
     if (view === 'recipe') { this.currentId = id; const r = Store.byId(id); this.portionCount = opts.portions ?? (r ? r.basePeople : 4); }
-    if (view === 'create') { this.editingId = null; this.formData = { ingredients: [], steps: [{ text:'',image:null }], coverImage: null, tags: [] }; }
+    if (view === 'create') {
+      this.editingId = null;
+      this.formData = { preparations: [{ id: crypto.randomUUID(), title: '', ingredients: [], steps: [{ text: '', image: null }] }], coverImage: null, tags: [] };
+    }
     if (view === 'edit') {
       this.editingId = id; const r = Store.byId(id);
-      if (r) this.formData = { ingredients: r.ingredients.map(i=>({...i})), steps: r.steps.map(s=>this.normalizeStep(s)), coverImage: this.getCover(r), tags: [...(r.tags||[])] };
+      if (r) {
+        const preps = r.preparations
+          ? r.preparations.map(p => ({ ...p, ingredients: p.ingredients.map(i => ({ ...i })), steps: p.steps.map(s => this.normalizeStep(s)) }))
+          : [{ id: crypto.randomUUID(), title: '', ingredients: (r.ingredients || []).map(i => ({ ...i })), steps: (r.steps || [{ text: '', image: null }]).map(s => this.normalizeStep(s)) }];
+        this.formData = { preparations: preps, coverImage: this.getCover(r), tags: [...(r.tags || [])] };
+      }
     }
     if (view === 'planning') { this.pickerOpen = null; this.pickerQuery = ''; this.pickerTab = 'all'; }
     if (view === 'admin') {
@@ -1172,30 +1295,39 @@ const App = {
         </div>
       </div>
       <div class="recipe-sections">
-        <div>
-          <h2 class="section-heading">${this.t('ingsTitle')}</h2>
-          <ul class="ingredient-list" id="ing-list">
-            ${r.ingredients.map((ing,i)=>`<li class="ingredient-item" data-idx="${i}"><div class="ingredient-check"></div><span class="ingredient-qty" id="qty-${i}">${this.fmtQty(ing.qty*ratio)} ${ing.unit}</span><span class="ingredient-name">${this.escHtml(ing.name)}</span></li>`).join('')}
-          </ul>
-        </div>
-        <div>
-          <h2 class="section-heading">${this.t('stepsTitle')}</h2>
-          <div class="steps-list" id="steps-list">
-            ${r.steps.map((s,i)=>{const step=this.normalizeStep(s);return`<div class="step-item"><div class="step-number">${i+1}</div><div class="step-body"><div class="step-content">${this.parseStepText(step.text,r.ingredients,ratio)}</div>${step.image?`<img src="${step.image}" class="step-photo" data-lightbox loading="lazy">`:''}</div></div>`;}).join('')}
-          </div>
-        </div>
+        ${(() => {
+          const preps = r.preparations || [{ id: '0', title: '', ingredients: r.ingredients || [], steps: r.steps || [] }];
+          const multiPrep = preps.length > 1;
+          return preps.map((prep, pi) => `
+            ${multiPrep && prep.title ? `<div class="prep-section-divider"><h2 class="prep-section-title">${this.escHtml(prep.title)}</h2></div>` : ''}
+            <div>
+              <h2 class="section-heading">${this.t('ingsTitle')}</h2>
+              <ul class="ingredient-list" id="ing-list-${pi}">
+                ${(prep.ingredients || []).map((ing, i) => `<li class="ingredient-item" data-idx="${i}"><div class="ingredient-check"></div><span class="ingredient-qty" id="qty-${pi}-${i}">${this.fmtQty(ing.qty * ratio)} ${ing.unit}</span><span class="ingredient-name">${this.escHtml(ing.name)}</span></li>`).join('')}
+              </ul>
+            </div>
+            <div>
+              <h2 class="section-heading">${this.t('stepsTitle')}</h2>
+              <div class="steps-list" id="steps-list-${pi}">
+                ${(prep.steps || []).map((s, i) => { const step = this.normalizeStep(s); return `<div class="step-item"><div class="step-number">${i + 1}</div><div class="step-body"><div class="step-content">${this.parseStepText(step.text, prep.ingredients || [], ratio)}</div>${step.image ? `<img src="${step.image}" class="step-photo" data-lightbox loading="lazy">` : ''}</div></div>`; }).join('')}
+              </div>
+            </div>
+          `).join('');
+        })()}
       </div>
     </div>`;
   },
 
   parseStepText(text, ingredients, ratio) {
     if (!text) return '';
-    const normalized = text.replace(/[｛❴{]/g,'{').replace(/[｝❵}]/g,'}');
-    return this.escHtml(normalized).replace(/\{([^}]+)\}/g, (_, raw) => {
+    const normalized = text.replace(/[｛❴{]/g, '{').replace(/[｝❵}]/g, '}');
+    let escaped = this.escHtml(normalized);
+    escaped = escaped.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    return escaped.replace(/\{([^}]+)\}/g, (_, raw) => {
       const name = raw.trim();
-      const ing = ingredients.find(i => i.name.trim().toLowerCase() === name.toLowerCase());
+      const ing = (ingredients || []).find(i => i.name.trim().toLowerCase() === name.toLowerCase());
       if (!ing) return `<span class="ing-ref-miss">{${this.escHtml(name)}}</span>`;
-      return `<span class="ing-ref">${this.fmtQty(ing.qty*ratio)} ${this.escHtml(ing.unit)} de <strong>${this.escHtml(ing.name)}</strong></span>`;
+      return `<span class="ing-ref">${this.fmtQty(ing.qty * ratio)} ${this.escHtml(ing.unit)} de <strong>${this.escHtml(ing.name)}</strong></span>`;
     });
   },
 
@@ -1211,75 +1343,113 @@ const App = {
   },
 
   updatePortions(val) {
-    const r=Store.byId(this.currentId); if(!r)return;
-    this.portionCount=Math.max(1,Math.min(50,val));
-    const ratio=this.portionCount/r.basePeople;
-    const slider=document.getElementById('p-slider'),num=document.getElementById('p-num');
-    if(slider)slider.value=this.portionCount;
-    if(num){num.textContent=this.portionCount;const lbl=num.nextElementSibling;if(lbl)lbl.textContent=this.t('person',this.portionCount);}
-    r.ingredients.forEach((ing,i)=>{const el=document.getElementById(`qty-${i}`);if(el)el.textContent=`${this.fmtQty(ing.qty*ratio)} ${ing.unit}`;});
-    document.querySelectorAll('#steps-list .step-content').forEach((el,i)=>{const s=r.steps[i];if(s!==undefined)el.innerHTML=this.parseStepText(this.normalizeStep(s).text,r.ingredients,ratio);});
+    const r = Store.byId(this.currentId); if (!r) return;
+    this.portionCount = Math.max(1, Math.min(50, val));
+    const ratio = this.portionCount / r.basePeople;
+    const slider = document.getElementById('p-slider'), num = document.getElementById('p-num');
+    if (slider) slider.value = this.portionCount;
+    if (num) { num.textContent = this.portionCount; const lbl = num.nextElementSibling; if (lbl) lbl.textContent = this.t('person', this.portionCount); }
+    const preps = r.preparations || [{ ingredients: r.ingredients || [], steps: r.steps || [] }];
+    preps.forEach((prep, pi) => {
+      (prep.ingredients || []).forEach((ing, i) => {
+        const el = document.getElementById(`qty-${pi}-${i}`);
+        if (el) el.textContent = `${this.fmtQty(ing.qty * ratio)} ${ing.unit}`;
+      });
+      document.querySelectorAll(`#steps-list-${pi} .step-content`).forEach((el, si) => {
+        const s = (prep.steps || [])[si]; if (s !== undefined) el.innerHTML = this.parseStepText(this.normalizeStep(s).text, prep.ingredients, ratio);
+      });
+    });
   },
 
   renderForm() {
-    const isEdit=this.view==='edit';
-    const r=isEdit?Store.byId(this.editingId):null;
-    const fd=this.formData;
-    const ingNames=fd.ingredients.filter(i=>i.name.trim()).map(i=>i.name.trim());
-    const allIngNames=[...new Set(Store.get().flatMap(rec=>rec.ingredients?.map(i=>i.name).filter(Boolean)||[]))].sort();
+    const isEdit = this.view === 'edit';
+    const r = isEdit ? Store.byId(this.editingId) : null;
+    const fd = this.formData;
     return `<div class="view-create">
-      <div class="create-header"><button class="btn-ghost" id="btn-back">${this.t('back')}</button><h2>${isEdit?this.t('editRecipeTitle'):this.t('newRecipeTitle')}</h2></div>
+      <div class="create-header"><button class="btn-ghost" id="btn-back">${this.t('back')}</button><h2>${isEdit ? this.t('editRecipeTitle') : this.t('newRecipeTitle')}</h2></div>
       <div class="form-section"><h3>${this.t('generalInfo')}</h3>
         <div class="form-grid">
-          <div class="form-group full"><label for="f-name">${this.t('nameLbl')}</label><input type="text" id="f-name" placeholder="${this.t('namePh')}" value="${this.escHtml(r?r.name:'')}"></div>
-          <div class="form-group"><label for="f-cat">${this.t('catLbl')}</label><select id="f-cat"><option value="">${this.t('chooseCat')}</option>${CATEGORIES.map(c=>`<option${r&&r.category===c?' selected':''}>${c}</option>`).join('')}</select></div>
-          <div class="form-group"><label for="f-people">${this.t('portionsLbl')}</label><input type="number" id="f-people" min="1" max="100" value="${r?r.basePeople:4}"></div>
-          <div class="form-group"><label for="f-prep">${this.t('prepLbl')}</label><input type="number" id="f-prep" min="0" value="${r&&r.prepTime?r.prepTime:''}"></div>
-          <div class="form-group"><label for="f-cook">${this.t('cookLbl')}</label><input type="number" id="f-cook" min="0" value="${r&&r.cookTime?r.cookTime:''}"></div>
-          <div class="form-group full"><label for="f-desc">${this.t('descLbl')}</label><textarea id="f-desc">${this.escHtml(r?r.description||'':'')}</textarea></div>
+          <div class="form-group full"><label for="f-name">${this.t('nameLbl')}</label><input type="text" id="f-name" placeholder="${this.t('namePh')}" value="${this.escHtml(r ? r.name : '')}"></div>
+          <div class="form-group"><label for="f-cat">${this.t('catLbl')}</label><select id="f-cat"><option value="">${this.t('chooseCat')}</option>${CATEGORIES.map(c => `<option${r && r.category === c ? ' selected' : ''}>${c}</option>`).join('')}</select></div>
+          <div class="form-group"><label for="f-people">${this.t('portionsLbl')}</label><input type="number" id="f-people" min="1" max="100" value="${r ? r.basePeople : 4}"></div>
+          <div class="form-group"><label for="f-prep">${this.t('prepLbl')}</label><input type="number" id="f-prep" min="0" value="${r && r.prepTime ? r.prepTime : ''}"></div>
+          <div class="form-group"><label for="f-cook">${this.t('cookLbl')}</label><input type="number" id="f-cook" min="0" value="${r && r.cookTime ? r.cookTime : ''}"></div>
+          <div class="form-group full"><label for="f-desc">${this.t('descLbl')}</label><textarea id="f-desc">${this.escHtml(r ? r.description || '' : '')}</textarea></div>
         </div>
       </div>
       <div class="form-section"><h3>${this.t('coverTitle')}</h3><p class="form-hint">${this.t('coverHint')}</p>
         <div id="cover-area">${this.renderCoverArea(fd.coverImage)}</div>
         <input type="file" id="cover-file" accept="image/*" style="display:none">
       </div>
-      <div class="form-section"><h3>${this.t('ingsLbl')}</h3>
-        <datalist id="ing-names-list">${allIngNames.map(n=>`<option value="${this.escHtml(n)}">`).join('')}</datalist>
-        <div class="ing-header${fd.ingredients.length===0?' ing-header-hidden':''}"><span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span></div>
-        <div class="ingredients-builder" id="ing-builder">${fd.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('')}</div>
-        <div class="ing-quick-add">
-          <div class="ing-qa-field">
-            <label class="ing-qa-label">Nom</label>
-            <input type="text" id="ing-add-input" placeholder="${this.t('ingNamePh')}" list="ing-names-list" autocomplete="off">
-          </div>
-          <div class="ing-qa-field ing-qa-field-qty">
-            <label class="ing-qa-label">Qté</label>
-            <input type="number" id="ing-add-qty" placeholder="100" min="0" step="any">
-          </div>
-          <div class="ing-qa-field ing-qa-field-unit">
-            <label class="ing-qa-label">Unité</label>
-            <select id="ing-add-unit">${UNITS.map(u=>`<option>${u}</option>`).join('')}</select>
-          </div>
-          <button type="button" class="btn-add-ing-quick" id="btn-add-ing">+ Ajouter</button>
-        </div>
+      <div id="preparations-wrap">
+        ${fd.preparations.map((prep, pi) => this.renderPrepSection(prep, pi)).join('')}
       </div>
-      <div class="form-section"><h3>${this.t('stepsLbl')}</h3>
-        <div id="ing-ref-helper" class="ing-ref-helper" ${ingNames.length?'':'style="display:none"'}>${this.t('dynHelper')}<br><span class="ing-ref-names">${ingNames.map(n=>`<code>{${this.escHtml(n)}}</code>`).join(' ')}</span></div>
-        <div class="steps-builder" id="steps-builder">${fd.steps.map((s,i)=>this.renderStepRow(s,i)).join('')}</div>
-        <button class="btn-add" id="btn-add-step">${this.t('addStep')}</button>
-      </div>
+      <button type="button" class="btn-add-prep" id="btn-add-prep">+ Ajouter une préparation</button>
       <div class="form-section"><h3>${this.t('tagsLbl')}</h3>
         <div class="form-group"><label>${this.t('tagsInputLbl')}</label>
           <div class="tags-input" id="tags-box">
-            ${fd.tags.map((t,i)=>`<span class="tag">${this.escHtml(t)}<button class="tag-remove" data-tag="${i}">✕</button></span>`).join('')}
-            <input type="text" class="tags-text-input" id="tag-input" placeholder="${fd.tags.length?'':this.t('tagsPh')}">
+            ${fd.tags.map((t, i) => `<span class="tag">${this.escHtml(t)}<button class="tag-remove" data-tag="${i}">✕</button></span>`).join('')}
+            <input type="text" class="tags-text-input" id="tag-input" placeholder="${fd.tags.length ? '' : this.t('tagsPh')}">
           </div>
         </div>
       </div>
       <div class="form-actions">
-        ${isEdit?`<button class="btn-danger" id="btn-del-form">${this.t('deleteBtn')}</button>`:''}
+        ${isEdit ? `<button class="btn-danger" id="btn-del-form">${this.t('deleteBtn')}</button>` : ''}
         <button class="btn-ghost" id="btn-cancel">${this.t('cancelBtn')}</button>
-        <button class="btn-primary" id="btn-save">${isEdit?this.t('saveBtn'):this.t('createBtn')}</button>
+        <button class="btn-primary" id="btn-save">${isEdit ? this.t('saveBtn') : this.t('createBtn')}</button>
+      </div>
+    </div>`;
+  },
+
+  renderPrepSection(prep, pi) {
+    const fd = this.formData;
+    const hasMultiple = fd.preparations.length > 1;
+    const ingNames = (prep.ingredients || []).filter(i => i.name.trim()).map(i => i.name.trim());
+    return `<div class="prep-section" data-prep="${pi}">
+      ${hasMultiple ? `<div class="prep-header">
+        <span class="prep-label">Préparation ${pi + 1}</span>
+        <input type="text" class="prep-title-input" data-prep-title="${pi}" placeholder="Nom (ex : La pâte, La sauce…)" value="${this.escHtml(prep.title || '')}">
+        <button type="button" class="btn-icon btn-remove btn-del-prep" data-del-prep="${pi}">✕</button>
+      </div>` : ''}
+      <div class="form-section">
+        <h3>${this.t('ingsLbl')}</h3>
+        <div class="ing-header${(prep.ingredients || []).length === 0 ? ' ing-header-hidden' : ''}">
+          <span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span>
+        </div>
+        <div class="ingredients-builder" id="ing-builder-${pi}">
+          ${(prep.ingredients || []).map((ing, i) => this.renderIngRow(ing, i, pi)).join('')}
+        </div>
+        <div class="ing-quick-add">
+          <div class="ing-qa-field ing-qa-autocomplete">
+            <label class="ing-qa-label">Nom</label>
+            <div class="ing-autocomplete-wrap">
+              <input type="text" class="ing-add-input" id="ing-add-input-${pi}" placeholder="${this.t('ingNamePh')}" autocomplete="off" data-prep="${pi}">
+              <div class="ing-suggestions" id="ing-suggestions-${pi}"></div>
+            </div>
+          </div>
+          <div class="ing-qa-field ing-qa-field-qty">
+            <label class="ing-qa-label">Qté</label>
+            <input type="number" class="ing-add-qty" id="ing-add-qty-${pi}" placeholder="100" min="0" step="any">
+          </div>
+          <div class="ing-qa-field ing-qa-field-unit">
+            <label class="ing-qa-label">Unité</label>
+            <select class="ing-add-unit" id="ing-add-unit-${pi}">${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
+          </div>
+          <button type="button" class="btn-add-ing-quick" data-add-ing="${pi}">+ Ajouter</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3>${this.t('stepsLbl')}</h3>
+        <div class="ing-ref-helper" id="ing-ref-helper-${pi}"${ingNames.length ? '' : ' style="display:none"'}>
+          ${this.t('dynHelper')}<span class="ing-ref-click-hint"> — cliquer ou glisser dans une étape</span><br>
+          <span class="ing-ref-names" id="ing-ref-names-${pi}">
+            ${ingNames.map(n => `<code draggable="true" data-ing-chip="${this.escHtml(n)}">{${this.escHtml(n)}}</code>`).join(' ')}
+          </span>
+        </div>
+        <div class="steps-builder" id="steps-builder-${pi}">
+          ${(prep.steps || []).map((s, i) => this.renderStepRow(s, i, pi)).join('')}
+        </div>
+        <button type="button" class="btn-add" data-add-step="${pi}">${this.t('addStep')}</button>
       </div>
     </div>`;
   },
@@ -1289,11 +1459,35 @@ const App = {
     return`<div class="cover-upload-empty" id="cover-upload-empty"><div class="upload-icon">🖼️</div><div class="upload-text"><strong>${this.t('coverAdd')}</strong></div><div class="upload-hint">${this.t('coverOne')}</div></div>`;
   },
 
-  renderIngRow(ing,i){return`<div class="ingredient-row" data-ing="${i}" draggable="true"><div class="drag-handle">⠿</div><input type="text" placeholder="${this.t('ingNamePh')}" value="${this.escHtml(ing.name)}" data-f="name" data-i="${i}" list="ing-names-list"><input type="number" placeholder="${this.t('ingQtyPh')}" value="${ing.qty}" data-f="qty" data-i="${i}" min="0" step="any"><select data-f="unit" data-i="${i}">${UNITS.map(u=>`<option${ing.unit===u?' selected':''}>${u}</option>`).join('')}</select><button class="btn-icon btn-remove" data-del-ing="${i}">✕</button></div>`;},
+  renderIngRow(ing, i, pi) {
+    return `<div class="ingredient-row" data-ing="${i}" data-prep="${pi}" draggable="true">
+      <div class="drag-handle">⠿</div>
+      <input type="text" placeholder="${this.t('ingNamePh')}" value="${this.escHtml(ing.name)}" data-f="name" data-i="${i}" data-pi="${pi}">
+      <input type="number" placeholder="${this.t('ingQtyPh')}" value="${ing.qty}" data-f="qty" data-i="${i}" data-pi="${pi}" min="0" step="any">
+      <select data-f="unit" data-i="${i}" data-pi="${pi}">${UNITS.map(u => `<option${ing.unit === u ? ' selected' : ''}>${u}</option>`).join('')}</select>
+      <button class="btn-icon btn-remove" data-del-ing="${i}" data-pi="${pi}">✕</button>
+    </div>`;
+  },
 
-  renderStepRow(s,i){const step=this.normalizeStep(s);return`<div class="step-row" data-step="${i}"><div class="step-num-badge">${i+1}</div><div class="step-field"><textarea placeholder="${this.t('stepPh')}" data-si="${i}">${this.escHtml(step.text)}</textarea><div class="step-img-zone" id="step-img-zone-${i}">${this.renderStepImgZone(step,i)}</div></div><button class="btn-icon btn-remove" data-del-step="${i}">✕</button></div>`;},
+  renderStepRow(s, i, pi) {
+    const step = this.normalizeStep(s);
+    return `<div class="step-row" data-step="${i}" data-prep="${pi}">
+      <div class="step-num-badge">${i + 1}</div>
+      <div class="step-field">
+        <div class="step-toolbar">
+          <button type="button" class="btn-bold" data-bold="${i}" data-pi="${pi}" title="Mettre en gras (sélectionner du texte d'abord)"><b>G</b></button>
+        </div>
+        <textarea placeholder="${this.t('stepPh')}" data-si="${i}" data-pi="${pi}">${this.escHtml(step.text)}</textarea>
+        <div class="step-img-zone" id="step-img-zone-${pi}-${i}">${this.renderStepImgZone(step, i, pi)}</div>
+      </div>
+      <button class="btn-icon btn-remove" data-del-step="${i}" data-pi="${pi}">✕</button>
+    </div>`;
+  },
 
-  renderStepImgZone(step,i){if(step.image)return`<div class="step-img-preview-form"><img src="${step.image}" class="step-img-thumb" alt="Photo étape ${i+1}"><button class="btn-rm-step-img" data-rm-step-img="${i}">✕</button></div>`;return`<label class="step-img-add-btn"><input type="file" accept="image/*" style="display:none" data-img-input="${i}"><span>${this.t('addStepPhoto')}</span></label>`;},
+  renderStepImgZone(step, i, pi) {
+    if (step.image) return `<div class="step-img-preview-form"><img src="${step.image}" class="step-img-thumb" alt="Photo étape ${i + 1}"><button class="btn-rm-step-img" data-rm-step-img="${i}" data-pi="${pi}">✕</button></div>`;
+    return `<label class="step-img-add-btn"><input type="file" accept="image/*" style="display:none" data-img-input="${i}" data-pi="${pi}"><span>${this.t('addStepPhoto')}</span></label>`;
+  },
 
   bindHeader() {
     document.getElementById('nav-home')?.addEventListener('click', () => { this.view='list'; this.searchQuery=''; this.render(); });
@@ -1479,12 +1673,16 @@ const App = {
     document.getElementById('manual-name')?.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-add-manual')?.click(); });
 
     this.bindCoverEvents();
-    const ingBuilder=document.getElementById('ing-builder');
-    if(ingBuilder)this.bindIngEvents(ingBuilder);
-    const stepsBuilder=document.getElementById('steps-builder');
-    if(stepsBuilder)this.bindStepEvents(stepsBuilder);
-    document.getElementById('btn-add-step')?.addEventListener('click',()=>{this.formData.steps.push({text:'',image:null});this.rebuildSteps();});
+    this.bindPrepsEvents();
     this.bindTagEvents();
+    if (document.getElementById('preparations-wrap') && !this._acClickBound) {
+      this._acClickBound = true;
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.ing-autocomplete-wrap')) {
+          document.querySelectorAll('.ing-suggestions').forEach(s => { s.innerHTML = ''; });
+        }
+      });
+    }
   },
 
   bindCoverEvents(){
@@ -1495,27 +1693,223 @@ const App = {
     coverFile?.addEventListener('change',e=>{const f=e.target.files[0];if(!f||!f.type.startsWith('image/'))return;const r=new FileReader();r.onload=ev=>{this.formData.coverImage=ev.target.result;this.rebuildCoverImg();};r.readAsDataURL(f);e.target.value='';});
   },
 
-  bindIngEvents(root){
-    root.addEventListener('input',e=>{const el=e.target.closest('[data-f]');if(!el)return;const i=+el.dataset.i,f=el.dataset.f;this.formData.ingredients[i][f]=f==='qty'?(parseFloat(el.value)||''):el.value;this.updateIngHelper();});
-    root.addEventListener('change',e=>{const el=e.target.closest('[data-f]');if(el&&el.tagName==='SELECT')this.formData.ingredients[+el.dataset.i][el.dataset.f]=el.value;});
-    root.addEventListener('click',e=>{const btn=e.target.closest('[data-del-ing]');if(!btn)return;this.formData.ingredients.splice(+btn.dataset.delIng,1);this.rebuildIngs();});
-    let dragSrc=null;
-    root.addEventListener('dragstart',e=>{const row=e.target.closest('.ingredient-row');if(!row)return;dragSrc=+row.dataset.ing;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragSrc));requestAnimationFrame(()=>row.classList.add('dragging'));});
-    root.addEventListener('dragend',()=>{root.querySelectorAll('.dragging,.drag-over').forEach(el=>el.classList.remove('dragging','drag-over'));dragSrc=null;});
-    root.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';const row=e.target.closest('.ingredient-row');root.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));if(row&&dragSrc!==null&&+row.dataset.ing!==dragSrc)row.classList.add('drag-over');});
-    root.addEventListener('dragleave',e=>{if(!root.contains(e.relatedTarget))root.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));});
-    root.addEventListener('drop',e=>{e.preventDefault();const row=e.target.closest('.ingredient-row');if(!row||dragSrc===null)return;const dropIdx=+row.dataset.ing;if(dropIdx===dragSrc)return;const arr=this.formData.ingredients,[item]=arr.splice(dragSrc,1);arr.splice(dropIdx>dragSrc?dropIdx-1:dropIdx,0,item);this.rebuildIngs();});
+  bindPrepsEvents() {
+    const prepsWrap = document.getElementById('preparations-wrap');
+    if (!prepsWrap) return;
+
+    document.getElementById('btn-add-prep')?.addEventListener('click', () => {
+      this.formData.preparations.push({ id: crypto.randomUUID(), title: '', ingredients: [], steps: [{ text: '', image: null }] });
+      this.rebuildPreps();
+    });
+
+    prepsWrap.addEventListener('mousedown', e => {
+      if (e.target.closest('[data-bold]') || e.target.closest('[data-ing-chip]')) e.preventDefault();
+    });
+
+    prepsWrap.addEventListener('click', e => {
+      const delPrep = e.target.closest('[data-del-prep]');
+      if (delPrep && this.formData.preparations.length > 1) {
+        this.formData.preparations.splice(+delPrep.dataset.delPrep, 1); this.rebuildPreps(); return;
+      }
+      const addIng = e.target.closest('[data-add-ing]');
+      if (addIng) { this._addIngFromInput(+addIng.dataset.addIng); return; }
+      const addStep = e.target.closest('[data-add-step]');
+      if (addStep) {
+        const pi = +addStep.dataset.addStep;
+        this.formData.preparations[pi].steps.push({ text: '', image: null }); this.rebuildSteps(pi); return;
+      }
+      const delIng = e.target.closest('[data-del-ing]');
+      if (delIng) {
+        const pi = +delIng.dataset.pi;
+        this.formData.preparations[pi].ingredients.splice(+delIng.dataset.delIng, 1); this.rebuildIngs(pi); return;
+      }
+      const delStep = e.target.closest('[data-del-step]');
+      if (delStep) {
+        const pi = +delStep.dataset.pi, prep = this.formData.preparations[pi];
+        if (prep.steps.length > 1) { prep.steps.splice(+delStep.dataset.delStep, 1); this.rebuildSteps(pi); } return;
+      }
+      const rmImg = e.target.closest('[data-rm-step-img]');
+      if (rmImg) {
+        const pi = +rmImg.dataset.pi, i = +rmImg.dataset.rmStepImg;
+        this.formData.preparations[pi].steps[i].image = null; this.rebuildStepImgZone(pi, i); return;
+      }
+      const boldBtn = e.target.closest('[data-bold]');
+      if (boldBtn) {
+        const pi = +boldBtn.dataset.pi, i = +boldBtn.dataset.bold;
+        const ta = prepsWrap.querySelector(`[data-si="${i}"][data-pi="${pi}"]`);
+        if (!ta) return;
+        const start = ta.selectionStart, end = ta.selectionEnd;
+        if (start === end) return;
+        const sel = ta.value.slice(start, end);
+        if (sel.startsWith('**') && sel.endsWith('**') && sel.length > 4) {
+          const inner = sel.slice(2, -2);
+          ta.value = ta.value.slice(0, start) + inner + ta.value.slice(end);
+          ta.selectionStart = start; ta.selectionEnd = start + inner.length;
+        } else {
+          ta.value = ta.value.slice(0, start) + '**' + sel + '**' + ta.value.slice(end);
+          ta.selectionStart = start; ta.selectionEnd = end + 4;
+        }
+        ta.dispatchEvent(new Event('input')); return;
+      }
+      const chip = e.target.closest('[data-ing-chip]');
+      if (chip) { this._insertIngChip(chip.dataset.ingChip); return; }
+      const sugg = e.target.closest('.ing-suggestion-item');
+      if (sugg) {
+        const pi = +sugg.dataset.pi, name = sugg.dataset.name, unit = sugg.dataset.unit;
+        const nameInput = document.getElementById(`ing-add-input-${pi}`);
+        const unitSel = document.getElementById(`ing-add-unit-${pi}`);
+        if (nameInput) nameInput.value = name;
+        if (unitSel) unitSel.value = unit;
+        const sug = document.getElementById(`ing-suggestions-${pi}`); if (sug) sug.innerHTML = '';
+        document.getElementById(`ing-add-qty-${pi}`)?.focus();
+      }
+    });
+
+    prepsWrap.addEventListener('input', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      if (ta) { this.formData.preparations[+ta.dataset.pi].steps[+ta.dataset.si].text = ta.value; return; }
+      const ingInput = e.target.closest('[data-f][data-i][data-pi]');
+      if (ingInput) {
+        const pi = +ingInput.dataset.pi, i = +ingInput.dataset.i, f = ingInput.dataset.f;
+        this.formData.preparations[pi].ingredients[i][f] = f === 'qty' ? (parseFloat(ingInput.value) || '') : ingInput.value;
+        this.updateIngHelper(pi); return;
+      }
+      const prepTitle = e.target.closest('[data-prep-title]');
+      if (prepTitle) { this.formData.preparations[+prepTitle.dataset.prepTitle].title = prepTitle.value; return; }
+      const acInput = e.target.closest('.ing-add-input');
+      if (acInput) this._showIngSuggestions(+acInput.dataset.prep, acInput.value);
+    });
+
+    prepsWrap.addEventListener('change', e => {
+      const sel = e.target.closest('[data-f][data-i][data-pi]');
+      if (sel && sel.tagName === 'SELECT') {
+        this.formData.preparations[+sel.dataset.pi].ingredients[+sel.dataset.i][sel.dataset.f] = sel.value; return;
+      }
+      const imgInput = e.target.closest('[data-img-input][data-pi]');
+      if (imgInput) {
+        const pi = +imgInput.dataset.pi, i = +imgInput.dataset.imgInput, f = imgInput.files[0];
+        if (!f || !f.type.startsWith('image/')) return;
+        const rdr = new FileReader();
+        rdr.onload = ev => { this.formData.preparations[pi].steps[i].image = ev.target.result; this.rebuildStepImgZone(pi, i); };
+        rdr.readAsDataURL(f); imgInput.value = '';
+      }
+    });
+
+    prepsWrap.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const acInput = e.target.closest('.ing-add-input');
+        if (acInput) { e.preventDefault(); this._addIngFromInput(+acInput.dataset.prep); }
+      }
+    });
+
+    prepsWrap.addEventListener('focus', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      if (ta) this._lastStepFocus = { el: ta, pos: ta.selectionStart };
+    }, true);
+    prepsWrap.addEventListener('keyup', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      if (ta) this._lastStepFocus = { el: ta, pos: ta.selectionStart };
+    });
+    prepsWrap.addEventListener('mouseup', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      if (ta) this._lastStepFocus = { el: ta, pos: ta.selectionStart };
+    });
+
+    prepsWrap.addEventListener('dragstart', e => {
+      const chip = e.target.closest('[data-ing-chip]');
+      if (chip) {
+        e.dataTransfer.setData('text/ing-chip', `{${chip.dataset.ingChip}}`);
+        e.dataTransfer.effectAllowed = 'copy'; return;
+      }
+      const row = e.target.closest('.ingredient-row');
+      if (row) {
+        this._dragIngSrc = { i: +row.dataset.ing, pi: +row.dataset.prep };
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(row.dataset.ing));
+        requestAnimationFrame(() => row.classList.add('dragging'));
+      }
+    });
+    prepsWrap.addEventListener('dragend', () => {
+      prepsWrap.querySelectorAll('.dragging,.drag-over').forEach(el => el.classList.remove('dragging', 'drag-over'));
+      this._dragIngSrc = null;
+    });
+    prepsWrap.addEventListener('dragover', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      if (ta && e.dataTransfer.types.includes('text/ing-chip')) {
+        e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+        prepsWrap.querySelectorAll('textarea.drop-target').forEach(el => el.classList.remove('drop-target'));
+        ta.classList.add('drop-target'); return;
+      }
+      const row = e.target.closest('.ingredient-row');
+      if (row && this._dragIngSrc) {
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        prepsWrap.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        if (+row.dataset.ing !== this._dragIngSrc.i || +row.dataset.prep !== this._dragIngSrc.pi) row.classList.add('drag-over');
+      }
+    });
+    prepsWrap.addEventListener('dragleave', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      if (ta) ta.classList.remove('drop-target');
+      if (!prepsWrap.contains(e.relatedTarget)) prepsWrap.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    prepsWrap.addEventListener('drop', e => {
+      const ta = e.target.closest('[data-si][data-pi]');
+      const chipText = e.dataTransfer.getData('text/ing-chip');
+      if (ta && chipText) {
+        e.preventDefault(); ta.classList.remove('drop-target');
+        const pos = ta.selectionStart, val = ta.value;
+        ta.value = val.slice(0, pos) + chipText + val.slice(ta.selectionEnd);
+        ta.selectionStart = ta.selectionEnd = pos + chipText.length;
+        ta.dispatchEvent(new Event('input')); ta.focus(); return;
+      }
+      const row = e.target.closest('.ingredient-row');
+      if (row && this._dragIngSrc) {
+        e.preventDefault();
+        const pi = this._dragIngSrc.pi;
+        if (+row.dataset.prep !== pi) return;
+        const dropIdx = +row.dataset.ing;
+        if (dropIdx === this._dragIngSrc.i) return;
+        const arr = this.formData.preparations[pi].ingredients;
+        const [item] = arr.splice(this._dragIngSrc.i, 1);
+        arr.splice(dropIdx > this._dragIngSrc.i ? dropIdx - 1 : dropIdx, 0, item);
+        this.rebuildIngs(pi);
+      }
+    });
   },
 
-  bindStepEvents(root){
-    root.addEventListener('input',e=>{const ta=e.target.closest('[data-si]');if(ta)this.formData.steps[+ta.dataset.si].text=ta.value;});
-    root.addEventListener('click',e=>{
-      const del=e.target.closest('[data-del-step]');
-      if(del){if(this.formData.steps.length>1){this.formData.steps.splice(+del.dataset.delStep,1);this.rebuildSteps();}return;}
-      const rm=e.target.closest('[data-rm-step-img]');
-      if(rm){this.formData.steps[+rm.dataset.rmStepImg].image=null;this.rebuildStepImgZone(+rm.dataset.rmStepImg);}
+  _insertIngChip(name) {
+    const f = this._lastStepFocus;
+    if (!f || !f.el || !f.el.isConnected) return;
+    const ref = `{${name}}`;
+    const ta = f.el, pos = f.pos !== undefined ? f.pos : ta.value.length;
+    ta.value = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
+    ta.selectionStart = ta.selectionEnd = pos + ref.length;
+    this._lastStepFocus.pos = pos + ref.length;
+    ta.focus(); ta.dispatchEvent(new Event('input'));
+  },
+
+  _showIngSuggestions(pi, query) {
+    const container = document.getElementById(`ing-suggestions-${pi}`);
+    if (!container) return;
+    if (!query || query.length < 1) { container.innerHTML = ''; return; }
+    const q = query.toLowerCase();
+    const dbItems = INGREDIENTS_DB.filter(i => i.n.toLowerCase().includes(q));
+    const existingNames = [...new Set(Store.get().flatMap(r => (r.ingredients || []).map(i => i.name).filter(Boolean)))];
+    const customItems = existingNames
+      .filter(n => n.toLowerCase().includes(q) && !INGREDIENTS_DB.find(i => i.n.toLowerCase() === n.toLowerCase()))
+      .map(n => ({ n, u: 'g', c: 'Mes ingrédients' }));
+    const allItems = [...dbItems, ...customItems].slice(0, 35);
+    if (!allItems.length) { container.innerHTML = ''; return; }
+    const grouped = {};
+    allItems.forEach(i => { if (!grouped[i.c]) grouped[i.c] = []; grouped[i.c].push(i); });
+    let html = '';
+    Object.entries(grouped).forEach(([cat, items]) => {
+      html += `<div class="ing-suggestion-cat">${this.escHtml(cat)}</div>`;
+      items.forEach(i => {
+        html += `<div class="ing-suggestion-item" data-pi="${pi}" data-name="${this.escHtml(i.n)}" data-unit="${this.escHtml(i.u)}">${this.escHtml(i.n)}<span class="ing-sugg-unit">${this.escHtml(i.u)}</span></div>`;
+      });
     });
-    root.addEventListener('change',e=>{const input=e.target.closest('[data-img-input]');if(!input)return;const i=+input.dataset.imgInput,f=input.files[0];if(!f||!f.type.startsWith('image/'))return;const rdr=new FileReader();rdr.onload=ev=>{this.formData.steps[i].image=ev.target.result;this.rebuildStepImgZone(i);};rdr.readAsDataURL(f);input.value='';});
+    container.innerHTML = html;
   },
 
   bindTagEvents(){
@@ -1542,42 +1936,87 @@ const App = {
     document.getElementById('btn-auth-submit')?.before(el);
   },
 
-  _addIngFromInput() {
-    const nameInput = document.getElementById('ing-add-input');
+  _addIngFromInput(pi) {
+    const nameInput = document.getElementById(`ing-add-input-${pi}`);
     const name = (nameInput?.value || '').trim();
     if (!name) { nameInput?.focus(); return; }
-    const qty = parseFloat(document.getElementById('ing-add-qty')?.value) || '';
-    const unit = document.getElementById('ing-add-unit')?.value || 'g';
-    this.formData.ingredients.push({ name, qty, unit });
-    this.rebuildIngs();
+    const qty = parseFloat(document.getElementById(`ing-add-qty-${pi}`)?.value) || '';
+    const unit = document.getElementById(`ing-add-unit-${pi}`)?.value || 'g';
+    this.formData.preparations[pi].ingredients.push({ name, qty, unit });
+    this.rebuildIngs(pi);
     if (nameInput) { nameInput.value = ''; nameInput.focus(); }
-    const qtyInput = document.getElementById('ing-add-qty');
+    const qtyInput = document.getElementById(`ing-add-qty-${pi}`);
     if (qtyInput) qtyInput.value = '';
+    const sug = document.getElementById(`ing-suggestions-${pi}`); if (sug) sug.innerHTML = '';
   },
 
-  rebuildIngs(){
-    const b=document.getElementById('ing-builder');if(!b)return;
-    b.innerHTML=this.formData.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('');
-    const h=document.querySelector('.ing-header');
-    if(h)h.classList.toggle('ing-header-hidden', this.formData.ingredients.length===0);
-    this.updateIngHelper();
+  rebuildPreps() {
+    const wrap = document.getElementById('preparations-wrap'); if (!wrap) return;
+    wrap.innerHTML = this.formData.preparations.map((prep, pi) => this.renderPrepSection(prep, pi)).join('');
   },
-  rebuildSteps(){const b=document.getElementById('steps-builder');if(!b)return;b.innerHTML=this.formData.steps.map((s,i)=>this.renderStepRow(s,i)).join('');},
-  rebuildStepImgZone(i){const z=document.getElementById(`step-img-zone-${i}`);if(!z)return;z.innerHTML=this.renderStepImgZone(this.formData.steps[i],i);},
-  rebuildCoverImg(){const a=document.getElementById('cover-area');if(!a)return;a.innerHTML=this.renderCoverArea(this.formData.coverImage);this.bindCoverEvents();},
-  rebuildTags(){const b=document.getElementById('tags-box');if(!b)return;b.innerHTML=this.formData.tags.map((t,i)=>`<span class="tag">${this.escHtml(t)}<button class="tag-remove" data-tag="${i}">✕</button></span>`).join('')+`<input type="text" class="tags-text-input" id="tag-input" placeholder="${this.formData.tags.length?'':this.t('tagsPh')}">`;document.getElementById('tag-input')?.focus();this.bindTagEvents();},
-  updateIngHelper(){const h=document.getElementById('ing-ref-helper');if(!h)return;const names=this.formData.ingredients.filter(i=>i.name.trim()).map(i=>i.name.trim());h.style.display=names.length?'':'none';const span=h.querySelector('.ing-ref-names');if(span)span.innerHTML=names.map(n=>`<code>{${this.escHtml(n)}}</code>`).join(' ');},
+  rebuildIngs(pi) {
+    const b = document.getElementById(`ing-builder-${pi}`); if (!b) return;
+    b.innerHTML = this.formData.preparations[pi].ingredients.map((ing, i) => this.renderIngRow(ing, i, pi)).join('');
+    const h = b.closest('.form-section')?.querySelector('.ing-header');
+    if (h) h.classList.toggle('ing-header-hidden', this.formData.preparations[pi].ingredients.length === 0);
+    this.updateIngHelper(pi);
+  },
+  rebuildSteps(pi) {
+    const b = document.getElementById(`steps-builder-${pi}`); if (!b) return;
+    b.innerHTML = this.formData.preparations[pi].steps.map((s, i) => this.renderStepRow(s, i, pi)).join('');
+  },
+  rebuildStepImgZone(pi, i) {
+    const z = document.getElementById(`step-img-zone-${pi}-${i}`); if (!z) return;
+    z.innerHTML = this.renderStepImgZone(this.formData.preparations[pi].steps[i], i, pi);
+  },
+  rebuildCoverImg() { const a = document.getElementById('cover-area'); if (!a) return; a.innerHTML = this.renderCoverArea(this.formData.coverImage); this.bindCoverEvents(); },
+  rebuildTags() {
+    const b = document.getElementById('tags-box'); if (!b) return;
+    b.innerHTML = this.formData.tags.map((t, i) => `<span class="tag">${this.escHtml(t)}<button class="tag-remove" data-tag="${i}">✕</button></span>`).join('') + `<input type="text" class="tags-text-input" id="tag-input" placeholder="${this.formData.tags.length ? '' : this.t('tagsPh')}">`;
+    document.getElementById('tag-input')?.focus(); this.bindTagEvents();
+  },
+  updateIngHelper(pi) {
+    const h = document.getElementById(`ing-ref-helper-${pi}`); if (!h) return;
+    const names = this.formData.preparations[pi].ingredients.filter(i => i.name.trim()).map(i => i.name.trim());
+    h.style.display = names.length ? '' : 'none';
+    const span = document.getElementById(`ing-ref-names-${pi}`);
+    if (span) span.innerHTML = names.map(n => `<code draggable="true" data-ing-chip="${this.escHtml(n)}">{${this.escHtml(n)}}</code>`).join(' ');
+  },
 
   async saveRecipe() {
-    const name=document.getElementById('f-name')?.value?.trim();
-    if(!name){this.toast(this.t('nameWarn'));return;}
-    if(!this.editingId&&!this.canAddRecipe()){this.showUpgradeModal();return;}
-    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString(),authorId:this.user?.id||null,authorName:this.user?.username||this.user?.email?.split('@')[0]||''};
-    if(this.editingId)Store.update(this.editingId,recipe);else Store.add(recipe);
-    if(this.user){const{error}=await db.from('recipes').upsert({id:recipe.id,user_id:this.user.id,data:recipe,updated_at:recipe.updatedAt});if(error)this.toast(this.t('syncErr')+error.message);}
-    this.toast(this.editingId?this.t('recipeUpdated'):this.t('recipeCreated'));
-    this.nav('recipe',recipe.id);
-    // Remove the create/edit entry nav() just pushed so back goes to list, not the form
+    const name = document.getElementById('f-name')?.value?.trim();
+    if (!name) { this.toast(this.t('nameWarn')); return; }
+    if (!this.editingId && !this.canAddRecipe()) { this.showUpgradeModal(); return; }
+    const preparations = this.formData.preparations.map(p => ({
+      id: p.id,
+      title: p.title || '',
+      ingredients: (p.ingredients || []).filter(i => i.name.trim()).map(i => ({ ...i, name: i.name.trim() })),
+      steps: (p.steps || []).filter(s => s.text.trim())
+    }));
+    const allIngredients = preparations.flatMap(p => p.ingredients);
+    const allSteps = preparations.flatMap(p => p.steps);
+    const recipe = {
+      id: this.editingId || crypto.randomUUID(), name,
+      category: document.getElementById('f-cat')?.value || '',
+      basePeople: parseInt(document.getElementById('f-people')?.value) || 4,
+      prepTime: parseInt(document.getElementById('f-prep')?.value) || 0,
+      cookTime: parseInt(document.getElementById('f-cook')?.value) || 0,
+      description: document.getElementById('f-desc')?.value?.trim() || '',
+      ingredients: allIngredients, steps: allSteps, preparations,
+      coverImage: this.formData.coverImage || null, images: [],
+      tags: [...this.formData.tags],
+      createdAt: this.editingId ? (Store.byId(this.editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      authorId: this.user?.id || null,
+      authorName: this.user?.username || this.user?.email?.split('@')[0] || ''
+    };
+    if (this.editingId) Store.update(this.editingId, recipe); else Store.add(recipe);
+    if (this.user) {
+      const { error } = await db.from('recipes').upsert({ id: recipe.id, user_id: this.user.id, data: recipe, updated_at: recipe.updatedAt });
+      if (error) this.toast(this.t('syncErr') + error.message);
+    }
+    this.toast(this.editingId ? this.t('recipeUpdated') : this.t('recipeCreated'));
+    this.nav('recipe', recipe.id);
     this.navStack = this.navStack.filter(e => e.view !== 'create' && e.view !== 'edit');
   },
 
