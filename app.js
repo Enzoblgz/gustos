@@ -524,10 +524,14 @@ const App = {
         .upsert(local.map(r => ({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt || new Date().toISOString() })), { onConflict: 'id' });
       if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
     }
-    // Fetch all recipes from Supabase (RLS allows all authenticated users to read all)
-    const { data, error } = await db.from('recipes').select('data, user_id').order('created_at', { ascending: true });
+    // Fetch all recipes + author name from profiles (JOIN via FK)
+    const { data, error } = await db.from('recipes').select('data, user_id, profiles(name, email)').order('created_at', { ascending: true });
     if (error) { console.warn('[Sync fetch]', error.message); return; }
-    Store.saveCache(data ? data.map(r => ({ ...r.data, authorId: r.user_id })) : local);
+    Store.saveCache(data ? data.map(r => ({
+      ...r.data,
+      authorId: r.user_id,
+      authorName: r.data.authorName || r.profiles?.name || r.profiles?.email?.split('@')[0] || ''
+    })) : local);
   },
 
   async loadSocial() {
