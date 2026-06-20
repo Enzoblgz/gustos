@@ -1313,6 +1313,7 @@ textarea.drop-target {
 .ing-qa-autocomplete { position: relative; flex: 1; }
 .ing-autocomplete-wrap { position: relative; }
 .ing-autocomplete-wrap .ing-add-input { width: 100%; }
+.ing-suggestions:empty { display: none; }
 .ing-suggestions {
   position: absolute;
   top: calc(100% + 4px);
