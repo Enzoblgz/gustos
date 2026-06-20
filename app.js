@@ -515,9 +515,9 @@ const App = {
     // Push local recipes to Supabase first (handles pre-table era + offline creates)
     const local = Store.get();
     if (local.length) {
-      await db.from('recipes')
-        .upsert(local.map(r => ({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt || new Date().toISOString() })), { onConflict: 'id' })
-        .catch(e => console.warn('[Sync push]', e.message));
+      const { error: pushErr } = await db.from('recipes')
+        .upsert(local.map(r => ({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt || new Date().toISOString() })), { onConflict: 'id' });
+      if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
     }
     // Fetch all recipes from Supabase (RLS allows all authenticated users to read all)
     const { data, error } = await db.from('recipes').select('data').order('created_at', { ascending: true });
