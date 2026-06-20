@@ -311,7 +311,7 @@ const App = {
   portionCount: 4, editingId: null, formData: { ingredients: [], steps: [], coverImage: null, tags: [] },
   likedIds: new Set(), savedIds: new Set(), likeCounts: {}, accountTab: 'mine',
   lang: localStorage.getItem('recettes_lang') || 'fr',
-  planWeek: '', plan: {}, shopping: [], pickerOpen: null, pickerQuery: '', pickerTab: 'all',
+  planWeek: '', plan: {}, planPortions: {}, shopping: [], pickerOpen: null, pickerQuery: '', pickerTab: 'all',
 
   t(key, ...args) {
     const d = TR[this.lang] || TR.fr;
@@ -763,7 +763,7 @@ const App = {
     const ta = u => u.trial_ends_at && new Date(u.trial_ends_at) > new Date();
     const fmt = d => new Date(d).toLocaleDateString('fr-FR');
     return `<div class="view-admin">
-      <div class="admin-header"><button class="btn-ghost" id="btn-back">← Retour</button><h2>Admin — ${stats.length} utilisateur${stats.length>1?'s':''}</h2><button class="btn-secondary btn-sm" id="btn-admin-reseed">⟳ Reseed recettes</button></div>
+      <div class="admin-header"><button class="btn-ghost" id="btn-back">← Retour</button><h2>Admin — ${stats.length} utilisateur${stats.length>1?'s':''}</h2></div>
       <div class="admin-kpis">
         <div class="admin-kpi"><div class="kpi-val">${stats.length}</div><div class="kpi-lbl">Comptes</div></div>
         <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>u.plan==='pro').length}</div><div class="kpi-lbl">Pro</div></div>
@@ -1144,13 +1144,6 @@ const App = {
     });
     document.getElementById('btn-save')?.addEventListener('click', () => this.saveRecipe().catch(e=>this.toast('Erreur : '+e.message)));
     document.querySelectorAll('[data-set-plan]').forEach(btn => btn.addEventListener('click', () => this.adminSetPlan(btn.dataset.setPlan, btn.dataset.plan)));
-    document.getElementById('btn-admin-reseed')?.addEventListener('click', async () => {
-      localStorage.removeItem('gustos_seeded_v1');
-      localStorage.removeItem('gustos_seeded_v2');
-      await this.seedDefaultRecipes(false).catch(e => this.toast('Erreur : ' + e.message));
-      localStorage.setItem('gustos_seeded_v2', '1');
-      this.render();
-    });
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
@@ -1168,6 +1161,18 @@ const App = {
     }));
     document.querySelectorAll('[data-rm-date]').forEach(btn => btn.addEventListener('click', () => {
       this.removeFromPlan(btn.dataset.rmDate, btn.dataset.rmMeal, btn.dataset.rmId); this.renderContent();
+    }));
+    document.querySelectorAll('[data-port-dir]').forEach(btn => btn.addEventListener('click', () => {
+      const { portDir, portDate, portMeal, portId } = btn.dataset;
+      const key = `${portDate}|${portMeal}|${portId}`;
+      const r = Store.byId(portId);
+      const cur = this.planPortions[key] || r?.basePeople || 4;
+      this.planPortions[key] = Math.max(1, Math.min(50, cur + parseInt(portDir)));
+      this.generateShoppingList(); this.savePlan(); this.renderContent();
+    }));
+    document.querySelectorAll('[data-open-recipe]').forEach(btn => btn.addEventListener('click', () => {
+      this.portionCount = parseInt(btn.dataset.openPortions) || 4;
+      this.nav('recipe', btn.dataset.openRecipe);
     }));
     // Picker modal
     const closePicker = () => { this.pickerOpen = null; this.pickerQuery = ''; this.pickerTab = 'all'; this.renderContent(); };
@@ -1689,10 +1694,12 @@ const App = {
   loadPlanLocal() {
     try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
     try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
+    try { this.planPortions = JSON.parse(localStorage.getItem('gustos_portions') || '{}'); } catch { this.planPortions = {}; }
   },
   savePlan() {
     localStorage.setItem('gustos_plan', JSON.stringify(this.plan));
     localStorage.setItem('gustos_shopping', JSON.stringify(this.shopping));
+    localStorage.setItem('gustos_portions', JSON.stringify(this.planPortions));
     if (this.user) {
       db.from('meal_plans').upsert({
         user_id: this.user.id, week_of: this.planWeek,
@@ -1718,11 +1725,16 @@ const App = {
   addToPlan(date, meal, recipeId) {
     if (!this.plan[date]) this.plan[date] = { lunch: [], dinner: [] };
     if (!this.plan[date][meal]) this.plan[date][meal] = [];
-    if (!this.plan[date][meal].includes(recipeId)) this.plan[date][meal].push(recipeId);
+    if (!this.plan[date][meal].includes(recipeId)) {
+      this.plan[date][meal].push(recipeId);
+      const r = Store.byId(recipeId);
+      this.planPortions[`${date}|${meal}|${recipeId}`] = r?.basePeople || 4;
+    }
     this.generateShoppingList(); this.savePlan();
   },
   removeFromPlan(date, meal, recipeId) {
     if (this.plan[date]?.[meal]) this.plan[date][meal] = this.plan[date][meal].filter(id => id !== recipeId);
+    delete this.planPortions[`${date}|${meal}|${recipeId}`];
     this.generateShoppingList(); this.savePlan();
   },
 
@@ -1734,13 +1746,16 @@ const App = {
         for (const rid of (slots[meal] || [])) {
           const r = Store.byId(rid);
           if (!r) continue;
+          const portions = this.planPortions[`${date}|${meal}|${rid}`] || r.basePeople || 4;
+          const ratio = portions / (r.basePeople || portions);
           for (const ing of r.ingredients) {
             const key = `${ing.name.trim().toLowerCase()}|||${(ing.unit || '').toLowerCase()}`;
+            const scaledQty = (parseFloat(ing.qty) || 0) * ratio;
             if (merged[key]) {
-              merged[key].qty = (merged[key].qty || 0) + (parseFloat(ing.qty) || 0);
+              merged[key].qty = (merged[key].qty || 0) + scaledQty;
               if (!merged[key].sources.includes(r.name)) merged[key].sources.push(r.name);
             } else {
-              merged[key] = { id: key, name: ing.name, qty: parseFloat(ing.qty) || 0, unit: ing.unit || '', sources: [r.name], checked: false, manual: false };
+              merged[key] = { id: key, name: ing.name, qty: scaledQty, unit: ing.unit || '', sources: [r.name], checked: false, manual: false };
             }
           }
         }
@@ -1834,10 +1849,14 @@ const App = {
           ${manualItems.length ? `<div class="shop-group-lbl">Ajouts manuels</div>${manualItems.map(i => this.renderShopItem(i)).join('')}` : ''}
         </div>
         <div class="shopping-add-row">
-          <input type="text" id="manual-name" placeholder="Ajouter un article…" class="manual-name-input">
-          <input type="number" id="manual-qty" placeholder="Qté" class="manual-qty-input" min="0" step="any">
-          <select id="manual-unit" class="manual-unit-select"><option value="">unité</option>${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
-          <button class="btn-primary" id="btn-add-manual">+ Ajouter</button>
+          <div class="manual-input-group">
+            <input type="text" id="manual-name" placeholder="Ajouter un article…" class="manual-name-input" autocomplete="off">
+            <div class="manual-divider"></div>
+            <input type="number" id="manual-qty" placeholder="Qté" class="manual-qty-input" min="0" step="any">
+            <div class="manual-divider"></div>
+            <select id="manual-unit" class="manual-unit-select"><option value="">unité</option>${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
+          </div>
+          <button class="btn-primary btn-sm" id="btn-add-manual">+ Ajouter</button>
         </div>
       </div>
       ${this.pickerOpen ? this.renderRecipePicker() : ''}
@@ -1850,9 +1869,15 @@ const App = {
       if (!r) return '';
       const cover = this.getCover(r);
       const emoji = CAT_EMOJI[r.category] || '🍴';
+      const portions = this.planPortions[`${date}|${meal}|${id}`] || r.basePeople || 4;
       return `<div class="plan-chip">
         <div class="chip-thumb">${cover ? `<img src="${cover}" loading="lazy">` : `<span>${emoji}</span>`}</div>
-        <span class="chip-name">${this.escHtml(r.name)}</span>
+        <button class="chip-name-btn" data-open-recipe="${id}" data-open-portions="${portions}" title="Voir la recette">${this.escHtml(r.name)}</button>
+        <div class="chip-portions">
+          <button class="chip-port-btn" data-port-dir="-1" data-port-date="${date}" data-port-meal="${meal}" data-port-id="${id}">−</button>
+          <span class="chip-port-val">${portions}</span>
+          <button class="chip-port-btn" data-port-dir="1" data-port-date="${date}" data-port-meal="${meal}" data-port-id="${id}">+</button>
+        </div>
         <button class="chip-del" data-rm-date="${date}" data-rm-meal="${meal}" data-rm-id="${id}">✕</button>
       </div>`;
     }).join('') + `<button class="plan-add-btn" data-add-date="${date}" data-add-meal="${meal}">+ Ajouter</button>`;
