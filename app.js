@@ -2081,7 +2081,7 @@ const App = {
             <label class="shop-add-label">Unité</label>
             <select id="manual-unit">${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
           </div>
-          <button class="btn-primary btn-sm" id="btn-add-manual">+ ${this.t('addItemBtn')}</button>
+          <button class="btn-primary btn-sm" id="btn-add-manual">${this.t('addItemBtn')}</button>
         </div>
       </div>
       ${this.pickerOpen ? this.renderRecipePicker() : ''}
