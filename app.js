@@ -1180,10 +1180,19 @@ const App = {
         <div class="ing-header${fd.ingredients.length===0?' ing-header-hidden':''}"><span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span></div>
         <div class="ingredients-builder" id="ing-builder">${fd.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('')}</div>
         <div class="ing-quick-add">
-          <input type="text" id="ing-add-input" placeholder="${this.t('addIng')}" list="ing-names-list" autocomplete="off" class="ing-qa-name">
-          <input type="number" id="ing-add-qty" placeholder="${this.t('ingQtyPh')}" min="0" step="any" class="ing-qa-qty">
-          <select id="ing-add-unit" class="ing-qa-unit">${UNITS.map(u=>`<option>${u}</option>`).join('')}</select>
-          <button type="button" class="btn-add-ing-quick" id="btn-add-ing">+</button>
+          <div class="ing-qa-field">
+            <label class="ing-qa-label">Nom</label>
+            <input type="text" id="ing-add-input" placeholder="${this.t('ingNamePh')}" list="ing-names-list" autocomplete="off">
+          </div>
+          <div class="ing-qa-field ing-qa-field-qty">
+            <label class="ing-qa-label">Qté</label>
+            <input type="number" id="ing-add-qty" placeholder="100" min="0" step="any">
+          </div>
+          <div class="ing-qa-field ing-qa-field-unit">
+            <label class="ing-qa-label">Unité</label>
+            <select id="ing-add-unit">${UNITS.map(u=>`<option>${u}</option>`).join('')}</select>
+          </div>
+          <button type="button" class="btn-add-ing-quick" id="btn-add-ing">+ Ajouter</button>
         </div>
       </div>
       <div class="form-section"><h3>${this.t('stepsLbl')}</h3>
@@ -1490,6 +1499,12 @@ const App = {
       const card = document.getElementById('profile-edit-card');
       if (card) card.hidden = true;
       this.renderContent();
+      // Header badge: renderContent() doesn't touch the header so update it directly
+      const hdr = document.getElementById('btn-go-account');
+      if (hdr) {
+        const initial = (this.user?.name?.[0] || this.user?.email?.[0] || '?').toUpperCase();
+        hdr.innerHTML = this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo" alt="">` : initial;
+      }
       this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved'));
     } catch(e) {
       this.toast('⚠️ Erreur : ' + e.message);
@@ -1557,29 +1572,35 @@ const App = {
   handleAvatarUpload(file) {
     if (!file || !this.user) return;
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = ev => {
+      const raw = ev.target.result;
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const size = 200;
-        canvas.width = size; canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        const scale = Math.max(size / img.width, size / img.height);
-        const sw = size / scale, sh = size / scale;
-        const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
-        const b64 = canvas.toDataURL('image/jpeg', 0.85);
-        this.avatarImg = b64;
-        localStorage.setItem('gustos_avatar_' + this.user.id, b64);
-        if (this.user) db.from('profiles').update({ avatar_url: b64 }).eq('id', this.user.id).catch(() => {});
-        const preview = document.getElementById('profile-avatar-preview');
-        if (preview) preview.innerHTML = `<img src="${b64}" class="avatar-photo-large" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover">`;
-        const hdr = document.getElementById('btn-go-account');
-        if (hdr) hdr.innerHTML = `<img src="${b64}" class="avatar-photo" alt="">`;
+        try {
+          const canvas = document.createElement('canvas');
+          const size = 200;
+          canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          const scale = Math.max(size / img.width, size / img.height);
+          const sw = size / scale, sh = size / scale;
+          ctx.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, 0, 0, size, size);
+          this._applyAvatar(canvas.toDataURL('image/jpeg', 0.85));
+        } catch { this._applyAvatar(raw); }
       };
-      img.src = e.target.result;
+      img.onerror = () => this._applyAvatar(raw);
+      img.src = raw;
     };
     reader.readAsDataURL(file);
+  },
+
+  _applyAvatar(b64) {
+    this.avatarImg = b64;
+    localStorage.setItem('gustos_avatar_' + this.user.id, b64);
+    db.from('profiles').update({ avatar_url: b64 }).eq('id', this.user.id).catch(() => {});
+    const preview = document.getElementById('profile-avatar-preview');
+    if (preview) preview.innerHTML = `<img src="${b64}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:block" alt="">`;
+    const hdr = document.getElementById('btn-go-account');
+    if (hdr) hdr.innerHTML = `<img src="${b64}" class="avatar-photo" alt="">`;
   },
 
   async seedDefaultRecipes(silent = false) {
