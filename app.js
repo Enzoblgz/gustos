@@ -1574,6 +1574,10 @@ const App = {
     const reader = new FileReader();
     reader.onload = ev => {
       const raw = ev.target.result;
+      // Show raw preview immediately — no waiting for canvas
+      const preview = document.getElementById('profile-avatar-preview');
+      if (preview) preview.innerHTML = `<img src="${raw}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:block" alt="">`;
+      // Compress in background then save
       const img = new Image();
       img.onload = () => {
         try {
@@ -1584,23 +1588,19 @@ const App = {
           const scale = Math.max(size / img.width, size / img.height);
           const sw = size / scale, sh = size / scale;
           ctx.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, 0, 0, size, size);
-          this._applyAvatar(canvas.toDataURL('image/jpeg', 0.85));
-        } catch { this._applyAvatar(raw); }
+          this._storeAvatar(canvas.toDataURL('image/jpeg', 0.85));
+        } catch { this._storeAvatar(raw); }
       };
-      img.onerror = () => this._applyAvatar(raw);
+      img.onerror = () => this._storeAvatar(raw);
       img.src = raw;
     };
     reader.readAsDataURL(file);
   },
 
-  _applyAvatar(b64) {
+  _storeAvatar(b64) {
     this.avatarImg = b64;
     localStorage.setItem('gustos_avatar_' + this.user.id, b64);
     db.from('profiles').update({ avatar_url: b64 }).eq('id', this.user.id).catch(() => {});
-    const preview = document.getElementById('profile-avatar-preview');
-    if (preview) preview.innerHTML = `<img src="${b64}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:block" alt="">`;
-    const hdr = document.getElementById('btn-go-account');
-    if (hdr) hdr.innerHTML = `<img src="${b64}" class="avatar-photo" alt="">`;
   },
 
   async seedDefaultRecipes(silent = false) {
@@ -2069,14 +2069,19 @@ const App = {
           ${manualItems.length ? `<div class="shop-group-lbl">${this.t('shopGroupManual')}</div>${manualItems.map(i => this.renderShopItem(i)).join('')}` : ''}
         </div>
         <div class="shopping-add-row">
-          <div class="manual-input-group">
-            <input type="text" id="manual-name" placeholder="${this.t('addItemPh')}" class="manual-name-input" autocomplete="off">
-            <div class="manual-divider"></div>
-            <input type="number" id="manual-qty" placeholder="Qté" class="manual-qty-input" min="0" step="any">
-            <div class="manual-divider"></div>
-            <select id="manual-unit" class="manual-unit-select"><option value="">${this.lang === 'de' ? 'Einheit' : this.lang === 'en' ? 'unit' : this.lang === 'es' ? 'unidad' : this.lang === 'it' ? 'unità' : 'unité'}</option>${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
+          <div class="shop-add-field">
+            <label class="shop-add-label">Nom</label>
+            <input type="text" id="manual-name" placeholder="${this.t('addItemPh')}" autocomplete="off">
           </div>
-          <button class="btn-primary btn-sm" id="btn-add-manual">${this.t('addItemBtn')}</button>
+          <div class="shop-add-field shop-add-field-qty">
+            <label class="shop-add-label">Qté</label>
+            <input type="number" id="manual-qty" placeholder="100" min="0" step="any">
+          </div>
+          <div class="shop-add-field shop-add-field-unit">
+            <label class="shop-add-label">Unité</label>
+            <select id="manual-unit">${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
+          </div>
+          <button class="btn-primary btn-sm" id="btn-add-manual">+ ${this.t('addItemBtn')}</button>
         </div>
       </div>
       ${this.pickerOpen ? this.renderRecipePicker() : ''}
