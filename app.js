@@ -1114,7 +1114,7 @@ const App = {
       r.cookTime?`<div class="meta-box"><div class="meta-box-value">${r.cookTime} min</div><div class="meta-box-label">${this.t('cook')}</div></div>`:'',
       total?`<div class="meta-box"><div class="meta-box-value">${total} min</div><div class="meta-box-label">${this.t('total')}</div></div>`:''
     ].filter(Boolean).join('');
-    const canEdit = this.user?.role === 'admin' || r.authorId === this.user?.id || !r.authorId;
+    const canEdit = this.user?.role === 'admin' || (r.authorId === this.user?.id) || (!r.authorId && !r.authorName);
     return `<div class="view-recipe">
       <div class="recipe-header">
         <button class="btn-ghost" id="btn-back">${this.t('back')}</button>
