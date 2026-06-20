@@ -72,7 +72,7 @@ const TR = {
     coverAdd: 'Ajouter la photo de couverture', coverOne: '1 seule photo — la miniature',
     coverChange: 'Changer', coverRm: 'Supprimer',
     ingsLbl: 'Ingrédients', dragHint: 'Glisse ⠿ pour réordonner.',
-    ingNamePh: 'Ex : Farine', ingQtyPh: '200', addIng: '+ Ajouter un ingrédient',
+    ingNamePh: 'Ex : Farine', ingQtyPh: '200', addIng: 'Ajouter un ingrédient…',
     stepsLbl: 'Étapes de préparation',
     dynHelper: '💡 <strong>Quantités dynamiques</strong> — écris <code>{nom}</code> dans une étape.',
     stepPh: 'Décris cette étape… {Nom} pour les quantités.', addStep: '+ Ajouter une étape', addStepPhoto: '📷 Ajouter une photo',
@@ -152,7 +152,7 @@ const TR = {
     coverAdd: 'Add cover photo', coverOne: '1 photo only — the thumbnail',
     coverChange: 'Change', coverRm: 'Remove',
     ingsLbl: 'Ingredients', dragHint: 'Drag ⠿ to reorder.',
-    ingNamePh: 'E.g. Flour', ingQtyPh: '200', addIng: '+ Add ingredient',
+    ingNamePh: 'E.g. Flour', ingQtyPh: '200', addIng: 'Add an ingredient…',
     stepsLbl: 'Preparation steps',
     dynHelper: '💡 <strong>Dynamic quantities</strong> — write <code>{name}</code> in a step.',
     stepPh: 'Describe this step… {Name} for quantities.', addStep: '+ Add step', addStepPhoto: '📷 Add photo',
@@ -232,7 +232,7 @@ const TR = {
     coverAdd: 'Añadir foto de portada', coverOne: '1 sola foto — la miniatura',
     coverChange: 'Cambiar', coverRm: 'Eliminar',
     ingsLbl: 'Ingredientes', dragHint: 'Arrastra ⠿ para reordenar.',
-    ingNamePh: 'Ej: Harina', ingQtyPh: '200', addIng: '+ Añadir ingrediente',
+    ingNamePh: 'Ej: Harina', ingQtyPh: '200', addIng: 'Añadir ingrediente…',
     stepsLbl: 'Pasos de preparación',
     dynHelper: '💡 <strong>Cantidades dinámicas</strong> — escribe <code>{nombre}</code> en un paso.',
     stepPh: 'Describe este paso… {Nombre} para las cantidades.', addStep: '+ Añadir paso', addStepPhoto: '📷 Añadir foto',
@@ -312,7 +312,7 @@ const TR = {
     coverAdd: 'Aggiungi foto di copertina', coverOne: '1 sola foto — la miniatura',
     coverChange: 'Cambia', coverRm: 'Rimuovi',
     ingsLbl: 'Ingredienti', dragHint: 'Trascina ⠿ per riordinare.',
-    ingNamePh: 'Es: Farina', ingQtyPh: '200', addIng: '+ Aggiungi ingrediente',
+    ingNamePh: 'Es: Farina', ingQtyPh: '200', addIng: 'Aggiungi ingrediente…',
     stepsLbl: 'Fasi di preparazione',
     dynHelper: '💡 <strong>Quantità dinamiche</strong> — scrivi <code>{nome}</code> in un passaggio.',
     stepPh: 'Descrivi questo passaggio… {Nome} per le quantità.', addStep: '+ Aggiungi passaggio', addStepPhoto: '📷 Aggiungi foto',
@@ -392,7 +392,7 @@ const TR = {
     coverAdd: 'Titelbild hinzufügen', coverOne: '1 Foto — die Miniatur',
     coverChange: 'Ändern', coverRm: 'Entfernen',
     ingsLbl: 'Zutaten', dragHint: 'Ziehe ⠿ zum Neuordnen.',
-    ingNamePh: 'z.B. Mehl', ingQtyPh: '200', addIng: '+ Zutat hinzufügen',
+    ingNamePh: 'z.B. Mehl', ingQtyPh: '200', addIng: 'Zutat hinzufügen…',
     stepsLbl: 'Zubereitungsschritte',
     dynHelper: '💡 <strong>Dynamische Mengen</strong> — schreibe <code>{Name}</code> in einen Schritt.',
     stepPh: 'Beschreibe diesen Schritt… {Name} für Mengen.', addStep: '+ Schritt hinzufügen', addStepPhoto: '📷 Foto hinzufügen',
@@ -457,8 +457,24 @@ const App = {
     try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
     try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
     document.addEventListener('click', e => {
-      if (e.target.id === 'btn-save-profile') this.saveProfile();
-      if (e.target.id === 'btn-add-ing') { this.formData.ingredients.push({name:'',qty:'',unit:'g'}); this.rebuildIngs(); }
+      if (e.target.closest('#btn-save-profile')) this.saveProfile();
+      if (e.target.closest('#btn-add-ing')) {
+        const input = document.getElementById('ing-add-input');
+        const name = (input?.value || '').trim();
+        this.formData.ingredients.push({ name, qty: '', unit: 'g' });
+        this.rebuildIngs();
+        if (input) { input.value = ''; input.focus(); }
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.target.id === 'ing-add-input') {
+        e.preventDefault();
+        const name = e.target.value.trim();
+        if (!name) return;
+        this.formData.ingredients.push({ name, qty: '', unit: 'g' });
+        this.rebuildIngs();
+        e.target.value = '';
+      }
     });
     db.auth.onAuthStateChange(async (event, session) => {
       if (event === 'INITIAL_SESSION') {
@@ -602,7 +618,7 @@ const App = {
     }
     this.view = view;
     if (view === 'recipe') { this.currentId = id; const r = Store.byId(id); this.portionCount = opts.portions ?? (r ? r.basePeople : 4); }
-    if (view === 'create') { this.editingId = null; this.formData = { ingredients: [{ name:'',qty:'',unit:'g' }], steps: [{ text:'',image:null }], coverImage: null, tags: [] }; }
+    if (view === 'create') { this.editingId = null; this.formData = { ingredients: [], steps: [{ text:'',image:null }], coverImage: null, tags: [] }; }
     if (view === 'edit') {
       this.editingId = id; const r = Store.byId(id);
       if (r) this.formData = { ingredients: r.ingredients.map(i=>({...i})), steps: r.steps.map(s=>this.normalizeStep(s)), coverImage: this.getCover(r), tags: [...(r.tags||[])] };
@@ -1149,6 +1165,7 @@ const App = {
     const r=isEdit?Store.byId(this.editingId):null;
     const fd=this.formData;
     const ingNames=fd.ingredients.filter(i=>i.name.trim()).map(i=>i.name.trim());
+    const allIngNames=[...new Set(Store.get().flatMap(rec=>rec.ingredients?.map(i=>i.name).filter(Boolean)||[]))].sort();
     return `<div class="view-create">
       <div class="create-header"><button class="btn-ghost" id="btn-back">${this.t('back')}</button><h2>${isEdit?this.t('editRecipeTitle'):this.t('newRecipeTitle')}</h2></div>
       <div class="form-section"><h3>${this.t('generalInfo')}</h3>
@@ -1165,10 +1182,14 @@ const App = {
         <div id="cover-area">${this.renderCoverArea(fd.coverImage)}</div>
         <input type="file" id="cover-file" accept="image/*" style="display:none">
       </div>
-      <div class="form-section"><h3>${this.t('ingsLbl')}</h3><p class="form-hint">${this.t('dragHint')}</p>
-        <div class="ing-header"><span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span></div>
+      <div class="form-section"><h3>${this.t('ingsLbl')}</h3>
+        <datalist id="ing-names-list">${allIngNames.map(n=>`<option value="${this.escHtml(n)}">`).join('')}</datalist>
+        ${fd.ingredients.length>0?`<p class="form-hint">${this.t('dragHint')}</p><div class="ing-header"><span></span><span>${this.t('ingsLbl')}</span><span>Qté</span><span>Unité</span><span></span></div>`:''}
         <div class="ingredients-builder" id="ing-builder">${fd.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('')}</div>
-        <button class="btn-add" id="btn-add-ing">${this.t('addIng')}</button>
+        <div class="ing-quick-add">
+          <input type="text" id="ing-add-input" placeholder="${this.t('addIng')}" list="ing-names-list" autocomplete="off">
+          <button type="button" class="btn-add-ing-quick" id="btn-add-ing">+</button>
+        </div>
       </div>
       <div class="form-section"><h3>${this.t('stepsLbl')}</h3>
         <div id="ing-ref-helper" class="ing-ref-helper" ${ingNames.length?'':'style="display:none"'}>${this.t('dynHelper')}<br><span class="ing-ref-names">${ingNames.map(n=>`<code>{${this.escHtml(n)}}</code>`).join(' ')}</span></div>
@@ -1196,7 +1217,7 @@ const App = {
     return`<div class="cover-upload-empty" id="cover-upload-empty"><div class="upload-icon">🖼️</div><div class="upload-text"><strong>${this.t('coverAdd')}</strong></div><div class="upload-hint">${this.t('coverOne')}</div></div>`;
   },
 
-  renderIngRow(ing,i){return`<div class="ingredient-row" data-ing="${i}" draggable="true"><div class="drag-handle">⠿</div><input type="text" placeholder="${this.t('ingNamePh')}" value="${this.escHtml(ing.name)}" data-f="name" data-i="${i}"><input type="number" placeholder="${this.t('ingQtyPh')}" value="${ing.qty}" data-f="qty" data-i="${i}" min="0" step="any"><select data-f="unit" data-i="${i}">${UNITS.map(u=>`<option${ing.unit===u?' selected':''}>${u}</option>`).join('')}</select><button class="btn-icon btn-remove" data-del-ing="${i}">✕</button></div>`;},
+  renderIngRow(ing,i){return`<div class="ingredient-row" data-ing="${i}" draggable="true"><div class="drag-handle">⠿</div><input type="text" placeholder="${this.t('ingNamePh')}" value="${this.escHtml(ing.name)}" data-f="name" data-i="${i}" list="ing-names-list"><input type="number" placeholder="${this.t('ingQtyPh')}" value="${ing.qty}" data-f="qty" data-i="${i}" min="0" step="any"><select data-f="unit" data-i="${i}">${UNITS.map(u=>`<option${ing.unit===u?' selected':''}>${u}</option>`).join('')}</select><button class="btn-icon btn-remove" data-del-ing="${i}">✕</button></div>`;},
 
   renderStepRow(s,i){const step=this.normalizeStep(s);return`<div class="step-row" data-step="${i}"><div class="step-num-badge">${i+1}</div><div class="step-field"><textarea placeholder="${this.t('stepPh')}" data-si="${i}">${this.escHtml(step.text)}</textarea><div class="step-img-zone" id="step-img-zone-${i}">${this.renderStepImgZone(step,i)}</div></div><button class="btn-icon btn-remove" data-del-step="${i}">✕</button></div>`;},
 
@@ -1384,7 +1405,7 @@ const App = {
   bindIngEvents(root){
     root.addEventListener('input',e=>{const el=e.target.closest('[data-f]');if(!el)return;const i=+el.dataset.i,f=el.dataset.f;this.formData.ingredients[i][f]=f==='qty'?(parseFloat(el.value)||''):el.value;this.updateIngHelper();});
     root.addEventListener('change',e=>{const el=e.target.closest('[data-f]');if(el&&el.tagName==='SELECT')this.formData.ingredients[+el.dataset.i][el.dataset.f]=el.value;});
-    root.addEventListener('click',e=>{const btn=e.target.closest('[data-del-ing]');if(!btn)return;if(this.formData.ingredients.length>1){this.formData.ingredients.splice(+btn.dataset.delIng,1);this.rebuildIngs();}});
+    root.addEventListener('click',e=>{const btn=e.target.closest('[data-del-ing]');if(!btn)return;this.formData.ingredients.splice(+btn.dataset.delIng,1);this.rebuildIngs();});
     let dragSrc=null;
     root.addEventListener('dragstart',e=>{const row=e.target.closest('.ingredient-row');if(!row)return;dragSrc=+row.dataset.ing;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragSrc));requestAnimationFrame(()=>row.classList.add('dragging'));});
     root.addEventListener('dragend',()=>{root.querySelectorAll('.dragging,.drag-over').forEach(el=>el.classList.remove('dragging','drag-over'));dragSrc=null;});
@@ -1411,7 +1432,14 @@ const App = {
     document.getElementById('tags-box')?.addEventListener('click',e=>{const btn=e.target.closest('.tag-remove');if(btn){this.formData.tags.splice(+btn.dataset.tag,1);this.rebuildTags();}else document.getElementById('tag-input')?.focus();});
   },
 
-  rebuildIngs(){const b=document.getElementById('ing-builder');if(!b)return;b.innerHTML=this.formData.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('');this.updateIngHelper();},
+  rebuildIngs(){
+    const b=document.getElementById('ing-builder');if(!b)return;
+    const hasRows=this.formData.ingredients.length>0;
+    b.innerHTML=this.formData.ingredients.map((ing,i)=>this.renderIngRow(ing,i)).join('');
+    const h=document.querySelector('.ing-header');if(h)h.style.display=hasRows?'':'none';
+    const hint=b.previousElementSibling?.classList?.contains('form-hint')?b.previousElementSibling:null;if(hint)hint.style.display=hasRows?'':'none';
+    this.updateIngHelper();
+  },
   rebuildSteps(){const b=document.getElementById('steps-builder');if(!b)return;b.innerHTML=this.formData.steps.map((s,i)=>this.renderStepRow(s,i)).join('');},
   rebuildStepImgZone(i){const z=document.getElementById(`step-img-zone-${i}`);if(!z)return;z.innerHTML=this.renderStepImgZone(this.formData.steps[i],i);},
   rebuildCoverImg(){const a=document.getElementById('cover-area');if(!a)return;a.innerHTML=this.renderCoverArea(this.formData.coverImage);this.bindCoverEvents();},

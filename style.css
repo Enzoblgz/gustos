@@ -1019,6 +1019,44 @@ select { cursor: pointer; }
 }
 .btn-add:hover { border-color: var(--terracotta); color: var(--terracotta); background: #FFF8F5; }
 
+/* Ingredient quick-add */
+.ing-quick-add {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.ing-quick-add input {
+  flex: 1;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  background: var(--white);
+  color: var(--brown);
+  transition: border-color 0.2s;
+}
+.ing-quick-add input:focus { outline: none; border-color: var(--terracotta); }
+.btn-add-ing-quick {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-add-ing-quick:hover { background: var(--brown); }
+.btn-add-ing-quick:active { transform: scale(0.93); }
+
 /* Steps builder */
 .steps-builder { display: flex; flex-direction: column; gap: 14px; }
 .step-row { display: flex; gap: 12px; align-items: flex-start; }
