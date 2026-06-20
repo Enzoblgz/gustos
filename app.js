@@ -790,9 +790,9 @@ const App = {
         error = r.error;
         if (error && btn) { btn.disabled = false; btn.textContent = this.t('signIn'); }
       } else {
-        const username = (document.getElementById('auth-username')?.value?.trim() || '').toLowerCase().replace(/\s+/g, '_');
+        const username = (document.getElementById('auth-username')?.value?.trim() || '').replace(/\s+/g, '_');
         if (!username) { this._setAuthError(this.t('usernameRequired')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return; }
-        const { data: taken } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+        const { data: taken } = await db.from('profiles').select('id').ilike('username', username).maybeSingle();
         if (taken) { this._setAuthError(this.t('usernameTaken')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return; }
         const r = await db.auth.signUp({ email, password: pass });
         error = r.error;
@@ -1581,14 +1581,14 @@ const App = {
 
   async saveProfile() {
     const usernameRaw = (document.getElementById('profile-username-input')?.value || '').trim();
-    const username = usernameRaw.toLowerCase().replace(/\s+/g, '_');
+    const username = usernameRaw.replace(/\s+/g, '_');
     const email = (document.getElementById('profile-email-input')?.value || '').trim();
     if (!this.user) return;
     const btn = document.querySelector('#btn-save-profile');
     if (btn) btn.disabled = true;
     try {
       if (username && username !== this.user.username) {
-        const { data: taken } = await db.from('profiles').select('id').eq('username', username).neq('id', this.user.id).maybeSingle();
+        const { data: taken } = await db.from('profiles').select('id').ilike('username', username).neq('id', this.user.id).maybeSingle();
         if (taken) { this.toast(this.t('usernameTaken')); if (btn) btn.disabled = false; return; }
         await db.from('profiles').update({ username }).eq('id', this.user.id);
         this.user.username = username;
