@@ -85,6 +85,32 @@ const TR = {
     limitText: n => `Tu as atteint les <strong>${n} recettes</strong> du plan gratuit.`,
     limitText2: 'Passe au plan <strong>Pro</strong> pour un accès illimité.',
     upgradeProBtn: 'Passer Pro — bientôt disponible', laterBtn: 'Pas maintenant', comingSoon: 'Bientôt disponible !',
+    planningBtn: 'Planning', editProfileTitle: 'Modifier le profil', changePhoto: 'Changer la photo',
+    displayNameLbl: 'Prénom / Nom affiché', deleteAccount: 'Supprimer le compte',
+    planningCtaTitle: 'Planning de la semaine',
+    planningCtaSub: 'Organise tes repas et génère ta liste de courses automatiquement.',
+    openPlanner: 'Ouvrir →', plannerTitle: 'Planning de la semaine',
+    lunch: '☀️ Déjeuner', dinner: '🌙 Dîner',
+    shoppingTitle: '🛒 Liste de courses', clearChecked: 'Supprimer cochés', refreshList: '↺ Actualiser',
+    shoppingEmpty: 'Ajoute des repas dans le planning — la liste se génère automatiquement.',
+    shopGroupAuto: 'Ingrédients des recettes', shopGroupManual: 'Ajouts manuels',
+    addItemPh: 'Ajouter un article…', addItemBtn: '+ Ajouter', newItemBadge: 'Nouveau',
+    viewRecipeTip: 'Voir la recette', profileSaved: 'Profil mis à jour !',
+    emailConfirmSent: 'Email : un lien de confirmation a été envoyé.',
+    deleteAccountTitle: 'Supprimer le compte',
+    deleteAccountDesc: 'Cette action est <strong>irréversible</strong>. Toutes tes recettes, likes et données seront définitivement supprimés.',
+    deleteConfirmWord: 'SUPPRIMER', deleteConfirmPrompt: 'Tape <strong>SUPPRIMER</strong> pour confirmer :',
+    deleteForever: 'Supprimer définitivement',
+    authErrCredentials: 'Email ou mot de passe incorrect.',
+    authErrConfirm: 'Confirme ton email avant de te connecter.',
+    authErrExists: 'Un compte existe déjà avec cet email.',
+    authErrPassword: 'Le mot de passe doit faire au moins 6 caractères.',
+    authErrRateLimit: 'Trop de tentatives. Réessaie dans quelques minutes.',
+    adminUsers: n => `Admin — ${n} utilisateur${n!==1?'s':''}`,
+    adminAccounts: 'Comptes', adminTrial: 'En essai',
+    adminColEmail: 'Email', adminColPlan: 'Plan', adminColTrialCol: 'Essai',
+    adminColRecipes: 'Recettes', adminColJoined: 'Inscription', adminColAction: 'Action',
+    adminPlanUpdated: 'Plan mis à jour.', adminErr: e => `Erreur admin : ${e}`,
   },
   en: {
     newRecipe: '+ New recipe', search: 'Search a recipe, ingredient, tag…',
@@ -139,6 +165,32 @@ const TR = {
     limitText: n => `You've reached the <strong>${n} recipes</strong> free plan limit.`,
     limitText2: 'Upgrade to <strong>Pro</strong> for unlimited access.',
     upgradeProBtn: 'Go Pro — coming soon', laterBtn: 'Not now', comingSoon: 'Coming soon!',
+    planningBtn: 'Planning', editProfileTitle: 'Edit profile', changePhoto: 'Change photo',
+    displayNameLbl: 'Display name', deleteAccount: 'Delete account',
+    planningCtaTitle: 'Weekly planner',
+    planningCtaSub: 'Organise your meals and auto-generate your shopping list.',
+    openPlanner: 'Open →', plannerTitle: 'Weekly planner',
+    lunch: '☀️ Lunch', dinner: '🌙 Dinner',
+    shoppingTitle: '🛒 Shopping list', clearChecked: 'Clear checked', refreshList: '↺ Refresh',
+    shoppingEmpty: 'Add meals to the planner — the list generates automatically.',
+    shopGroupAuto: 'Recipe ingredients', shopGroupManual: 'Manual items',
+    addItemPh: 'Add an item…', addItemBtn: '+ Add', newItemBadge: 'New',
+    viewRecipeTip: 'View recipe', profileSaved: 'Profile updated!',
+    emailConfirmSent: 'Email: a confirmation link has been sent.',
+    deleteAccountTitle: 'Delete account',
+    deleteAccountDesc: 'This action is <strong>irreversible</strong>. All your recipes, likes and data will be permanently deleted.',
+    deleteConfirmWord: 'DELETE', deleteConfirmPrompt: 'Type <strong>DELETE</strong> to confirm:',
+    deleteForever: 'Delete permanently',
+    authErrCredentials: 'Incorrect email or password.',
+    authErrConfirm: 'Confirm your email before signing in.',
+    authErrExists: 'An account already exists with this email.',
+    authErrPassword: 'Password must be at least 6 characters.',
+    authErrRateLimit: 'Too many attempts. Try again in a few minutes.',
+    adminUsers: n => `Admin — ${n} user${n!==1?'s':''}`,
+    adminAccounts: 'Accounts', adminTrial: 'Trial',
+    adminColEmail: 'Email', adminColPlan: 'Plan', adminColTrialCol: 'Trial',
+    adminColRecipes: 'Recipes', adminColJoined: 'Joined', adminColAction: 'Action',
+    adminPlanUpdated: 'Plan updated.', adminErr: e => `Admin error: ${e}`,
   },
   es: {
     newRecipe: '+ Nueva receta', search: 'Buscar una receta, ingrediente, etiqueta…',
@@ -193,6 +245,32 @@ const TR = {
     limitText: n => `Has alcanzado el límite de <strong>${n} recetas</strong> del plan gratuito.`,
     limitText2: 'Pasa al plan <strong>Pro</strong> para acceso ilimitado.',
     upgradeProBtn: 'Ir a Pro — próximamente', laterBtn: 'Ahora no', comingSoon: '¡Próximamente!',
+    planningBtn: 'Planificación', editProfileTitle: 'Editar perfil', changePhoto: 'Cambiar foto',
+    displayNameLbl: 'Nombre visible', deleteAccount: 'Eliminar cuenta',
+    planningCtaTitle: 'Planificador semanal',
+    planningCtaSub: 'Organiza tus comidas y genera tu lista de la compra automáticamente.',
+    openPlanner: 'Abrir →', plannerTitle: 'Planificador semanal',
+    lunch: '☀️ Almuerzo', dinner: '🌙 Cena',
+    shoppingTitle: '🛒 Lista de la compra', clearChecked: 'Eliminar seleccionados', refreshList: '↺ Actualizar',
+    shoppingEmpty: 'Añade comidas al planificador — la lista se genera automáticamente.',
+    shopGroupAuto: 'Ingredientes de las recetas', shopGroupManual: 'Artículos manuales',
+    addItemPh: 'Añadir un artículo…', addItemBtn: '+ Añadir', newItemBadge: 'Nuevo',
+    viewRecipeTip: 'Ver la receta', profileSaved: '¡Perfil actualizado!',
+    emailConfirmSent: 'Email: se ha enviado un enlace de confirmación.',
+    deleteAccountTitle: 'Eliminar cuenta',
+    deleteAccountDesc: 'Esta acción es <strong>irreversible</strong>. Todas tus recetas, likes y datos serán eliminados permanentemente.',
+    deleteConfirmWord: 'ELIMINAR', deleteConfirmPrompt: 'Escribe <strong>ELIMINAR</strong> para confirmar:',
+    deleteForever: 'Eliminar definitivamente',
+    authErrCredentials: 'Email o contraseña incorrectos.',
+    authErrConfirm: 'Confirma tu email antes de iniciar sesión.',
+    authErrExists: 'Ya existe una cuenta con este email.',
+    authErrPassword: 'La contraseña debe tener al menos 6 caracteres.',
+    authErrRateLimit: 'Demasiados intentos. Inténtalo de nuevo en unos minutos.',
+    adminUsers: n => `Admin — ${n} usuario${n!==1?'s':''}`,
+    adminAccounts: 'Cuentas', adminTrial: 'En prueba',
+    adminColEmail: 'Email', adminColPlan: 'Plan', adminColTrialCol: 'Prueba',
+    adminColRecipes: 'Recetas', adminColJoined: 'Registro', adminColAction: 'Acción',
+    adminPlanUpdated: 'Plan actualizado.', adminErr: e => `Error admin: ${e}`,
   },
   it: {
     newRecipe: '+ Nuova ricetta', search: 'Cerca una ricetta, ingrediente, tag…',
@@ -247,6 +325,32 @@ const TR = {
     limitText: n => `Hai raggiunto il limite di <strong>${n} ricette</strong> del piano gratuito.`,
     limitText2: 'Passa al piano <strong>Pro</strong> per accesso illimitato.',
     upgradeProBtn: 'Passa a Pro — prossimamente', laterBtn: 'Non ora', comingSoon: 'Prossimamente!',
+    planningBtn: 'Pianificazione', editProfileTitle: 'Modifica profilo', changePhoto: 'Cambia foto',
+    displayNameLbl: 'Nome visualizzato', deleteAccount: 'Elimina account',
+    planningCtaTitle: 'Pianificatore settimanale',
+    planningCtaSub: 'Organizza i tuoi pasti e genera automaticamente la lista della spesa.',
+    openPlanner: 'Apri →', plannerTitle: 'Pianificatore settimanale',
+    lunch: '☀️ Pranzo', dinner: '🌙 Cena',
+    shoppingTitle: '🛒 Lista della spesa', clearChecked: 'Elimina selezionati', refreshList: '↺ Aggiorna',
+    shoppingEmpty: 'Aggiungi pasti al pianificatore — la lista si genera automaticamente.',
+    shopGroupAuto: 'Ingredienti delle ricette', shopGroupManual: 'Voci manuali',
+    addItemPh: 'Aggiungi un articolo…', addItemBtn: '+ Aggiungi', newItemBadge: 'Nuovo',
+    viewRecipeTip: 'Vedi ricetta', profileSaved: 'Profilo aggiornato!',
+    emailConfirmSent: 'Email: è stato inviato un link di conferma.',
+    deleteAccountTitle: 'Elimina account',
+    deleteAccountDesc: 'Questa azione è <strong>irreversibile</strong>. Tutte le tue ricette, like e dati saranno eliminati definitivamente.',
+    deleteConfirmWord: 'ELIMINA', deleteConfirmPrompt: 'Scrivi <strong>ELIMINA</strong> per confermare:',
+    deleteForever: 'Elimina definitivamente',
+    authErrCredentials: 'Email o password non corretti.',
+    authErrConfirm: 'Conferma la tua email prima di accedere.',
+    authErrExists: 'Esiste già un account con questa email.',
+    authErrPassword: 'La password deve avere almeno 6 caratteri.',
+    authErrRateLimit: 'Troppi tentativi. Riprova tra qualche minuto.',
+    adminUsers: n => `Admin — ${n} utente${n!==1?'i':''}`,
+    adminAccounts: 'Account', adminTrial: 'In prova',
+    adminColEmail: 'Email', adminColPlan: 'Piano', adminColTrialCol: 'Prova',
+    adminColRecipes: 'Ricette', adminColJoined: 'Iscrizione', adminColAction: 'Azione',
+    adminPlanUpdated: 'Piano aggiornato.', adminErr: e => `Errore admin: ${e}`,
   },
   de: {
     newRecipe: '+ Neues Rezept', search: 'Rezept, Zutat oder Tag suchen…',
@@ -301,6 +405,32 @@ const TR = {
     limitText: n => `Du hast das Limit von <strong>${n} Rezepten</strong> des Gratisplans erreicht.`,
     limitText2: 'Wechsle zum <strong>Pro</strong>-Plan für unbegrenzten Zugriff.',
     upgradeProBtn: 'Zu Pro — demnächst', laterBtn: 'Nicht jetzt', comingSoon: 'Demnächst!',
+    planningBtn: 'Planung', editProfileTitle: 'Profil bearbeiten', changePhoto: 'Foto ändern',
+    displayNameLbl: 'Anzeigename', deleteAccount: 'Konto löschen',
+    planningCtaTitle: 'Wochenplaner',
+    planningCtaSub: 'Organisiere deine Mahlzeiten und erstelle automatisch eine Einkaufsliste.',
+    openPlanner: 'Öffnen →', plannerTitle: 'Wochenplaner',
+    lunch: '☀️ Mittagessen', dinner: '🌙 Abendessen',
+    shoppingTitle: '🛒 Einkaufsliste', clearChecked: 'Ausgewählte löschen', refreshList: '↺ Aktualisieren',
+    shoppingEmpty: 'Füge Mahlzeiten zum Planer hinzu — die Liste wird automatisch erstellt.',
+    shopGroupAuto: 'Rezeptzutaten', shopGroupManual: 'Manuelle Einträge',
+    addItemPh: 'Artikel hinzufügen…', addItemBtn: '+ Hinzufügen', newItemBadge: 'Neu',
+    viewRecipeTip: 'Rezept ansehen', profileSaved: 'Profil aktualisiert!',
+    emailConfirmSent: 'E-Mail: Ein Bestätigungslink wurde gesendet.',
+    deleteAccountTitle: 'Konto löschen',
+    deleteAccountDesc: 'Diese Aktion ist <strong>unwiderruflich</strong>. Alle deine Rezepte, Likes und Daten werden dauerhaft gelöscht.',
+    deleteConfirmWord: 'LÖSCHEN', deleteConfirmPrompt: 'Tippe <strong>LÖSCHEN</strong> zur Bestätigung:',
+    deleteForever: 'Dauerhaft löschen',
+    authErrCredentials: 'Falsche E-Mail oder falsches Passwort.',
+    authErrConfirm: 'Bestätige deine E-Mail bevor du dich anmeldest.',
+    authErrExists: 'Ein Konto mit dieser E-Mail existiert bereits.',
+    authErrPassword: 'Das Passwort muss mindestens 6 Zeichen haben.',
+    authErrRateLimit: 'Zu viele Versuche. Versuche es in ein paar Minuten erneut.',
+    adminUsers: n => `Admin — ${n} Nutzer`,
+    adminAccounts: 'Konten', adminTrial: 'Im Test',
+    adminColEmail: 'E-Mail', adminColPlan: 'Plan', adminColTrialCol: 'Testphase',
+    adminColRecipes: 'Rezepte', adminColJoined: 'Beigetreten', adminColAction: 'Aktion',
+    adminPlanUpdated: 'Plan aktualisiert.', adminErr: e => `Admin-Fehler: ${e}`,
   }
 };
 
@@ -449,9 +579,9 @@ const App = {
     return Math.max(0, Math.ceil((new Date(this.user.trial_ends_at) - new Date()) / 86400000));
   },
 
-  nav(view, id = null) {
+  nav(view, id = null, opts = {}) {
     this.view = view;
-    if (view === 'recipe') { this.currentId = id; const r = Store.byId(id); this.portionCount = r ? r.basePeople : 4; }
+    if (view === 'recipe') { this.currentId = id; const r = Store.byId(id); this.portionCount = opts.portions ?? (r ? r.basePeople : 4); }
     if (view === 'create') { this.editingId = null; this.formData = { ingredients: [{ name:'',qty:'',unit:'g' }], steps: [{ text:'',image:null }], coverImage: null, tags: [] }; }
     if (view === 'edit') {
       this.editingId = id; const r = Store.byId(id);
@@ -602,11 +732,11 @@ const App = {
   },
 
   translateAuthError(msg) {
-    if (msg.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect.';
-    if (msg.includes('Email not confirmed'))       return 'Confirme ton email avant de te connecter.';
-    if (msg.includes('User already registered'))   return 'Un compte existe déjà avec cet email.';
-    if (msg.includes('Password should be'))        return 'Le mot de passe doit faire au moins 6 caractères.';
-    if (msg.includes('rate limit'))                return 'Trop de tentatives. Réessaie dans quelques minutes.';
+    if (msg.includes('Invalid login credentials')) return this.t('authErrCredentials');
+    if (msg.includes('Email not confirmed'))       return this.t('authErrConfirm');
+    if (msg.includes('User already registered'))   return this.t('authErrExists');
+    if (msg.includes('Password should be'))        return this.t('authErrPassword');
+    if (msg.includes('rate limit'))                return this.t('authErrRateLimit');
     return msg;
   },
 
@@ -631,7 +761,7 @@ const App = {
             <line x1="4.5" y1="1" x2="4.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
             <line x1="9.5" y1="1" x2="9.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
-          Planning
+          ${this.t('planningBtn')}
         </button>
       </div>
       <div class="header-center">
@@ -692,7 +822,7 @@ const App = {
       <div class="account-hero">
         <div class="account-avatar-wrap">
           ${avatarLarge}
-          <button class="btn-edit-avatar" id="btn-edit-profile" title="Modifier le profil">✏️</button>
+          <button class="btn-edit-avatar" id="btn-edit-profile" title="${this.t('editProfileTitle')}">✏️</button>
         </div>
         <div class="account-info">
           <h2 class="account-display-name">${this.escHtml(displayName)}</h2>
@@ -705,29 +835,29 @@ const App = {
         <div class="account-actions-col">
           ${isAdmin ? `<button type="button" class="btn-secondary btn-sm btn-admin-panel" id="btn-go-admin-account">⚙ Admin</button>` : ''}
           <button class="btn-ghost btn-logout-header" id="btn-logout-account">${this.t('disconnectBtn')}</button>
-          <button type="button" class="btn-delete-account" id="btn-delete-account">Supprimer le compte</button>
+          <button type="button" class="btn-delete-account" id="btn-delete-account">${this.t('deleteAccount')}</button>
         </div>
       </div>
       <div class="profile-edit-card" id="profile-edit-card" hidden>
-        <h3>Modifier le profil</h3>
+        <h3>${this.t('editProfileTitle')}</h3>
         <div class="profile-edit-avatar-row">
           <div class="profile-avatar-preview" id="profile-avatar-preview">
             ${this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo-large" alt="">` : `<div class="account-avatar-large" style="width:72px;height:72px;font-size:1.5rem">${initial}</div>`}
           </div>
-          <label class="btn-secondary btn-sm" for="profile-avatar-input" style="cursor:pointer">Changer la photo</label>
+          <label class="btn-secondary btn-sm" for="profile-avatar-input" style="cursor:pointer">${this.t('changePhoto')}</label>
           <input type="file" id="profile-avatar-input" accept="image/*" style="display:none">
         </div>
         <div class="form-group" style="margin-top:16px">
-          <label for="profile-name-input">Prénom / Nom affiché</label>
+          <label for="profile-name-input">${this.t('displayNameLbl')}</label>
           <input type="text" id="profile-name-input" value="${this.escHtml(this.user?.name||'')}">
         </div>
         <div class="form-group" style="margin-top:12px">
-          <label for="profile-email-input">Email</label>
+          <label for="profile-email-input">${this.t('email')}</label>
           <input type="email" id="profile-email-input" value="${this.escHtml(this.user?.email||'')}">
         </div>
         <div class="profile-edit-actions">
-          <button type="button" class="btn-ghost" id="btn-cancel-profile">Annuler</button>
-          <button type="button" class="btn-primary" id="btn-save-profile">Enregistrer</button>
+          <button type="button" class="btn-ghost" id="btn-cancel-profile">${this.t('cancelBtn')}</button>
+          <button type="button" class="btn-primary" id="btn-save-profile">${this.t('saveBtn')}</button>
         </div>
       </div>
       <div class="account-stats">
@@ -740,11 +870,11 @@ const App = {
         <div class="planning-cta-left">
           <span class="planning-cta-icon">📅</span>
           <div>
-            <strong>Planning de la semaine</strong>
-            <span>Organise tes repas et génère ta liste de courses automatiquement.</span>
+            <strong>${this.t('planningCtaTitle')}</strong>
+            <span>${this.t('planningCtaSub')}</span>
           </div>
         </div>
-        <button class="btn-planning-enter" id="btn-go-planning">Ouvrir →</button>
+        <button class="btn-planning-enter" id="btn-go-planning">${this.t('openPlanner')}</button>
       </div>
       <div class="account-tabs-row">
         <button class="account-tab-btn${tab==='mine'?' active':''}" data-tab="mine">${this.t('myRecipes')} <span class="tab-count">${all.length}</span></button>
@@ -763,15 +893,15 @@ const App = {
     const ta = u => u.trial_ends_at && new Date(u.trial_ends_at) > new Date();
     const fmt = d => new Date(d).toLocaleDateString('fr-FR');
     return `<div class="view-admin">
-      <div class="admin-header"><button class="btn-ghost" id="btn-back">← Retour</button><h2>Admin — ${stats.length} utilisateur${stats.length>1?'s':''}</h2></div>
+      <div class="admin-header"><button class="btn-ghost" id="btn-back">${this.t('back')}</button><h2>${this.t('adminUsers', stats.length)}</h2></div>
       <div class="admin-kpis">
-        <div class="admin-kpi"><div class="kpi-val">${stats.length}</div><div class="kpi-lbl">Comptes</div></div>
+        <div class="admin-kpi"><div class="kpi-val">${stats.length}</div><div class="kpi-lbl">${this.t('adminAccounts')}</div></div>
         <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>u.plan==='pro').length}</div><div class="kpi-lbl">Pro</div></div>
-        <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>ta(u)&&u.plan==='free').length}</div><div class="kpi-lbl">En essai</div></div>
-        <div class="admin-kpi"><div class="kpi-val">${stats.reduce((s,u)=>s+(u.recipe_count||0),0)}</div><div class="kpi-lbl">Recettes</div></div>
+        <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>ta(u)&&u.plan==='free').length}</div><div class="kpi-lbl">${this.t('adminTrial')}</div></div>
+        <div class="admin-kpi"><div class="kpi-val">${stats.reduce((s,u)=>s+(u.recipe_count||0),0)}</div><div class="kpi-lbl">${this.t('statRecipes')}</div></div>
       </div>
       <div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>Email</th><th>Plan</th><th>Essai</th><th>Recettes</th><th>Inscription</th><th>Action</th></tr></thead>
+        <thead><tr><th>${this.t('adminColEmail')}</th><th>${this.t('adminColPlan')}</th><th>${this.t('adminColTrialCol')}</th><th>${this.t('adminColRecipes')}</th><th>${this.t('adminColJoined')}</th><th>${this.t('adminColAction')}</th></tr></thead>
         <tbody>${stats.map(u=>`<tr>
           <td class="td-email">${this.escHtml(u.email)}${u.role==='admin'?' <span class="plan-badge plan-admin">admin</span>':''}</td>
           <td><span class="plan-badge plan-${u.plan}">${u.plan}</span></td>
@@ -1171,8 +1301,7 @@ const App = {
       this.generateShoppingList(); this.savePlan(); this.renderContent();
     }));
     document.querySelectorAll('[data-open-recipe]').forEach(btn => btn.addEventListener('click', () => {
-      this.portionCount = parseInt(btn.dataset.openPortions) || 4;
-      this.nav('recipe', btn.dataset.openRecipe);
+      this.nav('recipe', btn.dataset.openRecipe, { portions: parseInt(btn.dataset.openPortions) || 4 });
     }));
     // Picker modal
     const closePicker = () => { this.pickerOpen = null; this.pickerQuery = ''; this.pickerTab = 'all'; this.renderContent(); };
@@ -1303,25 +1432,26 @@ const App = {
     // Full re-render of account page with updated state
     this.view = 'account';
     this.render();
-    setTimeout(() => this.toast(emailChanged ? 'Email : un lien de confirmation a été envoyé.' : 'Profil mis à jour !'), 80);
+    setTimeout(() => this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved')), 80);
   },
 
   confirmDeleteAccount() {
     const overlay = document.createElement('div');
     overlay.className = 'upgrade-overlay';
+    const confirmWord = this.t('deleteConfirmWord');
     overlay.innerHTML = `
       <div class="upgrade-modal" style="max-width:420px">
         <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
-        <h2 style="color:#C0392B;margin-bottom:12px">Supprimer le compte</h2>
-        <p style="color:var(--brown);line-height:1.6">Cette action est <strong>irréversible</strong>. Toutes tes recettes, likes et données seront définitivement supprimés.</p>
-        <p style="margin-top:14px;color:var(--brown);font-size:0.9rem">Tape <strong>SUPPRIMER</strong> pour confirmer :</p>
-        <input type="text" id="delete-confirm-input" placeholder="SUPPRIMER" autocomplete="off"
+        <h2 style="color:#C0392B;margin-bottom:12px">${this.t('deleteAccountTitle')}</h2>
+        <p style="color:var(--brown);line-height:1.6">${this.t('deleteAccountDesc')}</p>
+        <p style="margin-top:14px;color:var(--brown);font-size:0.9rem">${this.t('deleteConfirmPrompt')}</p>
+        <input type="text" id="delete-confirm-input" placeholder="${confirmWord}" autocomplete="off"
           style="margin-top:10px;text-transform:uppercase;letter-spacing:0.08em;text-align:center">
         <div class="upgrade-actions" style="margin-top:20px">
-          <button type="button" class="btn-ghost btn-full" id="btn-cancel-delete">Annuler</button>
+          <button type="button" class="btn-ghost btn-full" id="btn-cancel-delete">${this.t('cancelBtn')}</button>
           <button type="button" class="btn-full" id="btn-confirm-delete" disabled
             style="background:#C0392B;color:white;border:none;padding:12px 24px;border-radius:50px;font-family:var(--font-sans);font-size:0.9rem;font-weight:600;cursor:pointer;opacity:0.45;transition:opacity 0.2s">
-            Supprimer définitivement
+            ${this.t('deleteForever')}
           </button>
         </div>
       </div>`;
@@ -1330,7 +1460,7 @@ const App = {
     const confirmBtn = overlay.querySelector('#btn-confirm-delete');
     input.focus();
     input.addEventListener('input', () => {
-      const ok = input.value.toUpperCase() === 'SUPPRIMER';
+      const ok = input.value.toUpperCase() === confirmWord;
       confirmBtn.disabled = !ok;
       confirmBtn.style.opacity = ok ? '1' : '0.45';
     });
@@ -1794,7 +1924,12 @@ const App = {
 
   renderMealPlanner() {
     const days = this.getWeekDays(this.planWeek);
-    const DAY_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+    const locale = this.lang === 'en' ? 'en-GB' : this.lang === 'de' ? 'de-DE' : this.lang === 'es' ? 'es-ES' : this.lang === 'it' ? 'it-IT' : 'fr-FR';
+    const DAY_SHORT = this.lang === 'en' ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+      : this.lang === 'de' ? ['Mo','Di','Mi','Do','Fr','Sa','So']
+      : this.lang === 'es' ? ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
+      : this.lang === 'it' ? ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']
+      : ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
     const today = new Date().toISOString().slice(0, 10);
     const prevW = this.offsetWeek(this.planWeek, -7);
     const nextW = this.offsetWeek(this.planWeek, 7);
@@ -1804,8 +1939,8 @@ const App = {
     const checked = this.shopping.filter(i => i.checked).length;
     return `<div class="view-planner">
       <div class="planner-topbar">
-        <button class="btn-ghost" id="btn-back-planner">← Retour</button>
-        <h2 class="planner-title">📅 Planning de la semaine</h2>
+        <button class="btn-ghost" id="btn-back-planner">${this.t('back')}</button>
+        <h2 class="planner-title">📅 ${this.t('plannerTitle')}</h2>
       </div>
       <div class="week-nav-bar">
         <button class="btn-week-nav" data-goto-week="${prevW}">←</button>
@@ -1817,18 +1952,18 @@ const App = {
           const slots = this.plan[date] || {};
           const isToday = date === today;
           const dayDate = new Date(date + 'T12:00:00');
-          const dayNum = dayDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+          const dayNum = dayDate.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
           return `<div class="planner-day${isToday ? ' today' : ''}">
             <div class="planner-day-head">
               <span class="day-name">${DAY_SHORT[i]}</span>
               <span class="day-date">${dayNum}</span>
             </div>
             <div class="planner-meal">
-              <div class="meal-label">☀️ Déjeuner</div>
+              <div class="meal-label">${this.t('lunch')}</div>
               ${this.renderMealSlots(date, 'lunch', slots.lunch || [])}
             </div>
             <div class="planner-meal">
-              <div class="meal-label">🌙 Dîner</div>
+              <div class="meal-label">${this.t('dinner')}</div>
               ${this.renderMealSlots(date, 'dinner', slots.dinner || [])}
             </div>
           </div>`;
@@ -1836,27 +1971,27 @@ const App = {
       </div>
       <div class="shopping-section">
         <div class="shopping-header">
-          <h3>🛒 Liste de courses</h3>
+          <h3>${this.t('shoppingTitle')}</h3>
           <div class="shopping-hdr-actions">
             ${total > 0 ? `<span class="shop-progress">${checked}/${total}</span>` : ''}
-            ${checked > 0 ? `<button class="btn-ghost btn-sm" id="btn-clear-checked">Supprimer cochés</button>` : ''}
-            <button class="btn-secondary btn-sm" id="btn-regen">↺ Actualiser</button>
+            ${checked > 0 ? `<button class="btn-ghost btn-sm" id="btn-clear-checked">${this.t('clearChecked')}</button>` : ''}
+            <button class="btn-secondary btn-sm" id="btn-regen">${this.t('refreshList')}</button>
           </div>
         </div>
-        ${total === 0 ? `<div class="shopping-empty"><span>🛒</span><p>Ajoute des repas dans le planning — la liste se génère automatiquement.</p></div>` : ''}
+        ${total === 0 ? `<div class="shopping-empty"><span>🛒</span><p>${this.t('shoppingEmpty')}</p></div>` : ''}
         <div class="shopping-items" id="shopping-items">
-          ${autoItems.length ? `<div class="shop-group-lbl">Ingrédients des recettes</div>${autoItems.map(i => this.renderShopItem(i)).join('')}` : ''}
-          ${manualItems.length ? `<div class="shop-group-lbl">Ajouts manuels</div>${manualItems.map(i => this.renderShopItem(i)).join('')}` : ''}
+          ${autoItems.length ? `<div class="shop-group-lbl">${this.t('shopGroupAuto')}</div>${autoItems.map(i => this.renderShopItem(i)).join('')}` : ''}
+          ${manualItems.length ? `<div class="shop-group-lbl">${this.t('shopGroupManual')}</div>${manualItems.map(i => this.renderShopItem(i)).join('')}` : ''}
         </div>
         <div class="shopping-add-row">
           <div class="manual-input-group">
-            <input type="text" id="manual-name" placeholder="Ajouter un article…" class="manual-name-input" autocomplete="off">
+            <input type="text" id="manual-name" placeholder="${this.t('addItemPh')}" class="manual-name-input" autocomplete="off">
             <div class="manual-divider"></div>
             <input type="number" id="manual-qty" placeholder="Qté" class="manual-qty-input" min="0" step="any">
             <div class="manual-divider"></div>
-            <select id="manual-unit" class="manual-unit-select"><option value="">unité</option>${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
+            <select id="manual-unit" class="manual-unit-select"><option value="">${this.lang === 'de' ? 'Einheit' : this.lang === 'en' ? 'unit' : this.lang === 'es' ? 'unidad' : this.lang === 'it' ? 'unità' : 'unité'}</option>${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
           </div>
-          <button class="btn-primary btn-sm" id="btn-add-manual">+ Ajouter</button>
+          <button class="btn-primary btn-sm" id="btn-add-manual">${this.t('addItemBtn')}</button>
         </div>
       </div>
       ${this.pickerOpen ? this.renderRecipePicker() : ''}
@@ -1872,7 +2007,7 @@ const App = {
       const portions = this.planPortions[`${date}|${meal}|${id}`] || r.basePeople || 4;
       return `<div class="plan-chip">
         <div class="chip-thumb">${cover ? `<img src="${cover}" loading="lazy">` : `<span>${emoji}</span>`}</div>
-        <button class="chip-name-btn" data-open-recipe="${id}" data-open-portions="${portions}" title="Voir la recette">${this.escHtml(r.name)}</button>
+        <button class="chip-name-btn" data-open-recipe="${id}" data-open-portions="${portions}" title="${this.t('viewRecipeTip')}">${this.escHtml(r.name)}</button>
         <div class="chip-portions">
           <button class="chip-port-btn" data-port-dir="-1" data-port-date="${date}" data-port-meal="${meal}" data-port-id="${id}">−</button>
           <span class="chip-port-val">${portions}</span>
@@ -1890,7 +2025,7 @@ const App = {
       <div class="shop-body">
         <span class="shop-name">${this.escHtml(item.name)}</span>
         ${qty ? `<span class="shop-qty">${qty}</span>` : ''}
-        ${!item.manual && item.sources?.length ? `<span class="shop-source">${item.sources.map(s => this.escHtml(s)).join(', ')}</span>` : ''}
+        ${item.manual ? `<span class="shop-new-badge">${this.t('newItemBadge')}</span>` : (item.sources?.length ? `<span class="shop-source">${item.sources.map(s => this.escHtml(s)).join(', ')}</span>` : '')}
       </div>
       <button class="shop-del" data-del-item="${item.id}">✕</button>
     </div>`;
