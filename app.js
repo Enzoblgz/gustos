@@ -270,6 +270,9 @@ const App = {
     this.planWeek = this.getWeekStart(new Date());
     try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
     try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
+    document.addEventListener('click', e => {
+      if (e.target.id === 'btn-save-profile') this.saveProfile();
+    });
     db.auth.onAuthStateChange(async (event, session) => {
       if (event === 'INITIAL_SESSION') {
         if (session) await this.onSignIn(session.user);
@@ -298,9 +301,9 @@ const App = {
       if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
       this.avatarImg = localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
-      if (Store.get().length === 0 && !localStorage.getItem('gustos_seeded_v1')) {
+      if (!localStorage.getItem('gustos_seeded_v2')) {
         await this.seedDefaultRecipes(true).catch(() => {});
-        localStorage.setItem('gustos_seeded_v1', '1');
+        localStorage.setItem('gustos_seeded_v2', '1');
       }
       await this.loadSocial().catch(e => console.warn('[Social]', e));
       await this.loadPlan().catch(e => console.warn('[Plan]', e));
@@ -622,6 +625,7 @@ const App = {
     const saved = all.filter(r => this.savedIds.has(r.id));
     const tab = this.accountTab;
     const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : all;
+    const isAdmin = this.user?.role === 'admin';
     const displayName = this.user?.name || this.user?.email?.split('@')[0] || '?';
     const initial = displayName[0].toUpperCase();
     const days = this.trialDaysLeft();
@@ -649,6 +653,7 @@ const App = {
           </div>
         </div>
         <div class="account-actions-col">
+          ${isAdmin ? `<button type="button" class="btn-secondary btn-sm btn-admin-panel" id="btn-go-admin-account">⚙ Admin</button>` : ''}
           <button class="btn-ghost btn-logout-header" id="btn-logout-account">${this.t('disconnectBtn')}</button>
           <button type="button" class="btn-delete-account" id="btn-delete-account">Supprimer le compte</button>
         </div>
@@ -752,29 +757,22 @@ const App = {
     const firstName = this.user?.name || '';
     return `<div class="view-list">
       <div class="hero">
-        <div class="hero-inner">
-          <div class="hero-main">
-            <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
-            <h1 class="hero-title">${this.t('heroTitle')}</h1>
-            <div class="hero-search-wrap">
-              <div class="hero-search-bar">
-                <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
-                  <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-                <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
-                ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
-              </div>
-            </div>
-            <div class="stats-bar">
-              <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
-              <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
-              <div class="stat"><span class="stat-value">${avg||'—'}</span><span class="stat-label">${this.t('statAvg')}</span></div>
-            </div>
+        <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
+        <h1 class="hero-title">${this.t('heroTitle')}</h1>
+        <div class="hero-search-wrap">
+          <div class="hero-search-bar">
+            <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
+            ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
           </div>
-          <div class="hero-mascot-wrap">
-            <img src="Images/gustos-logo-transparent-background.png" alt="" class="hero-mascot-img" draggable="false">
-          </div>
+        </div>
+        <div class="stats-bar">
+          <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
+          <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
+          <div class="stat"><span class="stat-value">${avg||'—'}</span><span class="stat-label">${this.t('statAvg')}</span></div>
         </div>
       </div>
       <div class="categories">
@@ -1059,7 +1057,7 @@ const App = {
       const card = document.getElementById('profile-edit-card');
       if (card) card.hidden = true;
     });
-    document.getElementById('btn-save-profile')?.addEventListener('click', () => this.saveProfile());
+    document.getElementById('btn-go-admin-account')?.addEventListener('click', () => this.nav('admin'));
     document.getElementById('profile-avatar-input')?.addEventListener('change', e => {
       const file = e.target.files?.[0];
       if (file) this.handleAvatarUpload(file);
@@ -1330,11 +1328,14 @@ const App = {
 
   async seedDefaultRecipes(silent = false) {
     const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
-    const recipes = [
+    const now = new Date().toISOString();
+    const existingNames = new Set(Store.get().map(r => r.name));
+    const allRecipes = [
       {
-        id: uid(), name: 'Lasagnes au pesto', category: 'Pâtes',
+        name: 'Lasagnes au pesto', category: 'Pâtes',
         description: 'Des lasagnes crémeuses au pesto vert — rapides, parfumées et toujours appréciées.',
-        basePeople: 4, prepTime: 15, cookTime: 35, tags: ['végétarien', 'pesto', 'pâtes', 'gratiné'],
+        basePeople: 4, prepTime: 15, cookTime: 35,
+        tags: ['végétarien', 'pesto', 'pâtes', 'gratiné'],
         ingredients: [
           { name: 'feuilles de lasagne', qty: 12, unit: 'pièce(s)' },
           { name: 'pesto vert', qty: 200, unit: 'g' },
@@ -1352,14 +1353,233 @@ const App = {
           'Enfourner 35 min jusqu\'à ce que le dessus soit doré et bouillonnant.',
           'Laisser reposer 5 min avant de servir.',
         ],
-        coverImage: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      },
+      {
+        name: 'Ratatouille provençale', category: 'Légumes',
+        description: 'Le classique estival du Sud — courgettes, aubergines et tomates mijotées aux herbes de Provence.',
+        basePeople: 4, prepTime: 20, cookTime: 45,
+        tags: ['végétarien', 'provençal', 'été', 'mijotée'],
+        ingredients: [
+          { name: 'aubergine', qty: 2, unit: 'pièce(s)' },
+          { name: 'courgette', qty: 2, unit: 'pièce(s)' },
+          { name: 'poivron rouge', qty: 2, unit: 'pièce(s)' },
+          { name: 'tomates', qty: 4, unit: 'pièce(s)' },
+          { name: 'oignon', qty: 2, unit: 'pièce(s)' },
+          { name: 'ail', qty: 4, unit: 'gousse(s)' },
+          { name: 'huile d\'olive', qty: 4, unit: 'cs' },
+          { name: 'herbes de Provence', qty: 2, unit: 'cc' },
+        ],
+        steps: [
+          'Couper tous les légumes en dés d\'environ 2 cm.',
+          'Faire revenir l\'{oignon} et l\'{ail} dans l\'{huile d\'olive} à feu moyen, 5 min.',
+          'Ajouter l\'{aubergine} et cuire 5 min en remuant.',
+          'Incorporer la {courgette} et le {poivron rouge}. Cuire 5 min de plus.',
+          'Ajouter les {tomates} et les {herbes de Provence}. Saler, poivrer.',
+          'Couvrir et laisser mijoter à feu doux 30 min en remuant de temps en temps.',
+          'Servir chaud ou tiède, avec du pain grillé ou du riz.',
+        ],
+      },
+      {
+        name: 'Poulet rôti aux herbes', category: 'Viandes',
+        description: 'Un poulet rôti parfumé au thym, romarin et citron — croustillant dehors, fondant dedans.',
+        basePeople: 4, prepTime: 10, cookTime: 75,
+        tags: ['poulet', 'rôti', 'herbes', 'dimanche'],
+        ingredients: [
+          { name: 'poulet entier', qty: 1, unit: 'pièce(s)' },
+          { name: 'beurre', qty: 50, unit: 'g' },
+          { name: 'citron', qty: 1, unit: 'pièce(s)' },
+          { name: 'ail', qty: 4, unit: 'gousse(s)' },
+          { name: 'thym', qty: 4, unit: 'branche(s)' },
+          { name: 'romarin', qty: 2, unit: 'branche(s)' },
+          { name: 'huile d\'olive', qty: 2, unit: 'cs' },
+        ],
+        steps: [
+          'Préchauffer le four à 200°C.',
+          'Mélanger le {beurre} ramolli avec le zeste du {citron}, l\'{ail} écrasé, le sel et le poivre.',
+          'Glisser le beurre aromatisé sous la peau du {poulet entier} et enduire la surface d\'{huile d\'olive}.',
+          'Farcir la cavité avec les branches de {thym}, {romarin} et le reste du {citron} coupé en deux.',
+          'Enfourner 1h15, en arrosant toutes les 20 min avec le jus de cuisson.',
+          'Laisser reposer 10 min sous du papier aluminium avant de découper.',
+        ],
+      },
+      {
+        name: 'Risotto aux champignons', category: 'Riz',
+        description: 'Un risotto crémeux aux champignons de Paris et shiitakés, fini au parmesan.',
+        basePeople: 4, prepTime: 10, cookTime: 30,
+        tags: ['végétarien', 'champignons', 'crémeux', 'comfort food'],
+        ingredients: [
+          { name: 'riz arborio', qty: 320, unit: 'g' },
+          { name: 'champignons de Paris', qty: 250, unit: 'g' },
+          { name: 'shiitakés', qty: 150, unit: 'g' },
+          { name: 'bouillon de légumes', qty: 1.2, unit: 'L' },
+          { name: 'vin blanc sec', qty: 120, unit: 'ml' },
+          { name: 'échalote', qty: 2, unit: 'pièce(s)' },
+          { name: 'parmesan râpé', qty: 80, unit: 'g' },
+          { name: 'beurre', qty: 40, unit: 'g' },
+        ],
+        steps: [
+          'Faire chauffer le {bouillon de légumes} dans une casserole à feu doux.',
+          'Dans une grande poêle, faire revenir l\'{échalote} émincée dans la moitié du {beurre} pendant 3 min.',
+          'Ajouter les {champignons de Paris} et {shiitakés} tranchés. Cuire 5 min.',
+          'Incorporer le {riz arborio} et le nacrer 2 min en remuant.',
+          'Verser le {vin blanc sec} et laisser absorber complètement.',
+          'Ajouter le bouillon louche par louche en remuant constamment, en attendant l\'absorption à chaque fois (20 min).',
+          'Hors du feu, incorporer le reste du {beurre} et le {parmesan râpé}. Assaisonner et servir immédiatement.',
+        ],
+      },
+      {
+        name: 'Soupe à l\'oignon gratinée', category: 'Soupes',
+        description: 'La soupe à l\'oignon traditionnelle parisienne, avec sa croûte de gruyère fondu.',
+        basePeople: 4, prepTime: 10, cookTime: 50,
+        tags: ['bistrot', 'gratiné', 'hiver', 'fromage'],
+        ingredients: [
+          { name: 'oignons', qty: 1, unit: 'kg' },
+          { name: 'bouillon de bœuf', qty: 1.5, unit: 'L' },
+          { name: 'vin blanc sec', qty: 100, unit: 'ml' },
+          { name: 'beurre', qty: 40, unit: 'g' },
+          { name: 'tranches de pain rassis', qty: 8, unit: 'pièce(s)' },
+          { name: 'gruyère râpé', qty: 200, unit: 'g' },
+          { name: 'farine', qty: 1, unit: 'cs' },
+        ],
+        steps: [
+          'Émincer finement les {oignons}.',
+          'Faire fondre le {beurre} dans une grande cocotte, ajouter les {oignons} et caraméliser à feu doux 30 min en remuant souvent.',
+          'Saupoudrer de {farine} et mélanger 2 min.',
+          'Verser le {vin blanc sec}, laisser réduire 3 min, puis ajouter le {bouillon de bœuf}.',
+          'Cuire à feu doux 15 min. Assaisonner.',
+          'Verser la soupe dans des bols allant au four. Disposer les {tranches de pain rassis} dessus et couvrir de {gruyère râpé}.',
+          'Passer sous le grill 5 min jusqu\'à ce que le fromage soit doré et bouillonnant.',
+        ],
+      },
+      {
+        name: 'Quiche lorraine', category: 'Tartes',
+        description: 'La quiche classique à la crème et aux lardons — simple, généreuse et toujours réussie.',
+        basePeople: 6, prepTime: 15, cookTime: 35,
+        tags: ['lorraine', 'lardons', 'crème', 'entrée'],
+        ingredients: [
+          { name: 'pâte brisée', qty: 1, unit: 'pièce(s)' },
+          { name: 'lardons fumés', qty: 200, unit: 'g' },
+          { name: 'crème fraîche épaisse', qty: 250, unit: 'ml' },
+          { name: 'œufs', qty: 3, unit: 'pièce(s)' },
+          { name: 'gruyère râpé', qty: 80, unit: 'g' },
+          { name: 'muscade', qty: 1, unit: 'pincée' },
+        ],
+        steps: [
+          'Préchauffer le four à 180°C.',
+          'Foncer un moule à tarte avec la {pâte brisée}. Piquer le fond avec une fourchette et précuire 10 min à blanc.',
+          'Faire revenir les {lardons fumés} à la poêle sans matière grasse jusqu\'à légère dorure.',
+          'Battre les {œufs} avec la {crème fraîche épaisse}, saler légèrement, poivrer, ajouter la {muscade}.',
+          'Répartir les {lardons fumés} sur le fond de tarte, verser l\'appareil à crème, parsemer de {gruyère râpé}.',
+          'Cuire 35 min jusqu\'à ce que la quiche soit dorée et prise au centre.',
+          'Laisser tiédir 5 min avant de servir, avec une salade verte.',
+        ],
+      },
+      {
+        name: 'Bœuf bourguignon', category: 'Viandes',
+        description: 'Le grand classique bourguignon — bœuf mijoté au vin rouge avec carottes, lardons et champignons.',
+        basePeople: 6, prepTime: 30, cookTime: 180,
+        tags: ['bœuf', 'mijoté', 'vin rouge', 'dimanche', 'hiver'],
+        ingredients: [
+          { name: 'bœuf à braiser (paleron ou joue)', qty: 1.2, unit: 'kg' },
+          { name: 'vin rouge de Bourgogne', qty: 75, unit: 'cl' },
+          { name: 'lardons fumés', qty: 150, unit: 'g' },
+          { name: 'champignons de Paris', qty: 250, unit: 'g' },
+          { name: 'carottes', qty: 3, unit: 'pièce(s)' },
+          { name: 'oignons', qty: 2, unit: 'pièce(s)' },
+          { name: 'ail', qty: 3, unit: 'gousse(s)' },
+          { name: 'bouquet garni', qty: 1, unit: 'pièce(s)' },
+          { name: 'farine', qty: 2, unit: 'cs' },
+          { name: 'huile', qty: 3, unit: 'cs' },
+        ],
+        steps: [
+          'Couper le {bœuf à braiser (paleron ou joue)} en gros cubes. Saler, poivrer et fariner légèrement.',
+          'Faire dorer les cubes de bœuf dans l\'{huile} sur toutes les faces. Réserver.',
+          'Dans la même cocotte, faire revenir les {lardons fumés}, les {oignons} émincés et l\'{ail} 5 min.',
+          'Remettre le bœuf, ajouter les {carottes} en rondelles, le {bouquet garni} et verser le {vin rouge de Bourgogne}.',
+          'Porter à ébullition, écumer, puis couvrir et laisser mijoter à feu très doux 2h30.',
+          'Ajouter les {champignons de Paris} coupés en quartiers 30 min avant la fin de cuisson.',
+          'Retirer le {bouquet garni}. Vérifier l\'assaisonnement. Servir avec des pommes de terre vapeur ou des pâtes.',
+        ],
+      },
+      {
+        name: 'Crêpes sucrées maison', category: 'Desserts',
+        description: 'La pâte à crêpes inratable — légère, dorée et parfumée au beurre noisette.',
+        basePeople: 4, prepTime: 10, cookTime: 20,
+        tags: ['dessert', 'crêpes', 'breton', 'rapide'],
+        ingredients: [
+          { name: 'farine', qty: 250, unit: 'g' },
+          { name: 'lait', qty: 500, unit: 'ml' },
+          { name: 'œufs', qty: 3, unit: 'pièce(s)' },
+          { name: 'beurre fondu', qty: 40, unit: 'g' },
+          { name: 'sucre', qty: 30, unit: 'g' },
+          { name: 'sel', qty: 1, unit: 'pincée' },
+          { name: 'extrait de vanille', qty: 1, unit: 'cc' },
+        ],
+        steps: [
+          'Dans un saladier, mélanger la {farine}, le {sucre} et le {sel}.',
+          'Ajouter les {œufs} un par un en mélangeant bien.',
+          'Incorporer progressivement le {lait} pour éviter les grumeaux. Ajouter le {beurre fondu} et l\'{extrait de vanille}.',
+          'Laisser reposer la pâte 30 min à température ambiante (facultatif mais recommandé).',
+          'Faire chauffer une poêle antiadhésive à feu moyen-vif. Huiler légèrement.',
+          'Verser une petite louche de pâte, incliner la poêle pour étaler en fine couche.',
+          'Cuire 1 min jusqu\'à ce que les bords se décollent, retourner et cuire 30 sec. Servir avec beurre, sucre, confiture ou Nutella.',
+        ],
+      },
+      {
+        name: 'Taboulé libanais', category: 'Salades',
+        description: 'Un taboulé frais et généreux — beaucoup de persil, peu de boulgour, tomates et citron.',
+        basePeople: 4, prepTime: 20, cookTime: 0,
+        tags: ['végétarien', 'libanais', 'frais', 'été', 'sans cuisson'],
+        ingredients: [
+          { name: 'boulgour fin', qty: 80, unit: 'g' },
+          { name: 'persil plat', qty: 2, unit: 'botte(s)' },
+          { name: 'menthe fraîche', qty: 1, unit: 'botte(s)' },
+          { name: 'tomates', qty: 3, unit: 'pièce(s)' },
+          { name: 'citrons', qty: 2, unit: 'pièce(s)' },
+          { name: 'huile d\'olive', qty: 5, unit: 'cs' },
+          { name: 'oignons verts', qty: 4, unit: 'tige(s)' },
+        ],
+        steps: [
+          'Réhydrater le {boulgour fin} avec 80 ml d\'eau bouillante. Laisser gonfler 15 min, puis égoutter et refroidir.',
+          'Ciseler finement le {persil plat} et la {menthe fraîche}.',
+          'Couper les {tomates} en très petits dés. Émincer les {oignons verts}.',
+          'Presser les {citrons}. Mélanger le jus avec l\'{huile d\'olive}, sel et poivre.',
+          'Mélanger le {boulgour fin}, les herbes, les {tomates} et les {oignons verts}.',
+          'Verser la vinaigrette au citron, mélanger. Goûter et ajuster l\'assaisonnement.',
+          'Réfrigérer au moins 30 min avant de servir — le taboulé est meilleur frais.',
+        ],
+      },
+      {
+        name: 'Tarte tatin aux pommes', category: 'Desserts',
+        description: 'La tarte renversée caramélisée — pommes fondantes et caramel beurré sous une pâte croustillante.',
+        basePeople: 6, prepTime: 20, cookTime: 40,
+        tags: ['dessert', 'pommes', 'caramel', 'tarte', 'classique'],
+        ingredients: [
+          { name: 'pommes (type Reine des Reinettes)', qty: 1.2, unit: 'kg' },
+          { name: 'beurre', qty: 80, unit: 'g' },
+          { name: 'sucre', qty: 150, unit: 'g' },
+          { name: 'pâte feuilletée', qty: 1, unit: 'rouleau' },
+          { name: 'jus de citron', qty: 1, unit: 'cs' },
+        ],
+        steps: [
+          'Préchauffer le four à 190°C.',
+          'Dans une poêle allant au four (ou moule à tatin), faire fondre le {beurre} avec le {sucre} à feu moyen jusqu\'à obtenir un caramel brun doré.',
+          'Peler et couper les {pommes (type Reine des Reinettes)} en quartiers. Les arroser du {jus de citron}.',
+          'Disposer les quartiers de pommes en cercles serrés dans le caramel, côté courbe vers le bas.',
+          'Cuire 10 min à feu moyen pour précuire les pommes dans le caramel.',
+          'Recouvrir les pommes avec la {pâte feuilletée} découpée en cercle. Rentrer les bords à l\'intérieur du moule.',
+          'Enfourner 25-30 min jusqu\'à ce que la pâte soit bien dorée. Laisser tiédir 10 min puis retourner sur un plat. Servir tiède avec de la crème fraîche.',
+        ],
       },
     ];
-    for (const r of recipes) {
+    const toAdd = allRecipes.filter(r => !existingNames.has(r.name)).map(r => ({
+      ...r, id: uid(), coverImage: null, createdAt: now, updatedAt: now,
+    }));
+    for (const r of toAdd) {
       Store.add(r);
       if (this.user) await db.from('recipes').upsert({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt }).catch(() => {});
     }
-    if (!silent) { this.renderContent(); this.toast('Recette ajoutée !'); }
+    if (!silent) { this.renderContent(); this.toast(`${toAdd.length} recette(s) ajoutée(s) !`); }
   },
 
   showUpgradeModal(){
