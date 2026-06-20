@@ -413,14 +413,16 @@ main {
 .card-save-btn:hover { transform: scale(1.1); background: var(--white); }
 
 .card-body { padding: 18px 20px 20px; }
+.card-category-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
 .card-category {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--terracotta);
   font-weight: 600;
-  margin-bottom: 5px;
 }
+.card-author { font-size: 0.70rem; color: var(--brown-light); font-style: italic; }
+.recipe-author { font-size: 0.85rem; color: var(--brown-light); font-style: italic; margin: 2px 0 8px; }
 .card-title {
   font-family: var(--font-serif);
   font-size: 1.15rem;

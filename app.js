@@ -525,9 +525,9 @@ const App = {
       if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
     }
     // Fetch all recipes from Supabase (RLS allows all authenticated users to read all)
-    const { data, error } = await db.from('recipes').select('data').order('created_at', { ascending: true });
+    const { data, error } = await db.from('recipes').select('data, user_id').order('created_at', { ascending: true });
     if (error) { console.warn('[Sync fetch]', error.message); return; }
-    Store.saveCache(data ? data.map(r => r.data) : local);
+    Store.saveCache(data ? data.map(r => ({ ...r.data, authorId: r.user_id })) : local);
   },
 
   async loadSocial() {
@@ -870,10 +870,11 @@ const App = {
 
   renderAccount() {
     const all = Store.get();
+    const mine = all.filter(r => r.authorId === this.user?.id);
     const liked = all.filter(r => this.likedIds.has(r.id));
     const saved = all.filter(r => this.savedIds.has(r.id));
     const tab = this.accountTab;
-    const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : all;
+    const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : mine;
     const isAdmin = this.user?.role === 'admin';
     const displayName = this.user?.name || this.user?.email?.split('@')[0] || '?';
     const initial = displayName[0].toUpperCase();
@@ -946,7 +947,7 @@ const App = {
         <button class="btn-planning-enter" id="btn-go-planning">${this.t('openPlanner')}</button>
       </div>
       <div class="account-tabs-row">
-        <button class="account-tab-btn${tab==='mine'?' active':''}" data-tab="mine">${this.t('myRecipes')} <span class="tab-count">${all.length}</span></button>
+        <button class="account-tab-btn${tab==='mine'?' active':''}" data-tab="mine">${this.t('myRecipes')} <span class="tab-count">${mine.length}</span></button>
         <button class="account-tab-btn${tab==='liked'?' active':''}" data-tab="liked">${this.t('liked')} <span class="tab-count">${liked.length}</span></button>
         <button class="account-tab-btn${tab==='saved'?' active':''}" data-tab="saved">${this.t('bookmarked')} <span class="tab-count">${saved.length}</span></button>
       </div>
@@ -1078,7 +1079,10 @@ const App = {
         <button class="card-save-btn${isSaved?' saved':''}" data-save-card="${r.id}">${isSaved?'🔖':'📌'}</button>
       </div>
       <div class="card-body">
-        <div class="card-category">${r.category||this.t('noCat')}</div>
+        <div class="card-category-row">
+          <span class="card-category">${r.category||this.t('noCat')}</span>
+          ${r.authorName?`<span class="card-author">par ${this.escHtml(r.authorName)}</span>`:''}
+        </div>
         <div class="card-title">${this.escHtml(r.name)}</div>
         <div class="card-desc">${this.escHtml(r.description||'')}</div>
         <div class="card-meta">
@@ -1119,6 +1123,7 @@ const App = {
         <div class="recipe-info">
           <span class="recipe-category-badge">${r.category||this.t('noCat')}</span>
           <h1 class="recipe-title">${this.escHtml(r.name)}</h1>
+          ${r.authorName?`<p class="recipe-author">Par ${this.escHtml(r.authorName)}</p>`:''}
           ${r.description?`<p class="recipe-description">${this.escHtml(r.description)}</p>`:''}
           ${metaBoxes?`<div class="recipe-meta-grid">${metaBoxes}</div>`:''}
           <div class="social-actions">
@@ -1544,7 +1549,7 @@ const App = {
     const name=document.getElementById('f-name')?.value?.trim();
     if(!name){this.toast(this.t('nameWarn'));return;}
     if(!this.editingId&&!this.canAddRecipe()){this.showUpgradeModal();return;}
-    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString()};
+    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString(),authorId:this.user?.id||null,authorName:this.user?.name||this.user?.email?.split('@')[0]||''};
     if(this.editingId)Store.update(this.editingId,recipe);else Store.add(recipe);
     if(this.user){const{error}=await db.from('recipes').upsert({id:recipe.id,user_id:this.user.id,data:recipe,updated_at:recipe.updatedAt});if(error)this.toast(this.t('syncErr')+error.message);}
     this.toast(this.editingId?this.t('recipeUpdated'):this.t('recipeCreated'));
