@@ -490,9 +490,6 @@ const App = {
       } else if (event === 'SIGNED_IN') {
         if (!this.user) await this.onSignIn(session.user);
       } else if (event === 'USER_UPDATED') {
-        if (this.user && session?.user?.user_metadata?.full_name) {
-          this.user.name = session.user.user_metadata.full_name;
-        }
         if (this.user && session?.user?.email) this.user.email = session.user.email;
       } else if (event === 'SIGNED_OUT') {
         this.user = null; Store.clear();
@@ -508,7 +505,6 @@ const App = {
       const { data: profile, error } = await db.from('profiles').select('*').eq('id', authUser.id).single();
       if (error) console.warn('[Auth]', error.message);
       this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
-      if (!this.user.name) this.user.name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
       // Load avatar: Supabase first, localStorage fallback
       this.avatarImg = profile?.avatar_url || localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
@@ -540,7 +536,7 @@ const App = {
     Store.saveCache(data ? data.map(r => ({
       ...r.data,
       authorId: r.user_id,
-      authorName: r.profiles?.username || r.data.authorName || r.profiles?.name || r.profiles?.email?.split('@')[0] || ''
+      authorName: r.profiles?.username || r.data.authorName || r.profiles?.email?.split('@')[0] || ''
     })) : local);
   },
 
@@ -707,7 +703,7 @@ const App = {
             <button class="auth-tab${!isLogin?' active':''}" data-auth-mode="register">${this.t('register')}</button>
           </div>
           <form id="auth-form" autocomplete="on">
-            ${!isLogin?`<div class="form-group"><label for="auth-name">${this.t('firstName')}</label><input type="text" id="auth-name" placeholder="${this.t('firstNamePh')}" autocomplete="given-name"></div><div class="form-group"><label for="auth-username">${this.t('usernameLbl')}</label><input type="text" id="auth-username" placeholder="${this.t('usernamePh')}" autocomplete="off" spellcheck="false"></div>`:''}
+            ${!isLogin?`<div class="form-group"><label for="auth-username">${this.t('usernameLbl')}</label><input type="text" id="auth-username" placeholder="${this.t('usernamePh')}" autocomplete="off" spellcheck="false"></div>`:''}
             <div class="form-group"><label for="auth-email">${this.t('email')}</label><input type="email" id="auth-email" placeholder="${this.t('emailPh')}" autocomplete="email" required></div>
             <div class="form-group"><label for="auth-pass">${this.t('password')}</label>
               <div class="password-input-wrap">
@@ -794,15 +790,14 @@ const App = {
         error = r.error;
         if (error && btn) { btn.disabled = false; btn.textContent = this.t('signIn'); }
       } else {
-        const name = document.getElementById('auth-name')?.value?.trim() || '';
         const username = (document.getElementById('auth-username')?.value?.trim() || '').toLowerCase().replace(/\s+/g, '_');
         if (!username) { this._setAuthError(this.t('usernameRequired')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return; }
         const { data: taken } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
         if (taken) { this._setAuthError(this.t('usernameTaken')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return; }
-        const r = await db.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+        const r = await db.auth.signUp({ email, password: pass });
         error = r.error;
         if (!error) {
-          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, name, username }).catch(() => {});
+          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, username }).catch(() => {});
           this.toast(this.t('accountCreated')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return;
         }
         if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); }
@@ -829,8 +824,8 @@ const App = {
 
   renderHeader() {
     const isAdmin = this.user?.role === 'admin';
-    const initial = (this.user?.name?.[0] || this.user?.email?.[0] || '?').toUpperCase();
-    const displayName = this.user?.name || this.user?.email?.split('@')[0] || '';
+    const initial = (this.user?.username?.[0] || this.user?.email?.[0] || '?').toUpperCase();
+    const displayName = this.user?.username || this.user?.email?.split('@')[0] || '';
     const days = this.trialDaysLeft();
     const planClass = this.user?.plan === 'pro' ? 'pro' : (days > 0 ? 'trial' : 'free');
     const planLabel = this.user?.plan === 'pro' ? 'Pro' : (days > 0 ? `J-${days}` : 'Free');
@@ -894,7 +889,7 @@ const App = {
     const tab = this.accountTab;
     const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : mine;
     const isAdmin = this.user?.role === 'admin';
-    const displayName = this.user?.name || this.user?.email?.split('@')[0] || '?';
+    const displayName = this.user?.username || this.user?.email?.split('@')[0] || '?';
     const initial = displayName[0].toUpperCase();
     const days = this.trialDaysLeft();
     const planClass = this.user?.plan === 'pro' ? 'pro' : (days > 0 ? 'trial' : 'free');
@@ -936,10 +931,6 @@ const App = {
           <input type="file" id="profile-avatar-input" accept="image/*" style="display:none">
         </div>
         <div class="form-group" style="margin-top:16px">
-          <label for="profile-name-input">${this.t('displayNameLbl')}</label>
-          <input type="text" id="profile-name-input" value="${this.escHtml(this.user?.name||'')}">
-        </div>
-        <div class="form-group" style="margin-top:12px">
           <label for="profile-username-input">${this.t('usernameLbl')}</label>
           <input type="text" id="profile-username-input" value="${this.escHtml(this.user?.username||'')}" spellcheck="false" placeholder="${this.t('usernamePh')}">
         </div>
@@ -1026,7 +1017,7 @@ const App = {
     const sectionLabel = this.searchQuery
       ? this.t('searchResults', shown.length, this.escHtml(this.searchQuery))
       : (this.activeCategory === ALL_CAT ? this.t('allRecipesLabel') : this.activeCategory);
-    const firstName = this.user?.username || this.user?.name || '';
+    const firstName = this.user?.username || '';
     return `<div class="view-list">
       <div class="hero">
         <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
@@ -1572,7 +1563,7 @@ const App = {
     const name=document.getElementById('f-name')?.value?.trim();
     if(!name){this.toast(this.t('nameWarn'));return;}
     if(!this.editingId&&!this.canAddRecipe()){this.showUpgradeModal();return;}
-    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString(),authorId:this.user?.id||null,authorName:this.user?.username||this.user?.name||this.user?.email?.split('@')[0]||''};
+    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString(),authorId:this.user?.id||null,authorName:this.user?.username||this.user?.email?.split('@')[0]||''};
     if(this.editingId)Store.update(this.editingId,recipe);else Store.add(recipe);
     if(this.user){const{error}=await db.from('recipes').upsert({id:recipe.id,user_id:this.user.id,data:recipe,updated_at:recipe.updatedAt});if(error)this.toast(this.t('syncErr')+error.message);}
     this.toast(this.editingId?this.t('recipeUpdated'):this.t('recipeCreated'));
@@ -1589,7 +1580,6 @@ const App = {
   },
 
   async saveProfile() {
-    const name = (document.getElementById('profile-name-input')?.value || '').trim();
     const usernameRaw = (document.getElementById('profile-username-input')?.value || '').trim();
     const username = usernameRaw.toLowerCase().replace(/\s+/g, '_');
     const email = (document.getElementById('profile-email-input')?.value || '').trim();
@@ -1600,16 +1590,10 @@ const App = {
       if (username && username !== this.user.username) {
         const { data: taken } = await db.from('profiles').select('id').eq('username', username).neq('id', this.user.id).maybeSingle();
         if (taken) { this.toast(this.t('usernameTaken')); if (btn) btn.disabled = false; return; }
+        await db.from('profiles').update({ username }).eq('id', this.user.id);
+        this.user.username = username;
       }
       const emailChanged = email && email !== this.user.email;
-      const updates = {};
-      if (name) { updates.name = name; }
-      if (username) { updates.username = username; }
-      if (Object.keys(updates).length) {
-        await db.from('profiles').update(updates).eq('id', this.user.id);
-        if (name) { await db.auth.updateUser({ data: { full_name: name } }); this.user.name = name; }
-        if (username) { this.user.username = username; }
-      }
       if (emailChanged) await db.auth.updateUser({ email });
       const card = document.getElementById('profile-edit-card');
       if (card) card.hidden = true;
@@ -1617,7 +1601,7 @@ const App = {
       // Header badge: renderContent() doesn't touch the header so update it directly
       const hdr = document.getElementById('btn-go-account');
       if (hdr) {
-        const initial = (this.user?.name?.[0] || this.user?.email?.[0] || '?').toUpperCase();
+        const initial = (this.user?.username?.[0] || this.user?.email?.[0] || '?').toUpperCase();
         hdr.innerHTML = this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo" alt="">` : initial;
       }
       this.toast(emailChanged ? this.t('emailConfirmSent') : this.t('profileSaved'));
