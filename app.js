@@ -628,7 +628,7 @@ const App = {
       // Load avatar: Supabase first, localStorage fallback
       this.avatarImg = profile?.avatar_url || localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
-      if (!localStorage.getItem('gustos_seeded_v2')) {
+      if (!localStorage.getItem('gustos_seeded_v2') || Store.get().length === 0) {
         await this.seedDefaultRecipes(true).catch(() => {});
         localStorage.setItem('gustos_seeded_v2', '1');
       }
