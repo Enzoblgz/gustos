@@ -41,6 +41,8 @@ const TR = {
     emailPh: 'toi@exemple.com', passPh: '••••••••',
     signIn: 'Se connecter', createAccount: 'Créer mon compte', loading: 'Chargement…',
     firstName: 'Prénom', firstNamePh: 'Ton prénom',
+    usernameLbl: 'Pseudo', usernamePh: 'ton_pseudo',
+    usernameTaken: 'Ce pseudo est déjà pris.', usernameRequired: 'Choisis un pseudo.',
     forgotPw: 'Mot de passe oublié ?', trialNote: '✨ Gratuit et instantané — aucune carte requise',
     emailSent: 'Email de réinitialisation envoyé !', enterEmail: 'Entre ton email d\'abord.',
     accountCreated: 'Compte créé ! Vérifie ton email.',
@@ -121,6 +123,8 @@ const TR = {
     emailPh: 'you@example.com', passPh: '••••••••',
     signIn: 'Sign in', createAccount: 'Create account', loading: 'Loading…',
     firstName: 'First name', firstNamePh: 'Your name',
+    usernameLbl: 'Username', usernamePh: 'your_username',
+    usernameTaken: 'This username is already taken.', usernameRequired: 'Choose a username.',
     forgotPw: 'Forgot password?', trialNote: '✨ Free and instant — no card required',
     emailSent: 'Reset email sent!', enterEmail: 'Enter your email first.',
     accountCreated: 'Account created! Check your email.',
@@ -201,6 +205,8 @@ const TR = {
     emailPh: 'tu@ejemplo.com', passPh: '••••••••',
     signIn: 'Iniciar sesión', createAccount: 'Crear cuenta', loading: 'Cargando…',
     firstName: 'Nombre', firstNamePh: 'Tu nombre',
+    usernameLbl: 'Apodo', usernamePh: 'tu_apodo',
+    usernameTaken: 'Este apodo ya está en uso.', usernameRequired: 'Elige un apodo.',
     forgotPw: '¿Olvidaste tu contraseña?', trialNote: '✨ Gratis e instantáneo — sin tarjeta',
     emailSent: '¡Email de restablecimiento enviado!', enterEmail: 'Introduce tu email primero.',
     accountCreated: '¡Cuenta creada! Revisa tu email.',
@@ -281,6 +287,8 @@ const TR = {
     emailPh: 'tu@esempio.com', passPh: '••••••••',
     signIn: 'Accedi', createAccount: 'Crea account', loading: 'Caricamento…',
     firstName: 'Nome', firstNamePh: 'Il tuo nome',
+    usernameLbl: 'Pseudonimo', usernamePh: 'il_tuo_pseudo',
+    usernameTaken: 'Questo pseudonimo è già preso.', usernameRequired: 'Scegli un pseudonimo.',
     forgotPw: 'Password dimenticata?', trialNote: '✨ Gratuito e istantaneo — nessuna carta richiesta',
     emailSent: 'Email di reimpostazione inviata!', enterEmail: 'Inserisci prima la tua email.',
     accountCreated: 'Account creato! Controlla la tua email.',
@@ -361,6 +369,8 @@ const TR = {
     emailPh: 'du@beispiel.de', passPh: '••••••••',
     signIn: 'Anmelden', createAccount: 'Konto erstellen', loading: 'Lädt…',
     firstName: 'Vorname', firstNamePh: 'Dein Vorname',
+    usernameLbl: 'Benutzername', usernamePh: 'dein_username',
+    usernameTaken: 'Dieser Benutzername ist bereits vergeben.', usernameRequired: 'Wähle einen Benutzernamen.',
     forgotPw: 'Passwort vergessen?', trialNote: '✨ Kostenlos und sofort — keine Karte nötig',
     emailSent: 'Zurücksetz-E-Mail gesendet!', enterEmail: 'Gib zuerst deine E-Mail ein.',
     accountCreated: 'Konto erstellt! Überprüfe deine E-Mail.',
@@ -525,12 +535,12 @@ const App = {
       if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
     }
     // Fetch all recipes + author name from profiles (JOIN via FK)
-    const { data, error } = await db.from('recipes').select('data, user_id, profiles(name, email)').order('created_at', { ascending: true });
+    const { data, error } = await db.from('recipes').select('data, user_id, profiles(name, email, username)').order('created_at', { ascending: true });
     if (error) { console.warn('[Sync fetch]', error.message); return; }
     Store.saveCache(data ? data.map(r => ({
       ...r.data,
       authorId: r.user_id,
-      authorName: r.data.authorName || r.profiles?.name || r.profiles?.email?.split('@')[0] || ''
+      authorName: r.profiles?.username || r.data.authorName || r.profiles?.name || r.profiles?.email?.split('@')[0] || ''
     })) : local);
   },
 
@@ -697,7 +707,7 @@ const App = {
             <button class="auth-tab${!isLogin?' active':''}" data-auth-mode="register">${this.t('register')}</button>
           </div>
           <form id="auth-form" autocomplete="on">
-            ${!isLogin?`<div class="form-group"><label for="auth-name">${this.t('firstName')}</label><input type="text" id="auth-name" placeholder="${this.t('firstNamePh')}" autocomplete="given-name"></div>`:''}
+            ${!isLogin?`<div class="form-group"><label for="auth-name">${this.t('firstName')}</label><input type="text" id="auth-name" placeholder="${this.t('firstNamePh')}" autocomplete="given-name"></div><div class="form-group"><label for="auth-username">${this.t('usernameLbl')}</label><input type="text" id="auth-username" placeholder="${this.t('usernamePh')}" autocomplete="off" spellcheck="false"></div>`:''}
             <div class="form-group"><label for="auth-email">${this.t('email')}</label><input type="email" id="auth-email" placeholder="${this.t('emailPh')}" autocomplete="email" required></div>
             <div class="form-group"><label for="auth-pass">${this.t('password')}</label>
               <div class="password-input-wrap">
@@ -785,10 +795,14 @@ const App = {
         if (error && btn) { btn.disabled = false; btn.textContent = this.t('signIn'); }
       } else {
         const name = document.getElementById('auth-name')?.value?.trim() || '';
+        const username = (document.getElementById('auth-username')?.value?.trim() || '').toLowerCase().replace(/\s+/g, '_');
+        if (!username) { this._setAuthError(this.t('usernameRequired')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return; }
+        const { data: taken } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+        if (taken) { this._setAuthError(this.t('usernameTaken')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return; }
         const r = await db.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
         error = r.error;
         if (!error) {
-          if (r.data?.user?.id && name) await db.from('profiles').upsert({ id: r.data.user.id, email, name }).catch(() => {});
+          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, name, username }).catch(() => {});
           this.toast(this.t('accountCreated')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return;
         }
         if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); }
@@ -926,6 +940,10 @@ const App = {
           <input type="text" id="profile-name-input" value="${this.escHtml(this.user?.name||'')}">
         </div>
         <div class="form-group" style="margin-top:12px">
+          <label for="profile-username-input">${this.t('usernameLbl')}</label>
+          <input type="text" id="profile-username-input" value="${this.escHtml(this.user?.username||'')}" spellcheck="false" placeholder="${this.t('usernamePh')}">
+        </div>
+        <div class="form-group" style="margin-top:12px">
           <label for="profile-email-input">${this.t('email')}</label>
           <input type="email" id="profile-email-input" value="${this.escHtml(this.user?.email||'')}">
         </div>
@@ -1008,7 +1026,7 @@ const App = {
     const sectionLabel = this.searchQuery
       ? this.t('searchResults', shown.length, this.escHtml(this.searchQuery))
       : (this.activeCategory === ALL_CAT ? this.t('allRecipesLabel') : this.activeCategory);
-    const firstName = this.user?.name || '';
+    const firstName = this.user?.username || this.user?.name || '';
     return `<div class="view-list">
       <div class="hero">
         <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
@@ -1554,7 +1572,7 @@ const App = {
     const name=document.getElementById('f-name')?.value?.trim();
     if(!name){this.toast(this.t('nameWarn'));return;}
     if(!this.editingId&&!this.canAddRecipe()){this.showUpgradeModal();return;}
-    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString(),authorId:this.user?.id||null,authorName:this.user?.name||this.user?.email?.split('@')[0]||''};
+    const recipe={id:this.editingId||crypto.randomUUID(),name,category:document.getElementById('f-cat')?.value||'',basePeople:parseInt(document.getElementById('f-people')?.value)||4,prepTime:parseInt(document.getElementById('f-prep')?.value)||0,cookTime:parseInt(document.getElementById('f-cook')?.value)||0,description:document.getElementById('f-desc')?.value?.trim()||'',ingredients:this.formData.ingredients.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()})),steps:this.formData.steps.filter(s=>s.text.trim()),coverImage:this.formData.coverImage||null,images:[],tags:[...this.formData.tags],createdAt:this.editingId?(Store.byId(this.editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString(),authorId:this.user?.id||null,authorName:this.user?.username||this.user?.name||this.user?.email?.split('@')[0]||''};
     if(this.editingId)Store.update(this.editingId,recipe);else Store.add(recipe);
     if(this.user){const{error}=await db.from('recipes').upsert({id:recipe.id,user_id:this.user.id,data:recipe,updated_at:recipe.updatedAt});if(error)this.toast(this.t('syncErr')+error.message);}
     this.toast(this.editingId?this.t('recipeUpdated'):this.t('recipeCreated'));
@@ -1572,16 +1590,25 @@ const App = {
 
   async saveProfile() {
     const name = (document.getElementById('profile-name-input')?.value || '').trim();
+    const usernameRaw = (document.getElementById('profile-username-input')?.value || '').trim();
+    const username = usernameRaw.toLowerCase().replace(/\s+/g, '_');
     const email = (document.getElementById('profile-email-input')?.value || '').trim();
     if (!this.user) return;
     const btn = document.querySelector('#btn-save-profile');
     if (btn) btn.disabled = true;
     try {
+      if (username && username !== this.user.username) {
+        const { data: taken } = await db.from('profiles').select('id').eq('username', username).neq('id', this.user.id).maybeSingle();
+        if (taken) { this.toast(this.t('usernameTaken')); if (btn) btn.disabled = false; return; }
+      }
       const emailChanged = email && email !== this.user.email;
-      if (name) {
-        await db.from('profiles').update({ name }).eq('id', this.user.id);
-        await db.auth.updateUser({ data: { full_name: name } });
-        this.user.name = name;
+      const updates = {};
+      if (name) { updates.name = name; }
+      if (username) { updates.username = username; }
+      if (Object.keys(updates).length) {
+        await db.from('profiles').update(updates).eq('id', this.user.id);
+        if (name) { await db.auth.updateUser({ data: { full_name: name } }); this.user.name = name; }
+        if (username) { this.user.username = username; }
       }
       if (emailChanged) await db.auth.updateUser({ email });
       const card = document.getElementById('profile-edit-card');
