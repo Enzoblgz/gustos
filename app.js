@@ -984,16 +984,6 @@ const App = {
           ${this.t('planningBtn')}
         </button>
       </div>
-      <div class="header-center">
-        <div class="search-bar">
-          <svg class="search-svg-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M10 10 L14.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <input type="text" id="search-input" placeholder="${this.t('search')}" value="${this.escHtml(this.searchQuery)}">
-          <kbd class="search-shortcut">⌘K</kbd>
-        </div>
-      </div>
       <div class="header-right">
         <button class="btn-primary btn-new" id="btn-new">${this.t('newRecipe')}</button>
         <div class="header-sep"></div>
@@ -1549,9 +1539,7 @@ const App = {
     document.getElementById('btn-new')?.addEventListener('click', () => this.nav('create'));
     document.getElementById('btn-admin')?.addEventListener('click', () => this.nav('admin'));
 
-    const si = document.getElementById('search-input');
-    si?.addEventListener('input', e => { this.searchQuery = e.target.value; if (this.view==='list') this.renderContent(); });
-    document.addEventListener('keydown', e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); si?.focus(); si?.select(); } });
+    document.addEventListener('keydown', e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); document.getElementById('hero-search-input')?.focus(); } });
 
     // Sélecteur de langue
     const langBtn = document.getElementById('btn-lang');
@@ -1594,15 +1582,11 @@ const App = {
     if (heroInput) {
       heroInput.addEventListener('input', e => {
         this.searchQuery = e.target.value;
-        const hdr = document.getElementById('search-input');
-        if (hdr) hdr.value = e.target.value;
         this.updateHeroResults();
       });
     }
     document.getElementById('hero-search-clear')?.addEventListener('click', () => {
       this.searchQuery = '';
-      const hdr = document.getElementById('search-input');
-      if (hdr) hdr.value = '';
       this.renderContent();
     });
     // Profil edit
