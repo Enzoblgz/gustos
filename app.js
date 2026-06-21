@@ -131,7 +131,6 @@ const INGREDIENTS_DB = [
   {n:'Tomate pelée',u:'g',c:'Conserves'},
 ];
 const CAT_EMOJI = {'Entrées':'🥗','Plats':'🍽️','Pâtes':'🍝','Soupes':'🍲','Salades':'🥙','Desserts':'🍰','Pâtisseries':'🧁','Viandes':'🥩','Poissons':'🐟','Végétarien':'🥦','Snacks':'🥪','Boissons':'🥤'};
-const FREE_LIMIT = 10;
 const ALL_CAT = '__all__';
 
 // ===== LANG META =====
@@ -603,11 +602,12 @@ const App = {
         if (session) await this.onSignIn(session.user);
         else { this.view = 'auth'; this.authError = ''; this.render(); }
       } else if (event === 'SIGNED_IN') {
-        if (!this.user) await this.onSignIn(session.user);
+        if (!this.user || this.user.id !== session.user.id) await this.onSignIn(session.user);
       } else if (event === 'USER_UPDATED') {
         if (this.user && session?.user?.email) this.user.email = session.user.email;
       } else if (event === 'SIGNED_OUT') {
         this.user = null;
+        this.avatarImg = null;
         this.likedIds = new Set(); this.savedIds = new Set(); this.likeCounts = {};
         this.searchQuery = ''; this.activeCategory = ALL_CAT;
         this.view = 'auth'; this.authError = ''; this.render();
@@ -616,15 +616,11 @@ const App = {
   },
 
   async onSignIn(authUser) {
+    this.avatarImg = null;
     try {
       const { data: profile, error } = await db.from('profiles').select('*').eq('id', authUser.id).single();
       if (error) console.warn('[Auth]', error.message);
-      this.user = profile || { id: authUser.id, email: authUser.email, role: 'user', plan: 'free', trial_ends_at: null };
-      // Admins are always pro
-      if (this.user.role === 'admin' && this.user.plan !== 'pro') {
-        await db.from('profiles').update({ plan: 'pro' }).eq('id', this.user.id).catch(() => {});
-        this.user.plan = 'pro';
-      }
+      this.user = profile || { id: authUser.id, email: authUser.email, role: 'user' };
       // Load avatar: Supabase first, localStorage fallback
       this.avatarImg = profile?.avatar_url || localStorage.getItem('gustos_avatar_' + authUser.id) || null;
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
@@ -749,14 +745,7 @@ const App = {
   normalizeStep(s) { return typeof s === 'string' ? { text: s, image: null } : { text: s.text || '', image: s.image || null }; },
   getCover(r) { return r.coverImage || (r.images && r.images[0]) || null; },
   canAddRecipe() {
-    if (!this.user) return false;
-    if (this.user.role === 'admin' || this.user.plan === 'pro') return true;
-    if (this.user.trial_ends_at && new Date(this.user.trial_ends_at) > new Date()) return true;
-    return Store.get().length < FREE_LIMIT;
-  },
-  trialDaysLeft() {
-    if (!this.user?.trial_ends_at) return 0;
-    return Math.max(0, Math.ceil((new Date(this.user.trial_ends_at) - new Date()) / 86400000));
+    return !!this.user;
   },
 
   goBack() {
@@ -889,7 +878,6 @@ const App = {
             <button type="submit" class="btn-primary btn-full" id="btn-auth-submit">${isLogin?this.t('signIn'):this.t('createAccount')}</button>
           </form>
           ${isLogin?`<p class="auth-reset"><a href="#" id="btn-reset-pw">${this.t('forgotPw')}</a></p>`:''}
-          ${!isLogin?`<p class="auth-trial-note">${this.t('trialNote')}</p>`:''}
         </div>
       </div>
     </div>`;
@@ -950,7 +938,7 @@ const App = {
         const r = await db.auth.signUp({ email, password: pass });
         error = r.error;
         if (!error) {
-          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, username, trial_ends_at: new Date(Date.now() + 14 * 86400000).toISOString(), plan: 'free' }).catch(() => {});
+          if (r.data?.user?.id) await db.from('profiles').upsert({ id: r.data.user.id, email, username }).catch(() => {});
           this.toast(this.t('accountCreated')); if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); } return;
         }
         if (btn) { btn.disabled = false; btn.textContent = this.t('createAccount'); }
@@ -979,9 +967,6 @@ const App = {
     const isAdmin = this.user?.role === 'admin';
     const initial = (this.user?.username?.[0] || this.user?.email?.[0] || '?').toUpperCase();
     const displayName = this.user?.username || this.user?.email?.split('@')[0] || '';
-    const days = this.trialDaysLeft();
-    const planClass = this.user?.plan === 'pro' ? 'pro' : (days > 0 ? 'trial' : 'free');
-    const planLabel = this.user?.plan === 'pro' ? 'Pro' : (days > 0 ? `J-${days}` : 'Free');
     const cm = LANG_META[this.lang];
     return `<header>
       <div class="header-left">
@@ -1043,12 +1028,8 @@ const App = {
     const tab = this.accountTab;
     const shown = tab === 'liked' ? liked : tab === 'saved' ? saved : tab === 'approved' ? approved : mine;
     const isAdmin = this.user?.role === 'admin';
-    const isPro = isAdmin || this.user?.plan === 'pro';
     const displayName = this.user?.username || this.user?.email?.split('@')[0] || '?';
     const initial = displayName[0].toUpperCase();
-    const days = this.trialDaysLeft();
-    const planClass = isPro ? (isAdmin ? 'admin' : 'pro') : (days > 0 ? 'trial' : 'free');
-    const planLabel = isPro ? (isAdmin ? 'Admin' : 'Pro') : (days > 0 ? this.t('trialDays', days) : this.t('freePlan'));
     const totalLikes = Object.values(this.likeCounts).reduce((a, b) => a + b, 0);
     const emptyIcon = tab === 'liked' ? '❤️' : tab === 'saved' ? '🔖' : tab === 'approved' ? '👍' : '🍽️';
     const emptyText = tab === 'liked' ? this.t('noLiked') : tab === 'saved' ? this.t('noSaved') : tab === 'approved' ? 'Aucune recette approuvée' : this.t('noRecipesAcc');
@@ -1065,17 +1046,6 @@ const App = {
         <div class="account-info">
           <h2 class="account-display-name">${this.escHtml(displayName)}</h2>
           <p class="account-email-sub">${this.escHtml(this.user?.email||'')}</p>
-          <div class="subscription-info">
-            <span class="plan-badge plan-${planClass}">${planLabel}</span>
-            ${!isPro && days > 0 ? `
-              <div class="trial-progress-bar"><div class="trial-progress-fill" style="width:${Math.round((14-days)/14*100)}%"></div></div>
-              <p class="trial-days-hint">${days} jour${days>1?'s':''} restant${days>1?'s':''} sur les 14 jours d'essai</p>` : ''}
-            ${!isPro && days === 0 && this.user?.trial_ends_at ? `<p class="trial-days-hint trial-expired-hint">Essai expiré</p>` : ''}
-            <div class="subscription-actions">
-              ${!isPro && days === 0 ? `<button class="btn-upgrade-sm" id="btn-upgrade-account">${this.t('upgradeBtn')}</button>` : ''}
-              ${!isAdmin ? `<button class="btn-hiw-profile" id="btn-how-it-works">Comment ça marche ?</button>` : ''}
-            </div>
-          </div>
         </div>
         <div class="account-actions-col">
           ${isAdmin ? `<button type="button" class="btn-secondary btn-sm btn-admin-panel" id="btn-go-admin-account">⚙ Admin</button>` : ''}
@@ -1692,7 +1662,6 @@ const App = {
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
     document.getElementById('btn-logout-account')?.addEventListener('click', async () => { await db.auth.signOut(); });
     document.getElementById('btn-delete-account')?.addEventListener('click', () => this.confirmDeleteAccount());
-    document.getElementById('btn-upgrade-account')?.addEventListener('click', () => this.showUpgradeModal());
     document.getElementById('btn-how-it-works')?.addEventListener('click', () => this.showHowItWorksModal());
     document.getElementById('btn-hiw-recipe')?.addEventListener('click', () => this.showHowItWorksModal());
     document.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', e => {
@@ -2078,7 +2047,7 @@ const App = {
   async saveRecipe() {
     const name = document.getElementById('f-name')?.value?.trim();
     if (!name) { this.toast(this.t('nameWarn')); return; }
-    if (!this.editingId && !this.canAddRecipe()) { this.showUpgradeModal(); return; }
+    if (!this.canAddRecipe()) return;
     const preparations = this.formData.preparations.map(p => ({
       id: p.id,
       title: p.title || '',
@@ -2501,51 +2470,20 @@ const App = {
     if (!silent) { this.renderContent(); this.toast(`${toAdd.length} recette(s) ajoutée(s) !`); }
   },
 
-  showUpgradeModal(){
-    const m=document.createElement('div');m.className='upgrade-overlay';
-    m.innerHTML=`<div class="upgrade-modal"><div class="upgrade-icon">🔒</div><h2>${this.t('limitTitle')}</h2><p>${this.t('limitText',FREE_LIMIT)}</p><p>${this.t('limitText2')}</p><div class="upgrade-actions"><button class="btn-primary btn-full" id="btn-upgrade-pro">${this.t('upgradeProBtn')}</button><button class="btn-ghost btn-full" id="btn-upgrade-later">${this.t('laterBtn')}</button></div></div>`;
-    document.body.appendChild(m);
-    m.querySelector('#btn-upgrade-pro')?.addEventListener('click',()=>{this.toast(this.t('comingSoon'));m.remove();});
-    m.querySelector('#btn-upgrade-later')?.addEventListener('click',()=>m.remove());
-    m.addEventListener('click',e=>{if(e.target===m)m.remove();});
-  },
-
   showHowItWorksModal() {
     const m = document.createElement('div'); m.className = 'upgrade-overlay';
     m.innerHTML = `<div class="hiw-modal">
       <button class="hiw-close" id="btn-hiw-close">✕</button>
       <h2>Comment fonctionne Gustos ?</h2>
       <div class="hiw-section">
-        <div class="hiw-icon">🎁</div>
-        <h3>14 jours d'essai gratuit</h3>
-        <p>À votre inscription, vous bénéficiez de 14 jours d'accès complet à toutes les fonctionnalités de Gustos — sans carte bancaire.</p>
-      </div>
-      <div class="hiw-section">
-        <h3>Après l'essai : deux options</h3>
-        <div class="hiw-plans">
-          <div class="hiw-plan">
-            <div class="hiw-plan-name">Abonnement</div>
-            <ul>
-              <li>Accès complet au planificateur repas</li>
-              <li>Création illimitée de recettes</li>
-              <li>Accès à toute la bibliothèque</li>
-            </ul>
-          </div>
-          <div class="hiw-plan hiw-plan--free">
-            <div class="hiw-plan-name">Mode gratuit</div>
-            <ul>
-              <li class="hiw-limit">✗ Pas de planificateur</li>
-              <li class="hiw-limit">✗ Création de recettes limitée</li>
-              <li class="hiw-limit">✗ Accès limité à la bibliothèque</li>
-            </ul>
-          </div>
-        </div>
+        <div class="hiw-icon">🍽️</div>
+        <h3>Gustos, c'est 100% gratuit</h3>
+        <p>Créez, partagez et découvrez des recettes en illimité — sans abonnement, sans carte bancaire.</p>
       </div>
       <div class="hiw-section hiw-community">
         <div class="hiw-icon">⭐</div>
-        <h3>Un mois premium offert par la communauté</h3>
-        <p>Créez <strong>10 recettes de qualité</strong> certifiées par la communauté, et recevez automatiquement <strong>1 mois de premium offert</strong>.</p>
-        <p class="hiw-cert-rule">Une recette est certifiée si elle reçoit <strong>10 approbations</strong> de membres ou <strong>1 validation</strong> d'un administrateur. Le badge <span class="certified-badge" style="display:inline-block;position:static;transform:none;font-size:0.75rem">✓ Certifiée</span> apparaît alors sur la recette.</p>
+        <h3>La certification communautaire</h3>
+        <p>Les meilleures recettes sont certifiées par la communauté. Une recette obtient le badge <span class="certified-badge" style="display:inline-block;position:static;transform:none;font-size:0.75rem">✓ Certifiée</span> si elle reçoit <strong>10 approbations</strong> de membres ou <strong>1 validation</strong> d'un administrateur.</p>
       </div>
     </div>`;
     document.body.appendChild(m);
@@ -2574,15 +2512,7 @@ const App = {
     const updated = Store.get().map(rec => rec.id === recipeId ? { ...rec, approvedBy, approvalCount: memberCount, adminApproved, isCertified } : rec);
     Store.saveCache(updated);
     if (isCertified && !r.isCertified) {
-      const certCount = updated.filter(rec => rec.authorId === r.authorId && rec.isCertified).length;
-      if (certCount >= 10 && r.authorId) {
-        const until = new Date(Date.now() + 30 * 86400000).toISOString();
-        await db.from('profiles').update({ plan: 'pro', trial_ends_at: until }).eq('id', r.authorId);
-        if (r.authorId === this.user?.id) { this.user.plan = 'pro'; this.user.trial_ends_at = until; }
-        this.toast('🎉 10 recettes certifiées → 1 mois premium offert à l\'auteur !');
-      } else {
-        this.toast(isAdmin ? '⭐ Recette certifiée !' : '✓ Approbation enregistrée — recette certifiée !');
-      }
+      this.toast(isAdmin ? '⭐ Recette certifiée !' : '✓ Approbation enregistrée — recette certifiée !');
     } else {
       this.toast(`✓ Approbation enregistrée (${memberCount}/10)`);
     }
