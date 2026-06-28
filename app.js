@@ -2127,14 +2127,11 @@ const App = {
   async deleteAccount() {
     if (!this.user) return;
     const uid = this.user.id;
-    // Delete all user data from Supabase
     await db.from('recipes').delete().eq('user_id', uid).catch(() => {});
     await db.from('likes').delete().eq('user_id', uid).catch(() => {});
     await db.from('saves').delete().eq('user_id', uid).catch(() => {});
+    await db.from('meal_plans').delete().eq('user_id', uid).catch(() => {});
     await db.from('profiles').delete().eq('id', uid).catch(() => {});
-    // Try RPC for full auth deletion (requires migration_delete_account.sql)
-    await db.rpc('delete_my_account').catch(() => {});
-    // Clear local data
     localStorage.removeItem('gustos_avatar_' + uid);
     localStorage.removeItem('gustos_seeded_v1');
     Store.clear();
