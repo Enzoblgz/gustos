@@ -1299,16 +1299,18 @@ const App = {
           const multiPrep = preps.length > 1;
           return preps.map((prep, pi) => `
             ${multiPrep && prep.title ? `<div class="prep-section-divider"><h2 class="prep-section-title">${this.escHtml(prep.title)}</h2></div>` : ''}
-            <div>
-              <h2 class="section-heading">${this.t('ingsTitle')}</h2>
-              <ul class="ingredient-list" id="ing-list-${pi}">
-                ${(prep.ingredients || []).map((ing, i) => `<li class="ingredient-item" data-idx="${i}"><div class="ingredient-check"></div><span class="ingredient-qty" id="qty-${pi}-${i}">${this.fmtQty(ing.qty * ratio)} ${ing.unit}</span><span class="ingredient-name">${this.escHtml(ing.name)}</span></li>`).join('')}
-              </ul>
-            </div>
-            <div>
-              <h2 class="section-heading">${this.t('stepsTitle')}</h2>
-              <div class="steps-list" id="steps-list-${pi}">
-                ${(prep.steps || []).map((s, i) => { const step = this.normalizeStep(s); return `<div class="step-item"><div class="step-number">${i + 1}</div><div class="step-body"><div class="step-content">${this.parseStepText(step.text, prep.ingredients || [], ratio)}</div>${step.image ? `<img src="${step.image}" class="step-photo" data-lightbox loading="lazy">` : ''}</div></div>`; }).join('')}
+            <div class="recipe-columns">
+              <div>
+                <h2 class="section-heading">${this.t('ingsTitle')}</h2>
+                <ul class="ingredient-list" id="ing-list-${pi}">
+                  ${(prep.ingredients || []).map((ing, i) => `<li class="ingredient-item" data-idx="${i}"><div class="ingredient-check"></div><span class="ingredient-qty" id="qty-${pi}-${i}">${this.fmtQty(ing.qty * ratio)} ${ing.unit}</span><span class="ingredient-name">${this.escHtml(ing.name)}</span></li>`).join('')}
+                </ul>
+              </div>
+              <div>
+                <h2 class="section-heading">${this.t('stepsTitle')}</h2>
+                <div class="steps-list" id="steps-list-${pi}">
+                  ${(prep.steps || []).map((s, i) => { const step = this.normalizeStep(s); return `<div class="step-item"><div class="step-number">${i + 1}</div><div class="step-body"><div class="step-content">${this.parseStepText(step.text, prep.ingredients || [], ratio)}</div>${step.image ? `<img src="${step.image}" class="step-photo" data-lightbox loading="lazy">` : ''}</div></div>`; }).join('')}
+                </div>
               </div>
             </div>
           `).join('');
@@ -2134,6 +2136,9 @@ const App = {
     await Promise.race([del(), new Promise(r => setTimeout(r, 8000))]);
     localStorage.removeItem('gustos_avatar_' + uid);
     localStorage.removeItem('gustos_seeded_v1');
+    localStorage.removeItem('gustos_plan');
+    localStorage.removeItem('gustos_shopping');
+    localStorage.removeItem('gustos_portions');
     Store.clear();
     await db.auth.signOut();
   },

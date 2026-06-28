@@ -643,6 +643,12 @@ main {
 
 /* ===== RECIPE SECTIONS ===== */
 .recipe-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.recipe-columns {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 48px;
@@ -2903,7 +2909,7 @@ textarea.drop-target {
   .auth-panel { padding: 40px 36px; }
   .auth-mascot-img { max-width: 240px; }
   .recipe-hero { grid-template-columns: 1fr; gap: 28px; }
-  .recipe-sections { grid-template-columns: 1fr; }
+  .recipe-columns { grid-template-columns: 1fr; }
   .recipe-meta-grid { grid-template-columns: repeat(3, 1fr); }
   .account-stats { grid-template-columns: repeat(2, 1fr); }
   .planning-cta-banner { flex-direction: column; align-items: flex-start; gap: 14px; }
