@@ -2127,14 +2127,11 @@ const App = {
   async deleteAccount() {
     if (!this.user) return;
     const uid = this.user.id;
+    // delete_my_account() supprime auth.users → CASCADE sur profiles → CASCADE sur recipes
     const del = async () => {
-      await db.from('recipes').delete().eq('user_id', uid).catch(() => {});
-      await db.from('likes').delete().eq('user_id', uid).catch(() => {});
-      await db.from('saves').delete().eq('user_id', uid).catch(() => {});
-      await db.from('meal_plans').delete().eq('user_id', uid).catch(() => {});
-      await db.from('profiles').delete().eq('id', uid).catch(() => {});
+      await db.rpc('delete_my_account').catch(() => {});
     };
-    await Promise.race([del(), new Promise(r => setTimeout(r, 5000))]);
+    await Promise.race([del(), new Promise(r => setTimeout(r, 8000))]);
     localStorage.removeItem('gustos_avatar_' + uid);
     localStorage.removeItem('gustos_seeded_v1');
     Store.clear();
