@@ -1096,25 +1096,19 @@ const App = {
   renderAdminPanel() {
     if (!this.adminStats) return `<div class="view-admin"><div class="admin-header"><button class="btn-ghost" id="btn-back">← Retour</button><h2>Admin</h2></div><div class="admin-loading"><div class="loading-spinner"></div> ${this.t('loading')}</div></div>`;
     const stats = this.adminStats;
-    const ta = u => u.trial_ends_at && new Date(u.trial_ends_at) > new Date();
     const fmt = d => new Date(d).toLocaleDateString('fr-FR');
     return `<div class="view-admin">
       <div class="admin-header"><button class="btn-ghost" id="btn-back">${this.t('back')}</button><h2>${this.t('adminUsers', stats.length)}</h2></div>
       <div class="admin-kpis">
         <div class="admin-kpi"><div class="kpi-val">${stats.length}</div><div class="kpi-lbl">${this.t('adminAccounts')}</div></div>
-        <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>u.plan==='pro').length}</div><div class="kpi-lbl">Pro</div></div>
-        <div class="admin-kpi"><div class="kpi-val">${stats.filter(u=>ta(u)&&u.plan==='free').length}</div><div class="kpi-lbl">${this.t('adminTrial')}</div></div>
         <div class="admin-kpi"><div class="kpi-val">${stats.reduce((s,u)=>s+(u.recipe_count||0),0)}</div><div class="kpi-lbl">${this.t('statRecipes')}</div></div>
       </div>
       <div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>${this.t('adminColEmail')}</th><th>${this.t('adminColPlan')}</th><th>Rôle</th><th>${this.t('adminColTrialCol')}</th><th>${this.t('adminColRecipes')}</th><th>${this.t('adminColJoined')}</th><th>${this.t('adminColAction')}</th></tr></thead>
+        <thead><tr><th>${this.t('adminColEmail')}</th><th>Rôle</th><th>${this.t('adminColRecipes')}</th><th>${this.t('adminColJoined')}</th></tr></thead>
         <tbody>${stats.map(u=>`<tr>
           <td class="td-email">${this.escHtml(u.email)}</td>
-          <td><span class="plan-badge plan-${u.plan}">${u.plan}</span></td>
           <td>${u.role==='admin'?`<span class="plan-badge plan-admin">admin</span>`:`<button class="btn-small btn-ghost" data-set-role="${u.id}">→ Admin</button>`}</td>
-          <td>${u.trial_ends_at?(ta(u)?`<span class="trial-active">→ ${fmt(u.trial_ends_at)}</span>`:`<span class="trial-expired">Expiré</span>`):'—'}</td>
           <td>${u.recipe_count??0}</td><td>${fmt(u.created_at)}</td>
-          <td>${u.role!=='admin'?(u.plan==='pro'?`<button class="btn-small btn-ghost" data-set-plan="${u.id}" data-plan="free">→ Free</button>`:`<button class="btn-small btn-primary" data-set-plan="${u.id}" data-plan="pro">→ Pro</button>`):'—'}</td>
         </tr>`).join('')}</tbody>
       </table></div>
       <div class="admin-actions-row">
@@ -1123,19 +1117,12 @@ const App = {
     </div>`;
   },
 
-  async adminSetPlan(userId, plan) {
-    const { error } = await db.rpc('admin_set_plan', { target_user_id: userId, new_plan: plan });
-    if (error) { this.toast('Erreur : ' + error.message); return; }
-    const { data } = await db.rpc('get_admin_stats');
-    this.adminStats = data || []; this.render(); this.toast('Plan mis à jour.');
-  },
-
   async adminSetRole(userId) {
     if (!confirm('Nommer cet utilisateur administrateur ? Cette action est irréversible depuis l\'interface.')) return;
-    const { error } = await db.from('profiles').update({ role: 'admin', plan: 'pro' }).eq('id', userId);
+    const { error } = await db.from('profiles').update({ role: 'admin' }).eq('id', userId);
     if (error) { this.toast('Erreur : ' + error.message); return; }
     const { data } = await db.rpc('get_admin_stats');
-    this.adminStats = data || []; this.render(); this.toast('Utilisateur promu admin (+ plan Pro).');
+    this.adminStats = data || []; this.render(); this.toast('Utilisateur promu admin.');
   },
 
   renderList() {
@@ -1640,7 +1627,6 @@ const App = {
       if(confirm(this.t('deleteConfirm'))) this.deleteRecipeById(this.editingId).catch(e=>this.toast('Erreur : '+e.message));
     });
     document.getElementById('btn-save')?.addEventListener('click', () => this.saveRecipe().catch(e=>this.toast('Erreur : '+e.message)));
-    document.querySelectorAll('[data-set-plan]').forEach(btn => btn.addEventListener('click', () => this.adminSetPlan(btn.dataset.setPlan, btn.dataset.plan)));
     document.querySelectorAll('[data-set-role]').forEach(btn => btn.addEventListener('click', () => this.adminSetRole(btn.dataset.setRole)));
     document.getElementById('btn-admin-reseed')?.addEventListener('click', () => this.seedDefaultRecipes(false).then(() => { this.nav('list'); }).catch(e => this.toast('Erreur seed : ' + e.message)));
     document.querySelectorAll('.account-tab-btn').forEach(btn => btn.addEventListener('click', () => { this.accountTab=btn.dataset.tab; this.renderContent(); }));
