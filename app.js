@@ -1270,6 +1270,7 @@ const App = {
         <div class="recipe-main-image" style="position:relative">
           ${cover?`<img src="${cover}" alt="${this.escHtml(r.name)}">`:`<span style="font-size:7rem">${emoji}</span>`}
           ${r.isCertified?`<span class="certified-badge certified-badge--overlay">✓ Certifiée</span>`:''}
+          ${cover&&r.photoCredit?`<a class="photo-credit" href="${this.escHtml(r.photoCredit.source||'#')}" target="_blank" rel="noopener">📷 ${this.escHtml(r.photoCredit.author||'')} · ${this.escHtml(r.photoCredit.license||'')}</a>`:''}
         </div>
         <div class="recipe-info">
           <span class="recipe-category-badge">${r.category||this.t('noCat')}</span>
