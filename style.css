@@ -1151,7 +1151,7 @@ select { cursor: pointer; }
 }
 .step-textarea.drop-target { border-color: var(--terracotta); background: var(--terracotta-bg); }
 .step-row .btn-icon { margin-top: 34px; }
-.step-img-zone { display: flex; align-items: flex-start; }
+.step-img-zone { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
 
 .step-img-add-btn {
   display: inline-flex;
@@ -1499,6 +1499,7 @@ textarea.drop-target {
   background: var(--cream);
 }
 .cover-upload-empty:hover { border-color: var(--terracotta); background: #FFF8F5; }
+.cover-upload-empty .btn-cover-action { margin-top: 14px; border: 1px solid var(--cream-dark); }
 
 .cover-preview-wrap {
   position: relative;

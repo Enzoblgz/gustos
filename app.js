@@ -193,7 +193,7 @@ const TR = {
     tagsLbl: 'Tags', tagsInputLbl: 'Mots-clés — Entrée ou virgule', tagsPh: 'végétarien, rapide…',
     cancelBtn: 'Annuler', saveBtn: 'Enregistrer', createBtn: 'Créer la recette', deleteBtn: 'Supprimer',
     nameWarn: '⚠️ Ajoute un nom à la recette.',
-    recipeUpdated: 'Recette mise à jour !', recipeCreated: 'Recette créée !', recipeDeleted: 'Recette supprimée.',
+    recipeUpdated: 'Recette mise à jour !', recipeCreated: 'Recette créée !', recipeDeleted: 'Recette supprimée.', dupName: 'Tu as déjà une recette avec ce nom.', deleteDenied: 'Suppression impossible : cette recette appartient à un autre utilisateur.', takePhoto: 'Prendre une photo', imgErr: 'Impossible de traiter la photo.',
     syncErr: '⚠️ Erreur sync : ',
     limitTitle: 'Limite atteinte',
     limitText: n => `Tu as atteint les <strong>${n} recettes</strong> du plan gratuit.`,
@@ -275,7 +275,7 @@ const TR = {
     tagsLbl: 'Tags', tagsInputLbl: 'Keywords — Enter or comma', tagsPh: 'vegetarian, quick…',
     cancelBtn: 'Cancel', saveBtn: 'Save', createBtn: 'Create recipe', deleteBtn: 'Delete',
     nameWarn: '⚠️ Add a name to the recipe.',
-    recipeUpdated: 'Recipe updated!', recipeCreated: 'Recipe created!', recipeDeleted: 'Recipe deleted.',
+    recipeUpdated: 'Recipe updated!', recipeCreated: 'Recipe created!', recipeDeleted: 'Recipe deleted.', dupName: 'You already have a recipe with this name.', deleteDenied: 'Delete failed: this recipe belongs to another user.', takePhoto: 'Take a photo', imgErr: 'Could not process the photo.',
     syncErr: '⚠️ Sync error: ',
     limitTitle: 'Limit reached',
     limitText: n => `You've reached the <strong>${n} recipes</strong> free plan limit.`,
@@ -357,7 +357,7 @@ const TR = {
     tagsLbl: 'Etiquetas', tagsInputLbl: 'Palabras clave — Enter o coma', tagsPh: 'vegetariano, rápido…',
     cancelBtn: 'Cancelar', saveBtn: 'Guardar', createBtn: 'Crear receta', deleteBtn: 'Eliminar',
     nameWarn: '⚠️ Añade un nombre a la receta.',
-    recipeUpdated: '¡Receta actualizada!', recipeCreated: '¡Receta creada!', recipeDeleted: 'Receta eliminada.',
+    recipeUpdated: '¡Receta actualizada!', recipeCreated: '¡Receta creada!', recipeDeleted: 'Receta eliminada.', dupName: 'Ya tienes una receta con este nombre.', deleteDenied: 'No se pudo eliminar: la receta pertenece a otro usuario.', takePhoto: 'Tomar una foto', imgErr: 'No se pudo procesar la foto.',
     syncErr: '⚠️ Error de sincronización: ',
     limitTitle: 'Límite alcanzado',
     limitText: n => `Has alcanzado el límite de <strong>${n} recetas</strong> del plan gratuito.`,
@@ -439,7 +439,7 @@ const TR = {
     tagsLbl: 'Tag', tagsInputLbl: 'Parole chiave — Invio o virgola', tagsPh: 'vegetariano, veloce…',
     cancelBtn: 'Annulla', saveBtn: 'Salva', createBtn: 'Crea ricetta', deleteBtn: 'Elimina',
     nameWarn: '⚠️ Aggiungi un nome alla ricetta.',
-    recipeUpdated: 'Ricetta aggiornata!', recipeCreated: 'Ricetta creata!', recipeDeleted: 'Ricetta eliminata.',
+    recipeUpdated: 'Ricetta aggiornata!', recipeCreated: 'Ricetta creata!', recipeDeleted: 'Ricetta eliminata.', dupName: 'Hai già una ricetta con questo nome.', deleteDenied: 'Eliminazione non riuscita: la ricetta appartiene a un altro utente.', takePhoto: 'Scatta una foto', imgErr: 'Impossibile elaborare la foto.',
     syncErr: '⚠️ Errore di sincronizzazione: ',
     limitTitle: 'Limite raggiunto',
     limitText: n => `Hai raggiunto il limite di <strong>${n} ricette</strong> del piano gratuito.`,
@@ -521,7 +521,7 @@ const TR = {
     tagsLbl: 'Tags', tagsInputLbl: 'Stichwörter — Enter oder Komma', tagsPh: 'vegetarisch, schnell…',
     cancelBtn: 'Abbrechen', saveBtn: 'Speichern', createBtn: 'Rezept erstellen', deleteBtn: 'Löschen',
     nameWarn: '⚠️ Gib dem Rezept einen Namen.',
-    recipeUpdated: 'Rezept aktualisiert!', recipeCreated: 'Rezept erstellt!', recipeDeleted: 'Rezept gelöscht.',
+    recipeUpdated: 'Rezept aktualisiert!', recipeCreated: 'Rezept erstellt!', recipeDeleted: 'Rezept gelöscht.', dupName: 'Du hast bereits ein Rezept mit diesem Namen.', deleteDenied: 'Löschen fehlgeschlagen: Das Rezept gehört einem anderen Nutzer.', takePhoto: 'Foto aufnehmen', imgErr: 'Foto konnte nicht verarbeitet werden.',
     syncErr: '⚠️ Sync-Fehler: ',
     limitTitle: 'Limit erreicht',
     limitText: n => `Du hast das Limit von <strong>${n} Rezepten</strong> des Gratisplans erreicht.`,
@@ -639,7 +639,7 @@ const App = {
     // Push local recipes to Supabase first (handles pre-table era + offline creates)
     const local = Store.get();
     if (local.length) {
-      const mine = local.filter(r => !r.authorId || r.authorId === this.user.id);
+      const mine = local.filter(r => !r.authorId); // seules les recettes créées hors connexion sont poussées — sinon un vieux cache ressuscite les recettes supprimées
       if (mine.length) {
         const { error: pushErr } = await db.from('recipes')
           .upsert(mine.map(r => ({ id: r.id, user_id: this.user.id, data: r, updated_at: r.updatedAt || new Date().toISOString() })), { onConflict: 'id' });
@@ -1402,8 +1402,9 @@ const App = {
         </div>
       </div>
       <div class="form-section"><h3>${this.t('coverTitle')}</h3><p class="form-hint">${this.t('coverHint')}</p>
-        <div id="cover-area">${this.renderCoverArea(fd.coverImage)}</div>
+        <div id="cover-area">${(this._coverInputsBound=false)||this.renderCoverArea(fd.coverImage)}</div>
         <input type="file" id="cover-file" accept="image/*" style="display:none">
+        <input type="file" id="cover-camera" accept="image/*" capture="environment" style="display:none">
       </div>
       <div id="preparations-wrap">
         ${fd.preparations.map((prep, pi) => this.renderPrepSection(prep, pi)).join('')}
@@ -1485,8 +1486,8 @@ const App = {
   },
 
   renderCoverArea(src) {
-    if(src)return`<div class="cover-preview-wrap"><img src="${src}" class="cover-preview-img"><div class="cover-preview-actions"><button class="btn-cover-action" id="btn-change-cover">${this.t('coverChange')}</button><button class="btn-cover-action btn-cover-remove" id="btn-rm-cover">${this.t('coverRm')}</button></div></div>`;
-    return`<div class="cover-upload-empty" id="cover-upload-empty"><div class="upload-icon">🖼️</div><div class="upload-text"><strong>${this.t('coverAdd')}</strong></div><div class="upload-hint">${this.t('coverOne')}</div></div>`;
+    if(src)return`<div class="cover-preview-wrap"><img src="${src}" class="cover-preview-img"><div class="cover-preview-actions"><button class="btn-cover-action" id="btn-change-cover">${this.t('coverChange')}</button><button class="btn-cover-action" id="btn-cover-camera2">📷 ${this.t('takePhoto')}</button><button class="btn-cover-action btn-cover-remove" id="btn-rm-cover">${this.t('coverRm')}</button></div></div>`;
+    return`<div class="cover-upload-empty" id="cover-upload-empty"><div class="upload-icon">🖼️</div><div class="upload-text"><strong>${this.t('coverAdd')}</strong></div><div class="upload-hint">${this.t('coverOne')}</div><button class="btn-cover-action" id="btn-cover-camera">📷 ${this.t('takePhoto')}</button></div>`;
   },
 
   renderIngRow(ing, i, pi) {
@@ -1519,7 +1520,7 @@ const App = {
 
   renderStepImgZone(step, i, pi) {
     if (step.image) return `<div class="step-img-preview-form"><img src="${step.image}" class="step-img-thumb" alt="Photo étape ${i + 1}"><button class="btn-rm-step-img" data-rm-step-img="${i}" data-pi="${pi}">✕</button></div>`;
-    return `<label class="step-img-add-btn"><input type="file" accept="image/*" style="display:none" data-img-input="${i}" data-pi="${pi}"><span>${this.t('addStepPhoto')}</span></label>`;
+    return `<label class="step-img-add-btn"><input type="file" accept="image/*" style="display:none" data-img-input="${i}" data-pi="${pi}"><span>${this.t('addStepPhoto')}</span></label><label class="step-img-add-btn"><input type="file" accept="image/*" capture="environment" style="display:none" data-img-input="${i}" data-pi="${pi}"><span>📷 ${this.t('takePhoto')}</span></label>`;
   },
 
   bindHeader() {
@@ -1721,11 +1722,19 @@ const App = {
   },
 
   bindCoverEvents(){
-    const coverFile=document.getElementById('cover-file'),coverArea=document.getElementById('cover-area'),openPicker=()=>coverFile?.click();
+    const coverFile=document.getElementById('cover-file'),coverCam=document.getElementById('cover-camera'),coverArea=document.getElementById('cover-area'),openPicker=()=>coverFile?.click();
     coverArea?.querySelector('#cover-upload-empty')?.addEventListener('click',openPicker);
     coverArea?.querySelector('#btn-change-cover')?.addEventListener('click',openPicker);
+    coverArea?.querySelector('#btn-cover-camera')?.addEventListener('click',e=>{e.stopPropagation();coverCam?.click();});
+    coverArea?.querySelector('#btn-cover-camera2')?.addEventListener('click',()=>coverCam?.click());
     coverArea?.querySelector('#btn-rm-cover')?.addEventListener('click',()=>{this.formData.coverImage=null;this.rebuildCoverImg();});
-    coverFile?.addEventListener('change',e=>{const f=e.target.files[0];if(!f||!f.type.startsWith('image/'))return;const r=new FileReader();r.onload=ev=>{this.formData.coverImage=ev.target.result;this.rebuildCoverImg();};r.readAsDataURL(f);e.target.value='';});
+    if (!this._coverInputsBound) {
+      // les inputs sont hors de #cover-area : ne binder qu'une fois sinon chaque rebuild empile un listener
+      const onPick=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!f.type.startsWith('image/'))return;try{this.formData.coverImage=await this.processImage(f);this.rebuildCoverImg();}catch(err){console.error('[Cover]',err);this.toast('⚠️ '+this.t('imgErr'));}};
+      coverFile?.addEventListener('change',onPick);
+      coverCam?.addEventListener('change',onPick);
+      this._coverInputsBound=true;
+    }
   },
 
   bindPrepsEvents() {
@@ -1813,10 +1822,11 @@ const App = {
       const imgInput = e.target.closest('[data-img-input][data-pi]');
       if (imgInput) {
         const pi = +imgInput.dataset.pi, i = +imgInput.dataset.imgInput, f = imgInput.files[0];
+        imgInput.value = '';
         if (!f || !f.type.startsWith('image/')) return;
-        const rdr = new FileReader();
-        rdr.onload = ev => { this.formData.preparations[pi].steps[i].image = ev.target.result; this.rebuildStepImgZone(pi, i); };
-        rdr.readAsDataURL(f); imgInput.value = '';
+        this.processImage(f, 1024)
+          .then(url => { this.formData.preparations[pi].steps[i].image = url; this.rebuildStepImgZone(pi, i); })
+          .catch(err => { console.error('[Step img]', err); this.toast('⚠️ ' + this.t('imgErr')); });
       }
     });
 
@@ -2014,10 +2024,37 @@ const App = {
     if (span) span.innerHTML = names.map(n => `<span class="ing-chip" draggable="true" data-ing-chip="${this.escHtml(n)}" title="Cliquer ou glisser dans une étape"><span class="ing-chip-icon">⠿</span>${this.escHtml(n)}</span>`).join('');
   },
 
+  async processImage(file, maxDim = 1280) {
+    // Redimensionne + compresse en JPEG, puis upload vers Supabase Storage :
+    // le JSON de la recette ne contient qu'une URL (une photo brute en data URL
+    // dépasse le quota localStorage de 5 Mo → c'est ce qui empêchait l'enregistrement).
+    const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = () => rej(new Error('Lecture du fichier impossible')); r.readAsDataURL(file); });
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Format d’image non reconnu')); i.src = dataUrl; });
+    const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(img.width * scale));
+    canvas.height = Math.max(1, Math.round(img.height * scale));
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (this.user) {
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.82));
+      if (blob) {
+        const path = `${this.user.id}/${crypto.randomUUID()}.jpg`;
+        const { error } = await db.storage.from('recipe-images').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
+        if (!error) return db.storage.from('recipe-images').getPublicUrl(path).data.publicUrl;
+        console.warn('[Upload image]', error.message);
+      }
+    }
+    return canvas.toDataURL('image/jpeg', 0.82); // repli hors connexion : data URL compressé (~10× plus léger)
+  },
+
   async saveRecipe() {
     const name = document.getElementById('f-name')?.value?.trim();
     if (!name) { this.toast(this.t('nameWarn')); return; }
     if (!this.canAddRecipe()) return;
+    if (this._savingRecipe) return;
+    const dup = Store.get().find(r => r.id !== this.editingId && (r.name || '').trim().toLowerCase() === name.toLowerCase() && (this.user ? r.authorId === this.user.id : true));
+    if (dup) { this.toast('⚠️ ' + this.t('dupName')); return; }
+    this._savingRecipe = true;
     const preparations = this.formData.preparations.map(p => ({
       id: p.id,
       title: p.title || '',
@@ -2041,19 +2078,30 @@ const App = {
       authorId: this.user?.id || null,
       authorName: this.user?.username || this.user?.email?.split('@')[0] || ''
     };
-    if (this.editingId) Store.update(this.editingId, recipe); else Store.add(recipe);
     if (this.user) {
       const { error } = await db.from('recipes').upsert({ id: recipe.id, user_id: this.user.id, data: recipe, updated_at: recipe.updatedAt });
-      if (error) this.toast(this.t('syncErr') + error.message);
+      if (error) {
+        this._savingRecipe = false;
+        this.toast(error.code === '23505' ? '⚠️ ' + this.t('dupName') : this.t('syncErr') + error.message);
+        return;
+      }
     }
+    try { if (this.editingId) Store.update(this.editingId, recipe); else Store.add(recipe); }
+    catch (err) { console.warn('[Store local]', err); }
+    this._savingRecipe = false;
     this.toast(this.editingId ? this.t('recipeUpdated') : this.t('recipeCreated'));
     this.nav('recipe', recipe.id);
     this.navStack = this.navStack.filter(e => e.view !== 'create' && e.view !== 'edit');
   },
 
   async deleteRecipeById(id){
+    const rec = Store.byId(id);
+    if (this.user && rec?.authorId) {
+      const { data: gone, error } = await db.from('recipes').delete().eq('id', id).select('id');
+      if (error) { this.toast('⚠️ Erreur : ' + error.message); return; }
+      if ((!gone || !gone.length) && rec.authorId !== this.user.id) { this.toast('⚠️ ' + this.t('deleteDenied')); return; }
+    }
     Store.delete(id);
-    if(this.user){const{error}=await db.from('recipes').delete().eq('id',id);if(error)this.toast('⚠️ Erreur : '+error.message);}
     this.navStack = [];
     this.nav('list');this.toast(this.t('recipeDeleted'));
   },
