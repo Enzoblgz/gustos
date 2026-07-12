@@ -160,7 +160,7 @@ const TR = {
     accountCreated: 'Compte créé ! Vérifie ton email.',
     heroGreeting: 'Bonjour', heroSearchPh: 'Chercher une recette, un ingrédient, un tag…',
     heroTitle: 'Qu\'est-ce qu\'on cuisine <em>aujourd\'hui</em> ?', heroSub: 'Ajuste les portions en un clic — les quantités s\'adaptent automatiquement.',
-    statRecipes: 'Recettes', statCats: 'Catégories', statAvg: 'Min. en moy.',
+    statRecipes: 'Recettes', statCats: 'Catégories', statUsers: 'Utilisateurs',
     allCat: 'Tout', allRecipesLabel: 'Toutes les recettes',
     searchResults: (n,q) => `${n} résultat${n!==1?'s':''} pour « ${q} »`,
     noResults: 'Aucun résultat', noResultsSub: 'Essaie un autre terme.',
@@ -242,7 +242,7 @@ const TR = {
     accountCreated: 'Account created! Check your email.',
     heroGreeting: 'Hello', heroSearchPh: 'Search a recipe, an ingredient, a tag…',
     heroTitle: 'What are we <em>cooking</em> today?', heroSub: 'Adjust servings in one click — quantities update automatically.',
-    statRecipes: 'Recipes', statCats: 'Categories', statAvg: 'Avg. min.',
+    statRecipes: 'Recipes', statCats: 'Categories', statUsers: 'Users',
     allCat: 'All', allRecipesLabel: 'All recipes',
     searchResults: (n,q) => `${n} result${n!==1?'s':''} for « ${q} »`,
     noResults: 'No results', noResultsSub: 'Try another term.',
@@ -324,7 +324,7 @@ const TR = {
     accountCreated: '¡Cuenta creada! Revisa tu email.',
     heroGreeting: 'Hola', heroSearchPh: 'Buscar receta, ingrediente, etiqueta…',
     heroTitle: '¿Qué <em>cocinamos</em> hoy?', heroSub: 'Ajusta las porciones con un clic — las cantidades se adaptan automáticamente.',
-    statRecipes: 'Recetas', statCats: 'Categorías', statAvg: 'Min. promedio',
+    statRecipes: 'Recetas', statCats: 'Categorías', statUsers: 'Usuarios',
     allCat: 'Todo', allRecipesLabel: 'Todas las recetas',
     searchResults: (n,q) => `${n} resultado${n!==1?'s':''} para « ${q} »`,
     noResults: 'Sin resultados', noResultsSub: 'Prueba otro término.',
@@ -406,7 +406,7 @@ const TR = {
     accountCreated: 'Account creato! Controlla la tua email.',
     heroGreeting: 'Ciao', heroSearchPh: 'Cerca una ricetta, un ingrediente, un tag…',
     heroTitle: 'Cosa <em>cuciniamo</em> oggi?', heroSub: 'Regola le porzioni con un clic — le quantità si adattano automaticamente.',
-    statRecipes: 'Ricette', statCats: 'Categorie', statAvg: 'Min. medi',
+    statRecipes: 'Ricette', statCats: 'Categorie', statUsers: 'Utenti',
     allCat: 'Tutto', allRecipesLabel: 'Tutte le ricette',
     searchResults: (n,q) => `${n} risultat${n!==1?'i':'o'} per « ${q} »`,
     noResults: 'Nessun risultato', noResultsSub: 'Prova un altro termine.',
@@ -488,7 +488,7 @@ const TR = {
     accountCreated: 'Konto erstellt! Überprüfe deine E-Mail.',
     heroGreeting: 'Hallo', heroSearchPh: 'Rezept, Zutat oder Tag suchen…',
     heroTitle: 'Was kochen wir <em>heute</em>?', heroSub: 'Portionen per Klick anpassen — Mengen aktualisieren sich automatisch.',
-    statRecipes: 'Rezepte', statCats: 'Kategorien', statAvg: 'Min. Ø',
+    statRecipes: 'Rezepte', statCats: 'Kategorien', statUsers: 'Nutzer',
     allCat: 'Alle', allRecipesLabel: 'Alle Rezepte',
     searchResults: (n,q) => `${n} Ergebnis${n!==1?'se':''} für « ${q} »`,
     noResults: 'Keine Ergebnisse', noResultsSub: 'Versuche einen anderen Begriff.',
@@ -559,7 +559,7 @@ const TR = {
 // ===== APP =====
 const App = {
   view: 'loading', user: null, authMode: 'login', authError: '',
-  adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT,
+  adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT, userCount: 0,
   portionCount: 4, editingId: null,
   formData: { preparations: [{ id: '', title: '', ingredients: [], steps: [] }], coverImage: null, tags: [] },
   _lastStepFocus: null, _dragIngSrc: null, _chipDragName: null,
@@ -646,13 +646,22 @@ const App = {
         if (pushErr) console.error('[Sync push error]', pushErr.code, pushErr.message, pushErr.details);
       }
     }
-    // Fetch all recipes + profiles + approvals in parallel
-    const { data, error } = await db.from('recipes').select('data, user_id').order('created_at', { ascending: true });
-    if (error) { console.warn('[Sync fetch]', error.message); return; }
-    const [{ data: profiles }, { data: approvals }] = await Promise.all([
+    // Fetch all recipes (paginé : Supabase plafonne à 1000 lignes par requête) + profiles + approvals
+    const PAGE = 1000;
+    let data = [], from = 0;
+    while (true) {
+      const { data: page, error } = await db.from('recipes').select('data, user_id').order('created_at', { ascending: true }).range(from, from + PAGE - 1);
+      if (error) { console.warn('[Sync fetch]', error.message); return; }
+      data = data.concat(page || []);
+      if (!page || page.length < PAGE) break;
+      from += PAGE;
+    }
+    const [{ data: profiles }, { data: approvals }, { data: userCount }] = await Promise.all([
       db.from('profiles').select('id, username, email'),
-      db.from('recipe_approvals').select('recipe_id, user_id, is_admin')
+      db.from('recipe_approvals').select('recipe_id, user_id, is_admin'),
+      db.rpc('get_user_count')
     ]);
+    this.userCount = userCount || 0;
     const profileMap = new Map((profiles || []).map(p => [p.id, p]));
     const approvalMap = {};
     (approvals || []).forEach(a => {
@@ -1126,8 +1135,6 @@ const App = {
       const q = this.searchQuery.toLowerCase();
       shown = shown.filter(r => r.name.toLowerCase().includes(q) || (r.description||'').toLowerCase().includes(q) || r.ingredients.some(i=>i.name.toLowerCase().includes(q)) || (r.tags||[]).some(t=>t.toLowerCase().includes(q)));
     }
-    const times = all.filter(r=>r.prepTime||r.cookTime).map(r=>(r.prepTime||0)+(r.cookTime||0));
-    const avg = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : 0;
     const sectionLabel = this.searchQuery
       ? this.t('searchResults', shown.length, this.escHtml(this.searchQuery))
       : (this.activeCategory === ALL_CAT ? this.t('allRecipesLabel') : this.activeCategory);
@@ -1149,7 +1156,7 @@ const App = {
         <div class="stats-bar">
           <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
           <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
-          <div class="stat"><span class="stat-value">${avg||'—'}</span><span class="stat-label">${this.t('statAvg')}</span></div>
+          <div class="stat"><span class="stat-value">${this.userCount||'—'}</span><span class="stat-label">${this.t('statUsers')}</span></div>
         </div>
       </div>
       <div class="categories">
