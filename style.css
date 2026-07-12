@@ -3042,3 +3042,31 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
   .hero-title { margin-bottom: 22px; }
   .hero-search-wrap { margin-bottom: 26px; }
 }
+
+/* ===== Mode invité ===== */
+.btn-guest {
+  display: block; width: 100%; margin-top: 14px;
+  background: none; border: none; cursor: pointer;
+  color: var(--terracotta); font-family: var(--font-sans);
+  font-size: 0.92rem; font-weight: 600; text-align: center; padding: 10px;
+}
+.btn-guest:hover { text-decoration: underline; }
+.btn-signup-header { white-space: nowrap; }
+.wall-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(44,24,16,0.45);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.wall-modal {
+  background: var(--white); border-radius: 20px; padding: 32px 28px;
+  max-width: 380px; width: 100%; text-align: center;
+  box-shadow: 0 24px 64px rgba(44,24,16,0.3);
+}
+.wall-mascot { width: 84px; margin-bottom: 12px; }
+.wall-modal h3 { font-family: var(--font-serif); font-size: 1.35rem; color: var(--brown); margin-bottom: 10px; }
+.wall-modal p { color: var(--brown-light); font-size: 0.92rem; line-height: 1.5; margin-bottom: 20px; }
+.wall-modal .btn-ghost { margin-top: 10px; width: 100%; }
+@media (max-width: 700px) {
+  .btn-signup-header { padding: 8px 14px; font-size: 0.82rem; }
+}
