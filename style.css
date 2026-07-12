@@ -2995,3 +2995,17 @@ textarea.drop-target {
   .hero-mascot { display: none; }
   .hero-video { max-width: 480px; margin: 8px auto 0; }
 }
+
+/* Crédit photo (licences Creative Commons — attribution obligatoire) */
+.photo-credit {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  font-size: 0.68rem;
+  color: white;
+  background: rgba(0,0,0,0.45);
+  padding: 3px 10px;
+  border-radius: 50px;
+  text-decoration: none;
+  opacity: 0.85;
+}
+.photo-credit:hover { opacity: 1; background: rgba(0,0,0,0.65); }
