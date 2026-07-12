@@ -1143,6 +1143,9 @@ const App = {
       <div class="hero">
         <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
         <h1 class="hero-title">${this.t('heroTitle')}</h1>
+        <div class="hero-columns">
+          <img class="hero-mascot" src="Images/gustos-logo-transparent-background.png" alt="Mascotte Gustos" loading="lazy">
+          <div class="hero-center">
         <div class="hero-search-wrap">
           <div class="hero-search-bar">
             <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -1157,6 +1160,9 @@ const App = {
           <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
           <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
           <div class="stat"><span class="stat-value">${this.userCount||'—'}</span><span class="stat-label">${this.t('statUsers')}</span></div>
+        </div>
+          </div>
+          <video class="hero-video" src="Images/gustos-presentation.mp4" autoplay muted loop playsinline controls aria-label="Présentation de Gustos"></video>
         </div>
       </div>
       <div class="categories">

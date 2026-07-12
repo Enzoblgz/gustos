@@ -2964,3 +2964,34 @@ textarea.drop-target {
   .shop-item-remove { display: none !important; }
   @page { margin: 20mm; }
 }
+
+/* Hero : mascotte + vidéo de présentation de part et d'autre */
+.hero-columns {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 2.2fr) minmax(220px, 1.4fr);
+  align-items: center;
+  gap: 28px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.hero-mascot {
+  width: 100%;
+  max-width: 260px;
+  justify-self: center;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.12));
+  animation: mascot-float 5s ease-in-out infinite;
+}
+@keyframes mascot-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero-video {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+  border: 3px solid white;
+  justify-self: center;
+  background: #000;
+}
+@media (max-width: 1024px) {
+  .hero-columns { grid-template-columns: 1fr; gap: 12px; }
+  .hero-mascot { display: none; }
+  .hero-video { max-width: 480px; margin: 8px auto 0; }
+}
