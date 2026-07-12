@@ -2917,18 +2917,8 @@ textarea.drop-target {
 }
 
 @media (max-width: 700px) {
-  header {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
-    padding: 10px 16px;
-    gap: 10px;
-  }
-  .header-center {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
+  header { padding: 0 12px; gap: 10px; }
   .header-right { gap: 8px; }
-  .btn-new { display: none; }
 
   main { padding: 24px 16px; }
   .hero h1 { font-size: 2rem; }
@@ -2947,7 +2937,6 @@ textarea.drop-target {
   .btn-logout-header { width: 100%; }
   .account-tabs-row { overflow-x: auto; }
   .planner-grid { grid-template-columns: repeat(2, 1fr); }
-  .btn-plan-nav { display: none; }
   .picker-grid { grid-template-columns: 1fr; }
   .picker-modal { max-height: 90vh; }
   .shopping-add-row { flex-wrap: wrap; }
@@ -3009,3 +2998,47 @@ textarea.drop-target {
   opacity: 0.85;
 }
 .photo-credit:hover { opacity: 1; background: rgba(0,0,0,0.65); }
+
+/* ===== MOBILE : navbar, fluidité, formulaire ===== */
+button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.load-more-sentinel { height: 1px; }
+
+@media (max-width: 700px) {
+  /* Planning + Nouvelle recette : icônes rondes dans la navbar */
+  .btn-new, .btn-plan-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .btn-new .btn-label, .btn-plan-nav .btn-label { display: none; }
+  .btn-new .btn-new-plus { font-size: 1.5rem; line-height: 1; font-weight: 500; }
+  .btn-plan-nav svg { width: 17px; height: 17px; }
+  .header-sep { display: none; }
+  .logo span { font-size: 1.15rem; }
+
+  /* iOS zoome sur tout champ < 16px : on force 16px */
+  main input, main select, main textarea, .step-textarea { font-size: 16px !important; }
+
+  /* Catégories : rail horizontal fluide au lieu de 3 lignes de pilules */
+  .categories { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; }
+  .categories::-webkit-scrollbar { display: none; }
+  .category-pill { flex-shrink: 0; }
+
+  /* Formulaire recette : cibles tactiles confortables */
+  .btn-format { min-width: 40px; min-height: 36px; }
+  .step-textarea { min-height: 80px; }
+  .btn-icon { min-width: 36px; min-height: 36px; }
+  .ing-qa-row { flex-wrap: wrap; }
+
+  /* Planning : modal de choix de recette quasi plein écran */
+  .picker-modal { max-width: 100%; max-height: 94dvh; }
+
+  /* Hero compact */
+  .hero { padding: 30px 18px 34px; }
+  .hero-title { margin-bottom: 22px; }
+  .hero-search-wrap { margin-bottom: 26px; }
+}

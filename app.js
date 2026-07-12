@@ -559,7 +559,7 @@ const TR = {
 // ===== APP =====
 const App = {
   view: 'loading', user: null, authMode: 'login', authError: '',
-  adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT, userCount: 0,
+  adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT, userCount: 0, _listLimit: 24,
   portionCount: 4, editingId: null,
   formData: { preparations: [{ id: '', title: '', ingredients: [], steps: [] }], coverImage: null, tags: [] },
   _lastStepFocus: null, _dragIngSrc: null, _chipDragName: null,
@@ -985,11 +985,11 @@ const App = {
             <line x1="4.5" y1="1" x2="4.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
             <line x1="9.5" y1="1" x2="9.5" y2="4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
-          ${this.t('planningBtn')}
+          <span class="btn-label">${this.t('planningBtn')}</span>
         </button>
       </div>
       <div class="header-right">
-        <button class="btn-primary btn-new" id="btn-new">${this.t('newRecipe')}</button>
+        <button class="btn-primary btn-new" id="btn-new"><span class="btn-new-plus">+</span><span class="btn-label">${this.t('newRecipe').replace(/^\+\s*/, '')}</span></button>
         <div class="header-sep"></div>
         <div class="lang-switcher" id="lang-switcher">
           <button class="lang-current" id="btn-lang" title="${cm.name}">
@@ -1162,7 +1162,7 @@ const App = {
           <div class="stat"><span class="stat-value">${this.userCount||'—'}</span><span class="stat-label">${this.t('statUsers')}</span></div>
         </div>
           </div>
-          <video class="hero-video" src="Images/gustos-presentation.mp4" autoplay muted loop playsinline controls aria-label="Présentation de Gustos"></video>
+          <video class="hero-video" src="Images/gustos-presentation.mp4" loop playsinline controls preload="metadata" aria-label="Présentation de Gustos"></video>
         </div>
       </div>
       <div class="categories">
@@ -1173,7 +1173,7 @@ const App = {
       <div id="results-area">
         ${shown.length===0
           ?`<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
-          :`<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`}
+          :this.renderCardGrid(shown)}
       </div>
     </div>`;
   },
@@ -1195,7 +1195,7 @@ const App = {
     if (!area) return;
     area.innerHTML = shown.length === 0
       ? `<div class="empty-state"><div class="empty-icon">${this.searchQuery?'🔍':'🍽️'}</div><h3>${this.searchQuery?this.t('noResults'):this.t('noRecipes')}</h3><p>${this.searchQuery?this.t('noResultsSub'):this.t('noRecipesSub')}</p></div>`
-      : `<div class="recipe-grid">${shown.map(r=>this.renderCard(r)).join('')}</div>`;
+      : this.renderCardGrid(shown);
     document.querySelectorAll('#results-area .recipe-card').forEach(el => el.addEventListener('click', e => {
       if (e.target.closest('[data-save-card]')) return;
       this.nav('recipe', el.dataset.id);
@@ -1204,6 +1204,25 @@ const App = {
       e.stopPropagation();
       this.toggleSave(btn.dataset.saveCard).catch(err => this.toast('Erreur : '+err.message));
     }));
+    this.bindLoadMore();
+  },
+
+  renderCardGrid(shown) {
+    // Rendu progressif : 24 cartes puis chargement au scroll — 1000+ cartes
+    // d'un coup rendaient la liste injouable sur mobile
+    const slice = shown.slice(0, this._listLimit);
+    const more = shown.length > slice.length;
+    return `<div class="recipe-grid">${slice.map(r => this.renderCard(r)).join('')}</div>${more ? '<div id="load-more-sentinel" class="load-more-sentinel"></div>' : ''}`;
+  },
+
+  bindLoadMore() {
+    if (this._loadMoreIO) { this._loadMoreIO.disconnect(); this._loadMoreIO = null; }
+    const sent = document.getElementById('load-more-sentinel');
+    if (!sent) return;
+    this._loadMoreIO = new IntersectionObserver(es => {
+      if (es.some(x => x.isIntersecting)) { this._listLimit += 24; this.updateHeroResults(); }
+    }, { rootMargin: '900px' });
+    this._loadMoreIO.observe(sent);
   },
 
   renderCard(r) {
@@ -1498,7 +1517,7 @@ const App = {
   },
 
   renderIngRow(ing, i, pi) {
-    return `<div class="ingredient-row" data-ing="${i}" data-prep="${pi}" draggable="true">
+    return `<div class="ingredient-row" data-ing="${i}" data-prep="${pi}" draggable="false">
       <div class="drag-handle">⠿</div>
       <input type="text" placeholder="${this.t('ingNamePh')}" value="${this.escHtml(ing.name)}" data-f="name" data-i="${i}" data-pi="${pi}">
       <input type="number" value="${ing.qty}" data-f="qty" data-i="${i}" data-pi="${pi}" min="0" step="any">
@@ -1578,7 +1597,9 @@ const App = {
     if (heroInput) {
       heroInput.addEventListener('input', e => {
         this.searchQuery = e.target.value;
-        this.updateHeroResults();
+        this._listLimit = 24;
+        clearTimeout(this._searchTimer);
+        this._searchTimer = setTimeout(() => this.updateHeroResults(), 180);
       });
     }
     document.getElementById('hero-search-clear')?.addEventListener('click', () => {
@@ -1604,7 +1625,10 @@ const App = {
       if (e.target.closest('[data-save-card]')) return;
       this.nav('recipe', el.dataset.id);
     }));
-    document.querySelectorAll('.category-pill').forEach(el => el.addEventListener('click', () => { this.activeCategory=el.dataset.cat; this.renderContent(); }));
+    document.querySelectorAll('.category-pill').forEach(el => el.addEventListener('click', () => { this.activeCategory=el.dataset.cat; this._listLimit=24; this.renderContent(); }));
+    const heroVideo = document.querySelector('.hero-video');
+    if (heroVideo && window.matchMedia('(min-width: 1025px)').matches) { heroVideo.muted = true; heroVideo.autoplay = true; heroVideo.play().catch(() => {}); }
+    this.bindLoadMore();
     document.querySelectorAll('[data-save-card]').forEach(btn => btn.addEventListener('click', e => {
       e.stopPropagation();
       this.toggleSave(btn.dataset.saveCard).then(() => {
@@ -1747,6 +1771,17 @@ const App = {
   bindPrepsEvents() {
     const prepsWrap = document.getElementById('preparations-wrap');
     if (!prepsWrap) return;
+
+    // draggable sur toute la ligne casse la sélection de texte dans les
+    // champs (surtout au tactile) : on ne l'active que depuis la poignée
+    prepsWrap.addEventListener('pointerdown', e => {
+      const h = e.target.closest('.drag-handle');
+      const row = h && h.closest('.ingredient-row');
+      if (row) row.draggable = true;
+    });
+    const disableRowDrag = () => prepsWrap.querySelectorAll('.ingredient-row[draggable="true"]').forEach(r => { r.draggable = false; });
+    prepsWrap.addEventListener('pointerup', disableRowDrag);
+    prepsWrap.addEventListener('dragend', disableRowDrag);
 
     document.getElementById('btn-add-prep')?.addEventListener('click', () => {
       this.formData.preparations.push({ id: crypto.randomUUID(), title: '', ingredients: [], steps: [{ text: '', image: null }] });
@@ -2066,7 +2101,7 @@ const App = {
       id: p.id,
       title: p.title || '',
       ingredients: (p.ingredients || []).filter(i => i.name.trim()).map(i => ({ ...i, name: i.name.trim() })),
-      steps: (p.steps || []).filter(s => s.text.trim())
+      steps: (p.steps || []).map(s => ({ ...s, text: (s.text || '').replace(/^(?:\s|<br\s*\/?>|&nbsp;)+|(?:\s|<br\s*\/?>|&nbsp;)+$/gi, '') })).filter(s => s.text.trim())
     }));
     const allIngredients = preparations.flatMap(p => p.ingredients);
     const allSteps = preparations.flatMap(p => p.steps);
