@@ -193,7 +193,7 @@ const TR = {
     tagsLbl: 'Tags', tagsInputLbl: 'Mots-clés — Entrée ou virgule', tagsPh: 'végétarien, rapide…',
     cancelBtn: 'Annuler', saveBtn: 'Enregistrer', createBtn: 'Créer la recette', deleteBtn: 'Supprimer',
     nameWarn: '⚠️ Ajoute un nom à la recette.',
-    recipeUpdated: 'Recette mise à jour !', recipeCreated: 'Recette créée !', recipeDeleted: 'Recette supprimée.', dupName: 'Tu as déjà une recette avec ce nom.', deleteDenied: 'Suppression impossible : cette recette appartient à un autre utilisateur.', takePhoto: 'Prendre une photo', imgErr: 'Impossible de traiter la photo.',
+    recipeUpdated: 'Recette mise à jour !', recipeCreated: 'Recette créée !', recipeDeleted: 'Recette supprimée.', dupName: 'Tu as déjà une recette avec ce nom.', deleteDenied: 'Suppression impossible : cette recette appartient à un autre utilisateur.', takePhoto: 'Prendre une photo', imgErr: 'Impossible de traiter la photo.', guestBrowse: 'Découvrir sans compte', guestWallTitle: 'Crée ton compte gratuit', guestWallText: 'Cette fonctionnalité nécessite un compte — c’est 100 % gratuit, sans carte bancaire.', guestWallCta: 'Créer mon compte gratuit', guestWallLater: 'Plus tard', guestSignupBtn: 'Créer un compte',
     syncErr: '⚠️ Erreur sync : ',
     limitTitle: 'Limite atteinte',
     limitText: n => `Tu as atteint les <strong>${n} recettes</strong> du plan gratuit.`,
@@ -275,7 +275,7 @@ const TR = {
     tagsLbl: 'Tags', tagsInputLbl: 'Keywords — Enter or comma', tagsPh: 'vegetarian, quick…',
     cancelBtn: 'Cancel', saveBtn: 'Save', createBtn: 'Create recipe', deleteBtn: 'Delete',
     nameWarn: '⚠️ Add a name to the recipe.',
-    recipeUpdated: 'Recipe updated!', recipeCreated: 'Recipe created!', recipeDeleted: 'Recipe deleted.', dupName: 'You already have a recipe with this name.', deleteDenied: 'Delete failed: this recipe belongs to another user.', takePhoto: 'Take a photo', imgErr: 'Could not process the photo.',
+    recipeUpdated: 'Recipe updated!', recipeCreated: 'Recipe created!', recipeDeleted: 'Recipe deleted.', dupName: 'You already have a recipe with this name.', deleteDenied: 'Delete failed: this recipe belongs to another user.', takePhoto: 'Take a photo', imgErr: 'Could not process the photo.', guestBrowse: 'Browse without an account', guestWallTitle: 'Create your free account', guestWallText: 'This feature requires an account — it’s completely free, no credit card needed.', guestWallCta: 'Create my free account', guestWallLater: 'Later', guestSignupBtn: 'Sign up',
     syncErr: '⚠️ Sync error: ',
     limitTitle: 'Limit reached',
     limitText: n => `You've reached the <strong>${n} recipes</strong> free plan limit.`,
@@ -357,7 +357,7 @@ const TR = {
     tagsLbl: 'Etiquetas', tagsInputLbl: 'Palabras clave — Enter o coma', tagsPh: 'vegetariano, rápido…',
     cancelBtn: 'Cancelar', saveBtn: 'Guardar', createBtn: 'Crear receta', deleteBtn: 'Eliminar',
     nameWarn: '⚠️ Añade un nombre a la receta.',
-    recipeUpdated: '¡Receta actualizada!', recipeCreated: '¡Receta creada!', recipeDeleted: 'Receta eliminada.', dupName: 'Ya tienes una receta con este nombre.', deleteDenied: 'No se pudo eliminar: la receta pertenece a otro usuario.', takePhoto: 'Tomar una foto', imgErr: 'No se pudo procesar la foto.',
+    recipeUpdated: '¡Receta actualizada!', recipeCreated: '¡Receta creada!', recipeDeleted: 'Receta eliminada.', dupName: 'Ya tienes una receta con este nombre.', deleteDenied: 'No se pudo eliminar: la receta pertenece a otro usuario.', takePhoto: 'Tomar una foto', imgErr: 'No se pudo procesar la foto.', guestBrowse: 'Explorar sin cuenta', guestWallTitle: 'Crea tu cuenta gratis', guestWallText: 'Esta función requiere una cuenta: es totalmente gratis, sin tarjeta bancaria.', guestWallCta: 'Crear mi cuenta gratis', guestWallLater: 'Más tarde', guestSignupBtn: 'Crear cuenta',
     syncErr: '⚠️ Error de sincronización: ',
     limitTitle: 'Límite alcanzado',
     limitText: n => `Has alcanzado el límite de <strong>${n} recetas</strong> del plan gratuito.`,
@@ -439,7 +439,7 @@ const TR = {
     tagsLbl: 'Tag', tagsInputLbl: 'Parole chiave — Invio o virgola', tagsPh: 'vegetariano, veloce…',
     cancelBtn: 'Annulla', saveBtn: 'Salva', createBtn: 'Crea ricetta', deleteBtn: 'Elimina',
     nameWarn: '⚠️ Aggiungi un nome alla ricetta.',
-    recipeUpdated: 'Ricetta aggiornata!', recipeCreated: 'Ricetta creata!', recipeDeleted: 'Ricetta eliminata.', dupName: 'Hai già una ricetta con questo nome.', deleteDenied: 'Eliminazione non riuscita: la ricetta appartiene a un altro utente.', takePhoto: 'Scatta una foto', imgErr: 'Impossibile elaborare la foto.',
+    recipeUpdated: 'Ricetta aggiornata!', recipeCreated: 'Ricetta creata!', recipeDeleted: 'Ricetta eliminata.', dupName: 'Hai già una ricetta con questo nome.', deleteDenied: 'Eliminazione non riuscita: la ricetta appartiene a un altro utente.', takePhoto: 'Scatta una foto', imgErr: 'Impossibile elaborare la foto.', guestBrowse: 'Scopri senza account', guestWallTitle: 'Crea il tuo account gratuito', guestWallText: 'Questa funzione richiede un account: è totalmente gratuito, senza carta di credito.', guestWallCta: 'Crea il mio account gratuito', guestWallLater: 'Più tardi', guestSignupBtn: 'Registrati',
     syncErr: '⚠️ Errore di sincronizzazione: ',
     limitTitle: 'Limite raggiunto',
     limitText: n => `Hai raggiunto il limite di <strong>${n} ricette</strong> del piano gratuito.`,
@@ -521,7 +521,7 @@ const TR = {
     tagsLbl: 'Tags', tagsInputLbl: 'Stichwörter — Enter oder Komma', tagsPh: 'vegetarisch, schnell…',
     cancelBtn: 'Abbrechen', saveBtn: 'Speichern', createBtn: 'Rezept erstellen', deleteBtn: 'Löschen',
     nameWarn: '⚠️ Gib dem Rezept einen Namen.',
-    recipeUpdated: 'Rezept aktualisiert!', recipeCreated: 'Rezept erstellt!', recipeDeleted: 'Rezept gelöscht.', dupName: 'Du hast bereits ein Rezept mit diesem Namen.', deleteDenied: 'Löschen fehlgeschlagen: Das Rezept gehört einem anderen Nutzer.', takePhoto: 'Foto aufnehmen', imgErr: 'Foto konnte nicht verarbeitet werden.',
+    recipeUpdated: 'Rezept aktualisiert!', recipeCreated: 'Rezept erstellt!', recipeDeleted: 'Rezept gelöscht.', dupName: 'Du hast bereits ein Rezept mit diesem Namen.', deleteDenied: 'Löschen fehlgeschlagen: Das Rezept gehört einem anderen Nutzer.', takePhoto: 'Foto aufnehmen', imgErr: 'Foto konnte nicht verarbeitet werden.', guestBrowse: 'Ohne Konto stöbern', guestWallTitle: 'Erstelle dein kostenloses Konto', guestWallText: 'Diese Funktion erfordert ein Konto – völlig kostenlos, ohne Kreditkarte.', guestWallCta: 'Kostenloses Konto erstellen', guestWallLater: 'Später', guestSignupBtn: 'Konto erstellen',
     syncErr: '⚠️ Sync-Fehler: ',
     limitTitle: 'Limit erreicht',
     limitText: n => `Du hast das Limit von <strong>${n} Rezepten</strong> des Gratisplans erreicht.`,
@@ -559,7 +559,7 @@ const TR = {
 // ===== APP =====
 const App = {
   view: 'loading', user: null, authMode: 'login', authError: '',
-  adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT, userCount: 0, _listLimit: 24,
+  adminStats: null, currentId: null, searchQuery: '', activeCategory: ALL_CAT, userCount: 0, _listLimit: 24, guest: false,
   portionCount: 4, editingId: null,
   formData: { preparations: [{ id: '', title: '', ingredients: [], steps: [] }], coverImage: null, tags: [] },
   _lastStepFocus: null, _dragIngSrc: null, _chipDragName: null,
@@ -600,6 +600,7 @@ const App = {
     db.auth.onAuthStateChange(async (event, session) => {
       if (event === 'INITIAL_SESSION') {
         if (session) await this.onSignIn(session.user);
+        else if (localStorage.getItem('gustos_guest') === '1') { await this.enterGuest(); }
         else { this.view = 'auth'; this.authError = ''; this.render(); }
       } else if (event === 'SIGNED_IN') {
         if (!this.user || this.user.id !== session.user.id) await this.onSignIn(session.user);
@@ -616,6 +617,7 @@ const App = {
   },
 
   async onSignIn(authUser) {
+    this.guest = false; localStorage.removeItem('gustos_guest');
     this.avatarImg = null;
     try {
       const { data: profile, error } = await db.from('profiles').select('*').eq('id', authUser.id).single();
@@ -634,11 +636,51 @@ const App = {
     this.view = 'list'; this.render();
   },
 
+  async enterGuest() {
+    this.guest = true;
+    localStorage.setItem('gustos_guest', '1');
+    this.view = 'loading'; this.render();
+    await this.syncRecipes().catch(e => console.warn('[Guest sync]', e));
+    await this.loadSocial().catch(() => {});
+    this.view = 'list'; this.render();
+  },
+
+  goSignup() {
+    this.guest = false;
+    localStorage.removeItem('gustos_guest');
+    this.authMode = 'register'; this.authError = '';
+    this.view = 'auth'; this.render();
+  },
+
+  requireAccount() {
+    if (this.user) return true;
+    this.showAccountWall();
+    return false;
+  },
+
+  showAccountWall() {
+    document.getElementById('account-wall')?.remove();
+    const div = document.createElement('div');
+    div.id = 'account-wall'; div.className = 'wall-overlay';
+    div.innerHTML = `<div class="wall-modal">
+      <img src="Images/gustos-logo-transparent-background.png" alt="" class="wall-mascot">
+      <h3>${this.t('guestWallTitle')}</h3>
+      <p>${this.t('guestWallText')}</p>
+      <button class="btn-primary btn-full" id="wall-signup">${this.t('guestWallCta')}</button>
+      <button class="btn-ghost" id="wall-later">${this.t('guestWallLater')}</button>
+    </div>`;
+    document.body.appendChild(div);
+    div.addEventListener('click', e => {
+      if (e.target === div || e.target.closest('#wall-later')) { div.remove(); return; }
+      if (e.target.closest('#wall-signup')) { div.remove(); this.goSignup(); }
+    });
+  },
+
   async syncRecipes() {
-    if (!this.user) return;
+    if (!this.user && !this.guest) return;
     // Push local recipes to Supabase first (handles pre-table era + offline creates)
     const local = Store.get();
-    if (local.length) {
+    if (this.user && local.length) {
       const mine = local.filter(r => !r.authorId); // seules les recettes créées hors connexion sont poussées — sinon un vieux cache ressuscite les recettes supprimées
       if (mine.length) {
         const { error: pushErr } = await db.from('recipes')
@@ -686,14 +728,16 @@ const App = {
   },
 
   async loadSocial() {
-    if (!this.user) return;
+    if (!this.user && !this.guest) return;
     const ids = Store.get().map(r => r.id);
-    const [likedRes, savedRes] = await Promise.all([
-      db.from('likes').select('recipe_id').eq('user_id', this.user.id),
-      db.from('saves').select('recipe_id').eq('user_id', this.user.id)
-    ]);
-    this.likedIds = new Set((likedRes.data || []).map(l => l.recipe_id));
-    this.savedIds = new Set((savedRes.data || []).map(s => s.recipe_id));
+    if (this.user) {
+      const [likedRes, savedRes] = await Promise.all([
+        db.from('likes').select('recipe_id').eq('user_id', this.user.id),
+        db.from('saves').select('recipe_id').eq('user_id', this.user.id)
+      ]);
+      this.likedIds = new Set((likedRes.data || []).map(l => l.recipe_id));
+      this.savedIds = new Set((savedRes.data || []).map(s => s.recipe_id));
+    }
     if (ids.length) {
       const { data } = await db.from('likes').select('recipe_id').in('recipe_id', ids);
       this.likeCounts = {};
@@ -702,7 +746,7 @@ const App = {
   },
 
   async toggleLike(id) {
-    if (!this.user) return;
+    if (!this.user) { this.showAccountWall(); return; }
     const was = this.likedIds.has(id);
     if (was) { this.likedIds.delete(id); this.likeCounts[id] = Math.max(0, (this.likeCounts[id] || 1) - 1); }
     else { this.likedIds.add(id); this.likeCounts[id] = (this.likeCounts[id] || 0) + 1; }
@@ -712,7 +756,7 @@ const App = {
   },
 
   async toggleSave(id) {
-    if (!this.user) return;
+    if (!this.user) { this.showAccountWall(); return; }
     const was = this.savedIds.has(id);
     if (was) this.savedIds.delete(id); else this.savedIds.add(id);
     this.updateSocialUI(id);
@@ -882,12 +926,14 @@ const App = {
             <button type="submit" class="btn-primary btn-full" id="btn-auth-submit">${isLogin?this.t('signIn'):this.t('createAccount')}</button>
           </form>
           ${isLogin?`<p class="auth-reset"><a href="#" id="btn-reset-pw">${this.t('forgotPw')}</a></p>`:''}
+          <button class="btn-guest" id="btn-guest">${this.t('guestBrowse')} →</button>
         </div>
       </div>
     </div>`;
   },
 
   bindAuthEvents() {
+    document.getElementById('btn-guest')?.addEventListener('click', () => this.enterGuest());
     document.querySelectorAll('[data-lang-auth]').forEach(btn => btn.addEventListener('click', () => {
       this.lang = btn.dataset.langAuth; localStorage.setItem('recettes_lang', this.lang); this.render();
     }));
@@ -1004,11 +1050,11 @@ const App = {
               </button>`).join('')}
           </div>
         </div>
-        <div class="user-menu" id="user-menu">
+        ${this.user ? `<div class="user-menu" id="user-menu">
           <button class="user-avatar" id="btn-go-account" title="Mon profil">
             ${this.avatarImg ? `<img src="${this.escHtml(this.avatarImg)}" class="avatar-photo" alt="">` : initial}
           </button>
-        </div>
+        </div>` : `<button class="btn-primary btn-signup-header" id="btn-header-signup">${this.t('guestSignupBtn')}</button>`}
       </div>
     </header>`;
   },
@@ -1551,7 +1597,7 @@ const App = {
 
   bindHeader() {
     document.getElementById('nav-home')?.addEventListener('click', () => { this.view='list'; this.searchQuery=''; this.render(); });
-    document.getElementById('btn-new')?.addEventListener('click', () => this.nav('create'));
+    document.getElementById('btn-new')?.addEventListener('click', () => { if (this.requireAccount()) this.nav('create'); });
     document.getElementById('btn-admin')?.addEventListener('click', () => this.nav('admin'));
 
     document.addEventListener('keydown', e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); document.getElementById('hero-search-input')?.focus(); } });
@@ -1574,7 +1620,8 @@ const App = {
     }));
 
     document.getElementById('btn-go-account')?.addEventListener('click', () => { this.accountTab='mine'; this.nav('account'); });
-    document.getElementById('btn-plan')?.addEventListener('click', () => this.nav('planning'));
+    document.getElementById('btn-header-signup')?.addEventListener('click', () => this.goSignup());
+    document.getElementById('btn-plan')?.addEventListener('click', () => { if (this.requireAccount()) this.nav('planning'); });
   },
 
   bindContent() {
