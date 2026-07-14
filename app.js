@@ -215,6 +215,29 @@ const TR = {
     deleteAccountDesc: 'Cette action est <strong>irréversible</strong>. Toutes tes recettes, likes et données seront définitivement supprimés.',
     deleteConfirmWord: 'SUPPRIMER', deleteConfirmPrompt: 'Tape <strong>SUPPRIMER</strong> pour confirmer :',
     deleteForever: 'Supprimer définitivement',
+    teamBtn: 'Teams', scopePerso: '👤 Perso',
+    teamsTitle: '👥 Mes teams',
+    teamModalIntro: 'Une team partage un planning de repas et une liste de courses communs. Tout le monde a les mêmes droits.',
+    createTeamLbl: 'Créer une team', teamNamePh: 'Nom de la team — ex : Famille', createTeamBtn: 'Créer',
+    teamCreated: 'Team créée !',
+    membersLbl: n => `${n} membre${n > 1 ? 's' : ''}`, youLbl: '(toi)',
+    invitePh: 'email@exemple.com', inviteBtn: 'Inviter',
+    inviteSent: '💌 Invitation envoyée par email !',
+    inviteLinkOnly: 'Invitation créée — l\'email n\'est pas parti, copie le lien 🔗 pour l\'envoyer toi-même.',
+    inviteBadEmail: 'Email invalide.',
+    pendingLbl: 'Invitations en attente', copyLink: 'Copier le lien', linkCopied: 'Lien copié !',
+    cancelInvite: 'Annuler l\'invitation',
+    leaveTeam: 'Quitter la team',
+    leaveConfirm: 'Quitter cette team ? Si tu es le dernier membre, elle sera supprimée définitivement.',
+    teamLeft: 'Tu as quitté la team.',
+    inviteModalTitle: 'Invitation à une team',
+    inviteModalText: (inviter, team) => `<strong>${inviter}</strong> t'invite à rejoindre la team <strong>${team}</strong> — vous partagerez le planning des repas et la liste de courses.`,
+    acceptInvite: 'Rejoindre la team', declineInvite: 'Ignorer',
+    inviteAccepted: team => `Bienvenue dans la team ${team} !`,
+    inviteInvalid: 'Invitation invalide ou déjà utilisée.',
+    inviteAuthNote: '💌 Tu as une invitation team en attente — connecte-toi ou crée un compte pour l\'accepter.',
+    alreadyMemberNote: 'Tu fais déjà partie de cette team.',
+    teamPlanShared: name => `Planning et liste de courses partagés avec la team ${name} — les modifications de chacun sont visibles par tous.`,
     authErrCredentials: 'Email ou mot de passe incorrect.',
     authErrConfirm: 'Confirme ton email avant de te connecter.',
     authErrExists: 'Un compte existe déjà avec cet email.',
@@ -297,6 +320,29 @@ const TR = {
     deleteAccountDesc: 'This action is <strong>irreversible</strong>. All your recipes, likes and data will be permanently deleted.',
     deleteConfirmWord: 'DELETE', deleteConfirmPrompt: 'Type <strong>DELETE</strong> to confirm:',
     deleteForever: 'Delete permanently',
+    teamBtn: 'Teams', scopePerso: '👤 Personal',
+    teamsTitle: '👥 My teams',
+    teamModalIntro: 'A team shares a common meal planner and shopping list. Everyone has the same rights.',
+    createTeamLbl: 'Create a team', teamNamePh: 'Team name — e.g. Family', createTeamBtn: 'Create',
+    teamCreated: 'Team created!',
+    membersLbl: n => `${n} member${n > 1 ? 's' : ''}`, youLbl: '(you)',
+    invitePh: 'email@example.com', inviteBtn: 'Invite',
+    inviteSent: '💌 Invitation sent by email!',
+    inviteLinkOnly: 'Invitation created — the email failed, copy the 🔗 link to send it yourself.',
+    inviteBadEmail: 'Invalid email.',
+    pendingLbl: 'Pending invitations', copyLink: 'Copy link', linkCopied: 'Link copied!',
+    cancelInvite: 'Cancel invitation',
+    leaveTeam: 'Leave team',
+    leaveConfirm: 'Leave this team? If you are the last member, it will be permanently deleted.',
+    teamLeft: 'You left the team.',
+    inviteModalTitle: 'Team invitation',
+    inviteModalText: (inviter, team) => `<strong>${inviter}</strong> invites you to join the team <strong>${team}</strong> — you will share the meal planner and shopping list.`,
+    acceptInvite: 'Join the team', declineInvite: 'Ignore',
+    inviteAccepted: team => `Welcome to the team ${team}!`,
+    inviteInvalid: 'Invalid or already used invitation.',
+    inviteAuthNote: '💌 You have a pending team invitation — sign in or create an account to accept it.',
+    alreadyMemberNote: 'You are already a member of this team.',
+    teamPlanShared: name => `Planner and shopping list shared with the team ${name} — everyone sees everyone's changes.`,
     authErrCredentials: 'Incorrect email or password.',
     authErrConfirm: 'Confirm your email before signing in.',
     authErrExists: 'An account already exists with this email.',
@@ -379,6 +425,29 @@ const TR = {
     deleteAccountDesc: 'Esta acción es <strong>irreversible</strong>. Todas tus recetas, likes y datos serán eliminados permanentemente.',
     deleteConfirmWord: 'ELIMINAR', deleteConfirmPrompt: 'Escribe <strong>ELIMINAR</strong> para confirmar:',
     deleteForever: 'Eliminar definitivamente',
+    teamBtn: 'Teams', scopePerso: '👤 Personal',
+    teamsTitle: '👥 Mis teams',
+    teamModalIntro: 'Un team comparte un planificador de comidas y una lista de la compra comunes. Todos tienen los mismos derechos.',
+    createTeamLbl: 'Crear un team', teamNamePh: 'Nombre del team — ej: Familia', createTeamBtn: 'Crear',
+    teamCreated: '¡Team creado!',
+    membersLbl: n => `${n} miembro${n > 1 ? 's' : ''}`, youLbl: '(tú)',
+    invitePh: 'email@ejemplo.com', inviteBtn: 'Invitar',
+    inviteSent: '💌 ¡Invitación enviada por email!',
+    inviteLinkOnly: 'Invitación creada — el email falló, copia el enlace 🔗 para enviarlo tú mismo.',
+    inviteBadEmail: 'Email inválido.',
+    pendingLbl: 'Invitaciones pendientes', copyLink: 'Copiar enlace', linkCopied: '¡Enlace copiado!',
+    cancelInvite: 'Cancelar invitación',
+    leaveTeam: 'Salir del team',
+    leaveConfirm: '¿Salir de este team? Si eres el último miembro, se eliminará definitivamente.',
+    teamLeft: 'Has salido del team.',
+    inviteModalTitle: 'Invitación a un team',
+    inviteModalText: (inviter, team) => `<strong>${inviter}</strong> te invita a unirte al team <strong>${team}</strong> — compartiréis el planificador de comidas y la lista de la compra.`,
+    acceptInvite: 'Unirme al team', declineInvite: 'Ignorar',
+    inviteAccepted: team => `¡Bienvenido al team ${team}!`,
+    inviteInvalid: 'Invitación inválida o ya utilizada.',
+    inviteAuthNote: '💌 Tienes una invitación de team pendiente — inicia sesión o crea una cuenta para aceptarla.',
+    alreadyMemberNote: 'Ya formas parte de este team.',
+    teamPlanShared: name => `Planificador y lista de la compra compartidos con el team ${name} — todos ven los cambios de todos.`,
     authErrCredentials: 'Email o contraseña incorrectos.',
     authErrConfirm: 'Confirma tu email antes de iniciar sesión.',
     authErrExists: 'Ya existe una cuenta con este email.',
@@ -461,6 +530,29 @@ const TR = {
     deleteAccountDesc: 'Questa azione è <strong>irreversibile</strong>. Tutte le tue ricette, like e dati saranno eliminati definitivamente.',
     deleteConfirmWord: 'ELIMINA', deleteConfirmPrompt: 'Scrivi <strong>ELIMINA</strong> per confermare:',
     deleteForever: 'Elimina definitivamente',
+    teamBtn: 'Team', scopePerso: '👤 Personale',
+    teamsTitle: '👥 I miei team',
+    teamModalIntro: 'Un team condivide un planning dei pasti e una lista della spesa comuni. Tutti hanno gli stessi diritti.',
+    createTeamLbl: 'Crea un team', teamNamePh: 'Nome del team — es: Famiglia', createTeamBtn: 'Crea',
+    teamCreated: 'Team creato!',
+    membersLbl: n => `${n} membr${n > 1 ? 'i' : 'o'}`, youLbl: '(tu)',
+    invitePh: 'email@esempio.com', inviteBtn: 'Invita',
+    inviteSent: '💌 Invito inviato via email!',
+    inviteLinkOnly: 'Invito creato — l\'email non è partita, copia il link 🔗 per inviarlo tu stesso.',
+    inviteBadEmail: 'Email non valida.',
+    pendingLbl: 'Inviti in sospeso', copyLink: 'Copia link', linkCopied: 'Link copiato!',
+    cancelInvite: 'Annulla invito',
+    leaveTeam: 'Lascia il team',
+    leaveConfirm: 'Lasciare questo team? Se sei l\'ultimo membro, sarà eliminato definitivamente.',
+    teamLeft: 'Hai lasciato il team.',
+    inviteModalTitle: 'Invito a un team',
+    inviteModalText: (inviter, team) => `<strong>${inviter}</strong> ti invita a unirti al team <strong>${team}</strong> — condividerete il planning dei pasti e la lista della spesa.`,
+    acceptInvite: 'Unisciti al team', declineInvite: 'Ignora',
+    inviteAccepted: team => `Benvenuto nel team ${team}!`,
+    inviteInvalid: 'Invito non valido o già utilizzato.',
+    inviteAuthNote: '💌 Hai un invito team in sospeso — accedi o crea un account per accettarlo.',
+    alreadyMemberNote: 'Fai già parte di questo team.',
+    teamPlanShared: name => `Planning e lista della spesa condivisi con il team ${name} — tutti vedono le modifiche di tutti.`,
     authErrCredentials: 'Email o password non corretti.',
     authErrConfirm: 'Conferma la tua email prima di accedere.',
     authErrExists: 'Esiste già un account con questa email.',
@@ -543,6 +635,29 @@ const TR = {
     deleteAccountDesc: 'Diese Aktion ist <strong>unwiderruflich</strong>. Alle deine Rezepte, Likes und Daten werden dauerhaft gelöscht.',
     deleteConfirmWord: 'LÖSCHEN', deleteConfirmPrompt: 'Tippe <strong>LÖSCHEN</strong> zur Bestätigung:',
     deleteForever: 'Dauerhaft löschen',
+    teamBtn: 'Teams', scopePerso: '👤 Persönlich',
+    teamsTitle: '👥 Meine Teams',
+    teamModalIntro: 'Ein Team teilt einen gemeinsamen Essensplan und eine gemeinsame Einkaufsliste. Alle haben die gleichen Rechte.',
+    createTeamLbl: 'Team erstellen', teamNamePh: 'Teamname — z.B. Familie', createTeamBtn: 'Erstellen',
+    teamCreated: 'Team erstellt!',
+    membersLbl: n => `${n} Mitglied${n > 1 ? 'er' : ''}`, youLbl: '(du)',
+    invitePh: 'email@beispiel.de', inviteBtn: 'Einladen',
+    inviteSent: '💌 Einladung per E-Mail gesendet!',
+    inviteLinkOnly: 'Einladung erstellt — die E-Mail schlug fehl, kopiere den 🔗 Link und sende ihn selbst.',
+    inviteBadEmail: 'Ungültige E-Mail.',
+    pendingLbl: 'Ausstehende Einladungen', copyLink: 'Link kopieren', linkCopied: 'Link kopiert!',
+    cancelInvite: 'Einladung stornieren',
+    leaveTeam: 'Team verlassen',
+    leaveConfirm: 'Dieses Team verlassen? Wenn du das letzte Mitglied bist, wird es dauerhaft gelöscht.',
+    teamLeft: 'Du hast das Team verlassen.',
+    inviteModalTitle: 'Team-Einladung',
+    inviteModalText: (inviter, team) => `<strong>${inviter}</strong> lädt dich ein, dem Team <strong>${team}</strong> beizutreten — ihr teilt den Essensplan und die Einkaufsliste.`,
+    acceptInvite: 'Team beitreten', declineInvite: 'Ignorieren',
+    inviteAccepted: team => `Willkommen im Team ${team}!`,
+    inviteInvalid: 'Ungültige oder bereits verwendete Einladung.',
+    inviteAuthNote: '💌 Du hast eine ausstehende Team-Einladung — melde dich an oder erstelle ein Konto, um sie anzunehmen.',
+    alreadyMemberNote: 'Du bist bereits Mitglied dieses Teams.',
+    teamPlanShared: name => `Essensplan und Einkaufsliste mit dem Team ${name} geteilt — alle sehen die Änderungen aller.`,
     authErrCredentials: 'Falsche E-Mail oder falsches Passwort.',
     authErrConfirm: 'Bestätige deine E-Mail bevor du dich anmeldest.',
     authErrExists: 'Ein Konto mit dieser E-Mail existiert bereits.',
@@ -566,6 +681,7 @@ const App = {
   likedIds: new Set(), savedIds: new Set(), likeCounts: {}, accountTab: 'mine',
   lang: localStorage.getItem('recettes_lang') || 'fr',
   planWeek: '', plan: {}, planPortions: {}, shopping: [], pickerOpen: null, pickerQuery: '', pickerTab: 'all',
+  teams: [], planScope: localStorage.getItem('gustos_plan_scope') || 'perso', teamModalOpen: false,
   navStack: [],
 
   t(key, ...args) {
@@ -578,8 +694,17 @@ const App = {
   async init() {
     this.view = 'loading'; this.render();
     this.planWeek = this.getWeekStart(new Date());
-    try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
-    try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
+    // Lien d'invitation team : ?invite=TOKEN → stocké jusqu'à connexion
+    try {
+      const url = new URL(location.href);
+      const inviteToken = url.searchParams.get('invite');
+      if (inviteToken) {
+        localStorage.setItem('gustos_pending_invite', inviteToken);
+        url.searchParams.delete('invite');
+        history.replaceState({}, '', url.pathname + url.search);
+      }
+    } catch {}
+    this.loadPlanLocal();
     // Tooltip global épingle — créé une fois, attaché au body (hors overflow:hidden)
     const _tip = document.createElement('div');
     _tip.id = '_save-tip'; _tip.className = 'save-tip-global';
@@ -609,6 +734,9 @@ const App = {
       } else if (event === 'SIGNED_OUT') {
         this.user = null;
         this.avatarImg = null;
+        this.teams = [];
+        if (this._teamChannel) { db.removeChannel(this._teamChannel); this._teamChannel = null; }
+        this.planScope = 'perso'; localStorage.setItem('gustos_plan_scope', 'perso');
         this.likedIds = new Set(); this.savedIds = new Set(); this.likeCounts = {};
         this.searchQuery = ''; this.activeCategory = ALL_CAT;
         this.view = 'auth'; this.authError = ''; this.render();
@@ -628,12 +756,15 @@ const App = {
       await this.syncRecipes().catch(e => console.warn('[Sync]', e));
       console.log('[onSignIn] store après sync:', Store.get().length, 'recettes');
       await this.loadSocial().catch(e => console.warn('[Social]', e));
+      await this.loadTeams().catch(e => console.warn('[Teams]', e));
       await this.loadPlan().catch(e => console.warn('[Plan]', e));
     } catch (e) {
       console.error('[onSignIn]', e);
     }
     // Check for post-reload instruction (e.g. after profile save)
     this.view = 'list'; this.render();
+    this.subscribeTeamPlan();
+    this.checkPendingInvite().catch(e => console.warn('[Invite]', e));
   },
 
   async enterGuest() {
@@ -830,7 +961,13 @@ const App = {
         this.formData = { preparations: preps, coverImage: this.getCover(r), tags: [...(r.tags || [])] };
       }
     }
-    if (view === 'planning') { this.pickerOpen = null; this.pickerQuery = ''; this.pickerTab = 'all'; }
+    if (view === 'planning') {
+      this.pickerOpen = null; this.pickerQuery = ''; this.pickerTab = 'all'; this.teamModalOpen = false;
+      // Recharge en arrière-plan pour récupérer les modifs des autres membres
+      if (this.user) this.loadPlan().then(() => {
+        if (this.view === 'planning' && !this.pickerOpen && !this.teamModalOpen) this.renderContent();
+      }).catch(() => {});
+    }
     if (view === 'admin') {
       this.adminStats = null; this.render();
       db.rpc('get_admin_stats').then(({ data, error }) => {
@@ -888,6 +1025,7 @@ const App = {
       <div class="auth-panel">
         <div class="lang-switcher-auth">${langBar}</div>
         <div class="auth-form-wrap">
+          ${localStorage.getItem('gustos_pending_invite') ? `<div class="auth-invite-note">${this.t('inviteAuthNote')}</div>` : ''}
           <div class="auth-tabs">
             <button class="auth-tab${isLogin?' active':''}" data-auth-mode="login">${this.t('login')}</button>
             <button class="auth-tab${!isLogin?' active':''}" data-auth-mode="register">${this.t('register')}</button>
@@ -1786,6 +1924,36 @@ const App = {
     });
     document.getElementById('manual-name')?.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-add-manual')?.click(); });
 
+    // ===== TEAM HANDLERS =====
+    document.querySelectorAll('[data-scope]').forEach(btn => btn.addEventListener('click', () => this.setPlanScope(btn.dataset.scope)));
+    document.getElementById('btn-team-modal')?.addEventListener('click', () => { this.teamModalOpen = true; this.renderContent(); });
+    const closeTeamModal = () => { this.teamModalOpen = false; this.renderContent(); };
+    document.getElementById('btn-close-team')?.addEventListener('click', closeTeamModal);
+    document.getElementById('team-overlay')?.addEventListener('click', e => { if (e.target.id === 'team-overlay') closeTeamModal(); });
+    document.getElementById('btn-create-team')?.addEventListener('click', async () => {
+      const name = document.getElementById('new-team-name')?.value?.trim();
+      if (!name) return;
+      const btn = document.getElementById('btn-create-team');
+      btn.disabled = true; btn.textContent = this.t('loading');
+      try { await this.createTeam(name); this.renderContent(); }
+      catch (e) { this.toast('Erreur : ' + e.message); btn.disabled = false; btn.textContent = this.t('createTeamBtn'); }
+    });
+    document.getElementById('new-team-name')?.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-create-team')?.click(); });
+    document.querySelectorAll('[data-invite-send]').forEach(btn => btn.addEventListener('click', async () => {
+      const teamId = btn.dataset.inviteSend;
+      const email = document.querySelector(`[data-invite-input="${teamId}"]`)?.value;
+      if (!email?.trim()) return;
+      btn.disabled = true; btn.textContent = '…';
+      await this.inviteToTeam(teamId, email);
+      this.renderContent();
+    }));
+    document.querySelectorAll('[data-invite-input]').forEach(inp => inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); document.querySelector(`[data-invite-send="${inp.dataset.inviteInput}"]`)?.click(); }
+    }));
+    document.querySelectorAll('[data-copy-invite]').forEach(btn => btn.addEventListener('click', () => this.copyInviteLink(btn.dataset.copyInvite)));
+    document.querySelectorAll('[data-cancel-invite]').forEach(btn => btn.addEventListener('click', () => this.cancelInvite(btn.dataset.cancelInvite)));
+    document.querySelectorAll('[data-leave-team]').forEach(btn => btn.addEventListener('click', () => this.leaveTeam(btn.dataset.leaveTeam)));
+
     this.bindCoverEvents();
     this.bindPrepsEvents();
     this.bindTagEvents();
@@ -2422,35 +2590,280 @@ const App = {
     return `${s.toLocaleDateString(locale, opt)} — ${e.toLocaleDateString(locale, { ...opt, year: 'numeric' })}`;
   },
 
+  _planKeys() {
+    const sfx = this.planScope === 'perso' ? '' : '_' + this.planScope;
+    return { plan: 'gustos_plan' + sfx, shopping: 'gustos_shopping' + sfx, portions: 'gustos_portions' + sfx };
+  },
   loadPlanLocal() {
-    try { this.plan = JSON.parse(localStorage.getItem('gustos_plan') || '{}'); } catch { this.plan = {}; }
-    try { this.shopping = JSON.parse(localStorage.getItem('gustos_shopping') || '[]'); } catch { this.shopping = []; }
-    try { this.planPortions = JSON.parse(localStorage.getItem('gustos_portions') || '{}'); } catch { this.planPortions = {}; }
+    const k = this._planKeys();
+    try { this.plan = JSON.parse(localStorage.getItem(k.plan) || '{}'); } catch { this.plan = {}; }
+    try { this.shopping = JSON.parse(localStorage.getItem(k.shopping) || '[]'); } catch { this.shopping = []; }
+    try { this.planPortions = JSON.parse(localStorage.getItem(k.portions) || '{}'); } catch { this.planPortions = {}; }
+  },
+  _persistPlanLocal() {
+    const k = this._planKeys();
+    localStorage.setItem(k.plan, JSON.stringify(this.plan));
+    localStorage.setItem(k.shopping, JSON.stringify(this.shopping));
+    localStorage.setItem(k.portions, JSON.stringify(this.planPortions));
+  },
+  // Une ligne DB peut être : ancien format {lunch,dinner} (le lundi seul),
+  // ou nouveau format {date: {lunch,dinner}, __portions: {...}} (semaine entière)
+  _mergePlanRow(row) {
+    const p = row.plan || {};
+    if (p.lunch || p.dinner) { this.plan[row.week_of] = p; return; }
+    for (const [key, val] of Object.entries(p)) {
+      if (key === '__portions') Object.assign(this.planPortions, val || {});
+      else this.plan[key] = val;
+    }
   },
   savePlan() {
-    localStorage.setItem('gustos_plan', JSON.stringify(this.plan));
-    localStorage.setItem('gustos_shopping', JSON.stringify(this.shopping));
-    localStorage.setItem('gustos_portions', JSON.stringify(this.planPortions));
-    if (this.user) {
-      db.from('meal_plans').upsert({
-        user_id: this.user.id, week_of: this.planWeek,
-        plan: this.plan[this.planWeek] || {}, shopping: this.shopping,
-        updated_at: new Date().toISOString()
-      }).then(({ error }) => { if (error) console.warn('[Plan]', error.message); });
+    this._persistPlanLocal();
+    if (!this.user) return;
+    // Semaine entière + portions (l'ancien code ne sauvait que le lundi)
+    const weekDays = this.getWeekDays(this.planWeek);
+    const weekSlice = {};
+    for (const d of weekDays) {
+      const s = this.plan[d];
+      if (s && ((s.lunch || []).length || (s.dinner || []).length)) weekSlice[d] = s;
     }
+    const portions = {};
+    for (const [key, v] of Object.entries(this.planPortions)) {
+      if (weekDays.includes(key.split('|')[0])) portions[key] = v;
+    }
+    weekSlice.__portions = portions;
+    const team = this.currentTeam();
+    const row = { week_of: this.planWeek, plan: weekSlice, shopping: this.shopping, updated_at: new Date().toISOString() };
+    this._lastPlanWrite = JSON.stringify({ w: this.planWeek, p: weekSlice, s: this.shopping });
+    const req = team
+      ? db.from('team_meal_plans').upsert({ team_id: team.id, ...row })
+      : db.from('meal_plans').upsert({ user_id: this.user.id, ...row });
+    req.then(({ error }) => { if (error) console.warn('[Plan]', error.message); });
   },
   async loadPlan() {
+    if (this.planScope !== 'perso' && !this.currentTeam()) {
+      this.planScope = 'perso'; localStorage.setItem('gustos_plan_scope', 'perso');
+    }
     this.loadPlanLocal();
     if (!this.user) return;
-    const { data, error } = await db.from('meal_plans').select('week_of,plan,shopping').eq('user_id', this.user.id);
+    const team = this.currentTeam();
+    const { data, error } = team
+      ? await db.from('team_meal_plans').select('week_of,plan,shopping').eq('team_id', team.id)
+      : await db.from('meal_plans').select('week_of,plan,shopping').eq('user_id', this.user.id);
     if (error) { console.warn('[Plan]', error.message); return; }
     if (data) {
-      data.forEach(row => { this.plan[row.week_of] = row.plan; });
+      if (team) { this.plan = {}; this.planPortions = {}; this.shopping = []; } // le serveur est la source de vérité partagée
+      data.forEach(row => this._mergePlanRow(row));
       const cur = data.find(r => r.week_of === this.planWeek);
       if (cur && cur.shopping?.length) this.shopping = cur.shopping;
-      localStorage.setItem('gustos_plan', JSON.stringify(this.plan));
-      localStorage.setItem('gustos_shopping', JSON.stringify(this.shopping));
+      this._persistPlanLocal();
     }
+  },
+
+  // ===== TEAMS =====
+  currentTeam() { return this.teams.find(t => t.id === this.planScope) || null; },
+
+  async loadTeams() {
+    if (!this.user) { this.teams = []; return; }
+    const { data, error } = await db.rpc('get_my_teams');
+    if (error) { console.warn('[Teams]', error.message); return; }
+    this.teams = data || [];
+  },
+
+  async setPlanScope(scope) {
+    if (this.planScope === scope) return;
+    this.planScope = scope;
+    localStorage.setItem('gustos_plan_scope', scope);
+    this.plan = {}; this.shopping = []; this.planPortions = {};
+    this.loadPlanLocal();
+    this.renderContent();
+    await this.loadPlan();
+    this.renderContent();
+    this.subscribeTeamPlan();
+  },
+
+  subscribeTeamPlan() {
+    if (this._teamChannel) { db.removeChannel(this._teamChannel); this._teamChannel = null; }
+    const team = this.currentTeam();
+    if (!team || !this.user) return;
+    this._teamChannel = db.channel('team-plan-' + team.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_meal_plans', filter: `team_id=eq.${team.id}` }, payload => {
+        const row = payload.new;
+        if (!row || this.planScope !== team.id) return;
+        // Ignore l'écho de notre propre sauvegarde (évite un re-render inutile)
+        if (this._lastPlanWrite === JSON.stringify({ w: row.week_of, p: row.plan, s: row.shopping })) return;
+        this._mergePlanRow(row);
+        if (row.week_of === this.planWeek && Array.isArray(row.shopping)) this.shopping = row.shopping;
+        this._persistPlanLocal();
+        if (this.view === 'planning' && !this.pickerOpen && !this.teamModalOpen) this.renderContent();
+      })
+      .subscribe();
+  },
+
+  async createTeam(name) {
+    const { data: teamId, error } = await db.rpc('create_team', { team_name: name });
+    if (error) throw error;
+    await this.loadTeams();
+    this.toast(this.t('teamCreated'));
+    await this.setPlanScope(teamId);
+  },
+
+  async inviteToTeam(teamId, email) {
+    email = (email || '').trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { this.toast(this.t('inviteBadEmail')); return; }
+    const { data, error } = await db.from('team_invites')
+      .insert({ team_id: teamId, email, invited_by: this.user.id })
+      .select('id').single();
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    await this.loadTeams();
+    const sent = await this.sendInviteEmail(data.id);
+    this.toast(sent ? this.t('inviteSent') : this.t('inviteLinkOnly'));
+  },
+
+  async sendInviteEmail(inviteId) {
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      const res = await fetch('/api/send-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
+        body: JSON.stringify({ inviteId }),
+      });
+      return res.ok;
+    } catch { return false; }
+  },
+
+  async copyInviteLink(inviteId) {
+    const link = `${location.origin}/?invite=${inviteId}`;
+    try { await navigator.clipboard.writeText(link); this.toast(this.t('linkCopied')); }
+    catch { prompt(this.t('copyLink'), link); }
+  },
+
+  async cancelInvite(inviteId) {
+    const { error } = await db.from('team_invites').delete().eq('id', inviteId);
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    await this.loadTeams();
+    this.renderContent();
+  },
+
+  async leaveTeam(teamId) {
+    if (!confirm(this.t('leaveConfirm'))) return;
+    const { error } = await db.rpc('leave_team', { t: teamId });
+    if (error) { this.toast('Erreur : ' + error.message); return; }
+    localStorage.removeItem('gustos_plan_' + teamId);
+    localStorage.removeItem('gustos_shopping_' + teamId);
+    localStorage.removeItem('gustos_portions_' + teamId);
+    await this.loadTeams();
+    if (this.planScope === teamId) {
+      this.planScope = 'perso'; localStorage.setItem('gustos_plan_scope', 'perso');
+      this.plan = {}; this.shopping = []; this.planPortions = {};
+      await this.loadPlan();
+      this.subscribeTeamPlan();
+    }
+    this.toast(this.t('teamLeft'));
+    this.renderContent();
+  },
+
+  async checkPendingInvite() {
+    const token = localStorage.getItem('gustos_pending_invite');
+    if (!token || !this.user) return;
+    const { data: info, error } = await db.rpc('get_invite_info', { invite_token: token });
+    if (error) return; // erreur réseau : on retentera à la prochaine session
+    if (!info || info.accepted) {
+      localStorage.removeItem('gustos_pending_invite');
+      this.toast(this.t('inviteInvalid'));
+      return;
+    }
+    if (info.already_member) {
+      localStorage.removeItem('gustos_pending_invite');
+      this.toast(this.t('alreadyMemberNote'));
+      return;
+    }
+    this.showInviteModal(token, info);
+  },
+
+  showInviteModal(token, info) {
+    document.getElementById('invite-modal')?.remove();
+    const div = document.createElement('div');
+    div.id = 'invite-modal'; div.className = 'wall-overlay';
+    div.innerHTML = `<div class="wall-modal">
+      <img src="Images/gustos-logo-transparent-background.png" alt="" class="wall-mascot">
+      <h3>${this.t('inviteModalTitle')}</h3>
+      <p>${this.t('inviteModalText', this.escHtml(info.inviter), this.escHtml(info.team_name))}</p>
+      <button class="btn-primary btn-full" id="invite-accept">${this.t('acceptInvite')}</button>
+      <button class="btn-ghost" id="invite-decline">${this.t('declineInvite')}</button>
+    </div>`;
+    document.body.appendChild(div);
+    div.addEventListener('click', async e => {
+      if (e.target === div || e.target.closest('#invite-decline')) {
+        localStorage.removeItem('gustos_pending_invite'); div.remove(); return;
+      }
+      if (e.target.closest('#invite-accept')) {
+        const btn = div.querySelector('#invite-accept');
+        btn.disabled = true; btn.textContent = this.t('loading');
+        const { data, error } = await db.rpc('accept_team_invite', { invite_token: token });
+        localStorage.removeItem('gustos_pending_invite');
+        div.remove();
+        if (error) { this.toast(this.t('inviteInvalid')); return; }
+        await this.loadTeams();
+        this.planScope = data.team_id; localStorage.setItem('gustos_plan_scope', data.team_id);
+        this.plan = {}; this.shopping = []; this.planPortions = {};
+        await this.loadPlan();
+        this.subscribeTeamPlan();
+        this.toast(this.t('inviteAccepted', data.team_name));
+        this.nav('planning');
+      }
+    });
+  },
+
+  renderTeamModal() {
+    return `<div class="picker-overlay" id="team-overlay">
+      <div class="picker-modal team-modal">
+        <div class="picker-head">
+          <h3>${this.t('teamsTitle')}</h3>
+          <button class="picker-close-btn" id="btn-close-team">✕</button>
+        </div>
+        <div class="team-modal-body">
+          <p class="team-intro">${this.t('teamModalIntro')}</p>
+          ${this.teams.map(t => this.renderTeamCard(t)).join('')}
+          <div class="team-create-card">
+            <div class="team-create-lbl">${this.t('createTeamLbl')}</div>
+            <div class="team-create-row">
+              <input type="text" id="new-team-name" maxlength="50" placeholder="${this.t('teamNamePh')}" autocomplete="off">
+              <button class="btn-primary btn-sm" id="btn-create-team">${this.t('createTeamBtn')}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  renderTeamCard(t) {
+    const members = t.members || [], invites = t.invites || [];
+    return `<div class="team-card">
+      <div class="team-card-head">
+        <span class="team-card-name">👥 ${this.escHtml(t.name)}</span>
+        <span class="team-card-count">${this.t('membersLbl', members.length)}</span>
+      </div>
+      <div class="team-members">
+        ${members.map(m => {
+          const name = m.username || (m.email || '').split('@')[0] || '?';
+          const me = m.id === this.user?.id;
+          return `<span class="team-member-chip${me ? ' me' : ''}"><span class="member-initial">${this.escHtml(name[0].toUpperCase())}</span>${this.escHtml(name)}${me ? ` ${this.t('youLbl')}` : ''}</span>`;
+        }).join('')}
+      </div>
+      ${invites.length ? `<div class="team-pending-lbl">${this.t('pendingLbl')}</div>
+      <div class="team-pending">
+        ${invites.map(i => `<div class="team-pending-row">
+          <span class="pending-email">✉️ ${this.escHtml(i.email)}</span>
+          <button class="btn-ghost btn-invite-action" data-copy-invite="${i.id}" title="${this.t('copyLink')}">🔗</button>
+          <button class="btn-ghost btn-invite-action" data-cancel-invite="${i.id}" title="${this.t('cancelInvite')}">✕</button>
+        </div>`).join('')}
+      </div>` : ''}
+      <div class="team-invite-row">
+        <input type="email" class="team-invite-input" data-invite-input="${t.id}" placeholder="${this.t('invitePh')}" autocomplete="off">
+        <button class="btn-primary btn-sm" data-invite-send="${t.id}">${this.t('inviteBtn')}</button>
+      </div>
+      <button class="btn-leave-team" data-leave-team="${t.id}">${this.t('leaveTeam')}</button>
+    </div>`;
   },
 
   addToPlan(date, meal, recipeId) {
@@ -2615,11 +3028,18 @@ const App = {
     const manualItems = this.shopping.filter(i => i.manual);
     const total = this.shopping.length;
     const checked = this.shopping.filter(i => i.checked).length;
+    const scopeBar = this.user ? `<div class="plan-scope-bar">
+        <button class="scope-chip${this.planScope === 'perso' ? ' active' : ''}" data-scope="perso">${this.t('scopePerso')}</button>
+        ${this.teams.map(t => `<button class="scope-chip${this.planScope === t.id ? ' active' : ''}" data-scope="${t.id}">👥 ${this.escHtml(t.name)}</button>`).join('')}
+        <button class="scope-chip scope-chip-manage" id="btn-team-modal">⚙ ${this.t('teamBtn')}</button>
+      </div>` : '';
     return `<div class="view-planner">
       <div class="planner-topbar">
         <button class="btn-ghost" id="btn-back-planner">${this.t('back')}</button>
         <h2 class="planner-title">📅 ${this.t('plannerTitle')}</h2>
       </div>
+      ${scopeBar}
+      ${this.currentTeam() ? `<p class="team-shared-note">${this.t('teamPlanShared', this.escHtml(this.currentTeam().name))}</p>` : ''}
       <div class="week-nav-bar">
         <button class="btn-week-nav" data-goto-week="${prevW}">←</button>
         <span class="week-label">${this.formatWeekLabel(this.planWeek)}</span>
@@ -2678,6 +3098,7 @@ const App = {
         </div>
       </div>
       ${this.pickerOpen ? this.renderRecipePicker() : ''}
+      ${this.teamModalOpen ? this.renderTeamModal() : ''}
     </div>`;
   },
 
