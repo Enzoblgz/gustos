@@ -1,15 +1,27 @@
-// Envoi de l'email d'invitation team via Resend.
-// Env vars Vercel requises : RESEND_API_KEY (+ optionnel RESEND_FROM).
+// Edge Function Supabase : envoi de l'email d'invitation team via Resend.
+// Remplace l'ancienne fonction Vercel (le site est hébergé sur GitHub Pages, statique).
+//
+// Déploiement : supabase functions deploy send-invite --project-ref bafdwjwdtadpxqnbtpas
+// Secrets     : supabase secrets set RESEND_API_KEY=re_xxx [RESEND_FROM="Gustos <invitations@...>"] [SITE_URL=https://enzoblgz.github.io/gustos]
+//
 // Sans RESEND_API_KEY → 501 : le front bascule sur le lien copiable.
 // Sécurité : on lit l'invitation avec le JWT de l'appelant → la RLS
 // garantit qu'il est bien membre de la team, aucun service role nécessaire.
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://bafdwjwdtadpxqnbtpas.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhZmR3andkdGFkcHhxbmJ0cGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4ODQzNDcsImV4cCI6MjA5NzQ2MDM0N30.TNC0FVxMoNI1qpLIJ0Pb1Qu2-gY2ks9fAQYH9Gzhc30';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
 
-function inviteEmailHtml({ teamName, inviter, link }) {
+const json = (status: number, body: unknown) =>
+  new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+
+const esc = (s: unknown) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function inviteEmailHtml({ teamName, inviter, link }: { teamName: string; inviter: string; link: string }) {
   return `<!DOCTYPE html>
 <html lang="fr"><body style="margin:0;padding:0;background:#FEFAF5;font-family:Georgia,serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FEFAF5;padding:32px 16px;">
@@ -48,40 +60,46 @@ function inviteEmailHtml({ teamName, inviter, link }) {
 </body></html>`;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method !== 'POST') return json(405, { error: 'Method not allowed' });
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return res.status(501).json({ error: 'email_not_configured' });
+  const apiKey = Deno.env.get('RESEND_API_KEY');
+  if (!apiKey) return json(501, { error: 'email_not_configured' });
 
-  const jwt = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  if (!jwt) return res.status(401).json({ error: 'Missing authorization' });
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) return json(401, { error: 'Missing authorization' });
 
-  const { inviteId } = req.body || {};
-  if (!inviteId || !/^[0-9a-f-]{36}$/i.test(inviteId)) return res.status(400).json({ error: 'Invalid inviteId' });
+  let inviteId = '', origin = '';
+  try { ({ inviteId, origin } = await req.json()); } catch { /* ignore */ }
+  if (!inviteId || !/^[0-9a-f-]{36}$/i.test(inviteId)) return json(400, { error: 'Invalid inviteId' });
 
-  // Lecture de l'invitation avec le JWT de l'appelant — la RLS vérifie l'appartenance à la team
-  const sbHeaders = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${jwt}` };
-  const inviteRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/team_invites?id=eq.${inviteId}&select=id,email,accepted_at,teams(name),profiles!team_invites_invited_by_fkey(username,email)`,
-    { headers: sbHeaders }
+  // Lecture avec le JWT de l'appelant — la RLS vérifie l'appartenance à la team
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    { global: { headers: { Authorization: authHeader } } }
   );
-  if (!inviteRes.ok) return res.status(502).json({ error: 'Supabase error' });
-  const rows = await inviteRes.json();
-  const invite = rows[0];
-  if (!invite) return res.status(404).json({ error: 'Invitation introuvable' });
-  if (invite.accepted_at) return res.status(409).json({ error: 'Invitation déjà utilisée' });
+  const { data: invite, error } = await supabase
+    .from('team_invites')
+    .select('id,email,accepted_at,teams(name),profiles!team_invites_invited_by_fkey(username,email)')
+    .eq('id', inviteId)
+    .maybeSingle();
+  if (error) return json(502, { error: 'Supabase error: ' + error.message });
+  if (!invite) return json(404, { error: 'Invitation introuvable' });
+  if (invite.accepted_at) return json(409, { error: 'Invitation déjà utilisée' });
 
-  const origin = req.headers.origin || `https://${req.headers.host}`;
-  const link = `${origin}/?invite=${invite.id}`;
-  const teamName = invite.teams?.name || 'Gustos';
-  const inviter = invite.profiles?.username || (invite.profiles?.email || '').split('@')[0] || 'Un membre';
+  const site = (Deno.env.get('SITE_URL') || origin || 'https://enzoblgz.github.io/gustos').replace(/\/+$/, '');
+  const link = `${site}/?invite=${invite.id}`;
+  const teamName = (invite.teams as { name?: string } | null)?.name || 'Gustos';
+  const inviterProfile = invite.profiles as { username?: string; email?: string } | null;
+  const inviter = inviterProfile?.username || (inviterProfile?.email || '').split('@')[0] || 'Un membre';
 
   const sendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM || 'Gustos <onboarding@resend.dev>',
+      from: Deno.env.get('RESEND_FROM') || 'Gustos <onboarding@resend.dev>',
       to: [invite.email],
       subject: `${inviter} t'invite à rejoindre la team ${teamName} sur Gustos`,
       html: inviteEmailHtml({ teamName, inviter, link }),
@@ -91,7 +109,7 @@ export default async function handler(req, res) {
   if (!sendRes.ok) {
     const detail = await sendRes.text().catch(() => '');
     console.error('[send-invite] Resend error', sendRes.status, detail);
-    return res.status(502).json({ error: 'send_failed' });
+    return json(502, { error: 'send_failed' });
   }
-  return res.status(200).json({ ok: true });
-}
+  return json(200, { ok: true });
+});
