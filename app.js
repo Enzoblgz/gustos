@@ -225,6 +225,8 @@ const TR = {
     inviteSent: '💌 Invitation envoyée par email !',
     inviteLinkOnly: 'Invitation créée — l\'email n\'est pas parti, copie le lien 🔗 pour l\'envoyer toi-même.',
     inviteBadEmail: 'Email invalide.',
+    shareInviteText: team => `Rejoins ma team « ${team} » sur Gustos — planning des repas et liste de courses partagés !`,
+    inviteLinkCopied: email => `Lien copié ! Envoie-le à ${email}`,
     pendingLbl: 'Invitations en attente', copyLink: 'Copier le lien', linkCopied: 'Lien copié !',
     cancelInvite: 'Annuler l\'invitation',
     leaveTeam: 'Quitter la team',
@@ -330,6 +332,8 @@ const TR = {
     inviteSent: '💌 Invitation sent by email!',
     inviteLinkOnly: 'Invitation created — the email failed, copy the 🔗 link to send it yourself.',
     inviteBadEmail: 'Invalid email.',
+    shareInviteText: team => `Join my team “${team}” on Gustos — shared meal planner and shopping list!`,
+    inviteLinkCopied: email => `Link copied! Send it to ${email}`,
     pendingLbl: 'Pending invitations', copyLink: 'Copy link', linkCopied: 'Link copied!',
     cancelInvite: 'Cancel invitation',
     leaveTeam: 'Leave team',
@@ -435,6 +439,8 @@ const TR = {
     inviteSent: '💌 ¡Invitación enviada por email!',
     inviteLinkOnly: 'Invitación creada — el email falló, copia el enlace 🔗 para enviarlo tú mismo.',
     inviteBadEmail: 'Email inválido.',
+    shareInviteText: team => `¡Únete a mi team «${team}» en Gustos — planificador de comidas y lista de la compra compartidos!`,
+    inviteLinkCopied: email => `¡Enlace copiado! Envíaselo a ${email}`,
     pendingLbl: 'Invitaciones pendientes', copyLink: 'Copiar enlace', linkCopied: '¡Enlace copiado!',
     cancelInvite: 'Cancelar invitación',
     leaveTeam: 'Salir del team',
@@ -540,6 +546,8 @@ const TR = {
     inviteSent: '💌 Invito inviato via email!',
     inviteLinkOnly: 'Invito creato — l\'email non è partita, copia il link 🔗 per inviarlo tu stesso.',
     inviteBadEmail: 'Email non valida.',
+    shareInviteText: team => `Unisciti al mio team «${team}» su Gustos — planning dei pasti e lista della spesa condivisi!`,
+    inviteLinkCopied: email => `Link copiato! Invialo a ${email}`,
     pendingLbl: 'Inviti in sospeso', copyLink: 'Copia link', linkCopied: 'Link copiato!',
     cancelInvite: 'Annulla invito',
     leaveTeam: 'Lascia il team',
@@ -645,6 +653,8 @@ const TR = {
     inviteSent: '💌 Einladung per E-Mail gesendet!',
     inviteLinkOnly: 'Einladung erstellt — die E-Mail schlug fehl, kopiere den 🔗 Link und sende ihn selbst.',
     inviteBadEmail: 'Ungültige E-Mail.',
+    shareInviteText: team => `Tritt meinem Team „${team}“ auf Gustos bei — gemeinsamer Essensplan und gemeinsame Einkaufsliste!`,
+    inviteLinkCopied: email => `Link kopiert! Sende ihn an ${email}`,
     pendingLbl: 'Ausstehende Einladungen', copyLink: 'Link kopieren', linkCopied: 'Link kopiert!',
     cancelInvite: 'Einladung stornieren',
     leaveTeam: 'Team verlassen',
@@ -1950,7 +1960,12 @@ const App = {
     document.querySelectorAll('[data-invite-input]').forEach(inp => inp.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); document.querySelector(`[data-invite-send="${inp.dataset.inviteInput}"]`)?.click(); }
     }));
-    document.querySelectorAll('[data-copy-invite]').forEach(btn => btn.addEventListener('click', () => this.copyInviteLink(btn.dataset.copyInvite)));
+    document.querySelectorAll('[data-copy-invite]').forEach(btn => btn.addEventListener('click', () => {
+      const id = btn.dataset.copyInvite;
+      const team = this.teams.find(t => (t.invites || []).some(i => i.id === id));
+      const inv = (team?.invites || []).find(i => i.id === id);
+      this.shareInvite(id, team?.name || 'Gustos', inv?.email);
+    }));
     document.querySelectorAll('[data-cancel-invite]').forEach(btn => btn.addEventListener('click', () => this.cancelInvite(btn.dataset.cancelInvite)));
     document.querySelectorAll('[data-leave-team]').forEach(btn => btn.addEventListener('click', () => this.leaveTeam(btn.dataset.leaveTeam)));
 
@@ -2714,9 +2729,12 @@ const App = {
       .insert({ team_id: teamId, email, invited_by: this.user.id })
       .select('id').single();
     if (error) { this.toast('Erreur : ' + error.message); return; }
+    // Flow principal : partage du lien (WhatsApp/SMS/mail au choix).
+    // L'email automatique reste tenté en arrière-plan — actif seulement si RESEND_API_KEY est configurée côté Supabase.
+    this.sendInviteEmail(data.id).then(sent => { if (sent) this.toast(this.t('inviteSent')); });
+    const team = this.teams.find(t => t.id === teamId);
+    await this.shareInvite(data.id, team?.name || 'Gustos', email);
     await this.loadTeams();
-    const sent = await this.sendInviteEmail(data.id);
-    this.toast(sent ? this.t('inviteSent') : this.t('inviteLinkOnly'));
   },
 
   // Base du site sans perdre le sous-chemin (GitHub Pages sert sous /gustos/)
@@ -2733,10 +2751,16 @@ const App = {
     } catch { return false; }
   },
 
-  async copyInviteLink(inviteId) {
+  // Partage natif (mobile : WhatsApp/SMS/mail) avec repli copie presse-papiers (desktop)
+  async shareInvite(inviteId, teamName, email) {
     const link = `${this._siteBase()}/?invite=${inviteId}`;
-    try { await navigator.clipboard.writeText(link); this.toast(this.t('linkCopied')); }
-    catch { prompt(this.t('copyLink'), link); }
+    if (navigator.share) {
+      try { await navigator.share({ text: `${this.t('shareInviteText', teamName)}\n${link}` }); return; } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(link);
+      this.toast(email ? this.t('inviteLinkCopied', email) : this.t('linkCopied'));
+    } catch { prompt(this.t('copyLink'), link); }
   },
 
   async cancelInvite(inviteId) {
