@@ -240,6 +240,9 @@ const TR = {
     inviteAuthNote: '💌 Tu as une invitation team en attente — connecte-toi ou crée un compte pour l\'accepter.',
     alreadyMemberNote: 'Tu fais déjà partie de cette team.',
     teamPlanShared: name => `Planning et liste de courses partagés avec la team ${name} — les modifications de chacun sont visibles par tous.`,
+    customMealPh: 'Repas libre — ex : Restes, resto…', customMealAdd: 'Ajouter',
+    customMealHint: 'Un repas libre n\'ajoute rien à la liste de courses.',
+    footerContact: 'Contact', footerMade: 'Fait avec ❤️ par Enzo',
     authErrCredentials: 'Email ou mot de passe incorrect.',
     authErrConfirm: 'Confirme ton email avant de te connecter.',
     authErrExists: 'Un compte existe déjà avec cet email.',
@@ -347,6 +350,9 @@ const TR = {
     inviteAuthNote: '💌 You have a pending team invitation — sign in or create an account to accept it.',
     alreadyMemberNote: 'You are already a member of this team.',
     teamPlanShared: name => `Planner and shopping list shared with the team ${name} — everyone sees everyone's changes.`,
+    customMealPh: 'Custom meal — e.g. Leftovers, restaurant…', customMealAdd: 'Add',
+    customMealHint: 'A custom meal adds nothing to the shopping list.',
+    footerContact: 'Contact', footerMade: 'Made with ❤️ by Enzo',
     authErrCredentials: 'Incorrect email or password.',
     authErrConfirm: 'Confirm your email before signing in.',
     authErrExists: 'An account already exists with this email.',
@@ -454,6 +460,9 @@ const TR = {
     inviteAuthNote: '💌 Tienes una invitación de team pendiente — inicia sesión o crea una cuenta para aceptarla.',
     alreadyMemberNote: 'Ya formas parte de este team.',
     teamPlanShared: name => `Planificador y lista de la compra compartidos con el team ${name} — todos ven los cambios de todos.`,
+    customMealPh: 'Comida libre — ej: Sobras, restaurante…', customMealAdd: 'Añadir',
+    customMealHint: 'Una comida libre no añade nada a la lista de la compra.',
+    footerContact: 'Contacto', footerMade: 'Hecho con ❤️ por Enzo',
     authErrCredentials: 'Email o contraseña incorrectos.',
     authErrConfirm: 'Confirma tu email antes de iniciar sesión.',
     authErrExists: 'Ya existe una cuenta con este email.',
@@ -561,6 +570,9 @@ const TR = {
     inviteAuthNote: '💌 Hai un invito team in sospeso — accedi o crea un account per accettarlo.',
     alreadyMemberNote: 'Fai già parte di questo team.',
     teamPlanShared: name => `Planning e lista della spesa condivisi con il team ${name} — tutti vedono le modifiche di tutti.`,
+    customMealPh: 'Pasto libero — es: Avanzi, ristorante…', customMealAdd: 'Aggiungi',
+    customMealHint: 'Un pasto libero non aggiunge nulla alla lista della spesa.',
+    footerContact: 'Contatto', footerMade: 'Fatto con ❤️ da Enzo',
     authErrCredentials: 'Email o password non corretti.',
     authErrConfirm: 'Conferma la tua email prima di accedere.',
     authErrExists: 'Esiste già un account con questa email.',
@@ -668,6 +680,9 @@ const TR = {
     inviteAuthNote: '💌 Du hast eine ausstehende Team-Einladung — melde dich an oder erstelle ein Konto, um sie anzunehmen.',
     alreadyMemberNote: 'Du bist bereits Mitglied dieses Teams.',
     teamPlanShared: name => `Essensplan und Einkaufsliste mit dem Team ${name} geteilt — alle sehen die Änderungen aller.`,
+    customMealPh: 'Freie Mahlzeit — z.B. Reste, Restaurant…', customMealAdd: 'Hinzufügen',
+    customMealHint: 'Eine freie Mahlzeit fügt der Einkaufsliste nichts hinzu.',
+    footerContact: 'Kontakt', footerMade: 'Mit ❤️ gemacht von Enzo',
     authErrCredentials: 'Falsche E-Mail oder falsches Passwort.',
     authErrConfirm: 'Bestätige deine E-Mail bevor du dich anmeldest.',
     authErrExists: 'Ein Konto mit dieser E-Mail existiert bereits.',
@@ -994,8 +1009,22 @@ const App = {
     const app = document.getElementById('app');
     if (this.view === 'loading') { app.innerHTML = this.renderLoading(); return; }
     if (this.view === 'auth') { app.innerHTML = this.renderAuth(); this.bindAuthEvents(); return; }
-    app.innerHTML = this.renderHeader() + '<main>' + this.renderView() + '</main>';
+    app.innerHTML = this.renderHeader() + '<main>' + this.renderView() + '</main>' + this.renderFooter();
     this.bindHeader(); this.bindContent();
+  },
+
+  renderFooter() {
+    return `<footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="Images/gustos-logo-transparent-background.png" alt="Gustos" class="footer-mascot">
+          <span class="footer-name">Gustos</span>
+        </div>
+        <p class="footer-tagline">${this.t('appSubtitle')}</p>
+        <a href="mailto:enzo.bellenguez@gmail.com" class="footer-contact">✉️ ${this.t('footerContact')} — enzo.bellenguez@gmail.com</a>
+        <p class="footer-copy">© ${new Date().getFullYear()} Gustos · ${this.t('footerMade')}</p>
+      </div>
+    </footer>`;
   },
   renderContent() {
     const main = document.querySelector('#app main');
@@ -1915,6 +1944,38 @@ const App = {
     document.querySelectorAll('[data-pick]').forEach(btn => btn.addEventListener('click', () => {
       if (this.pickerOpen) { this.addToPlan(this.pickerOpen.date, this.pickerOpen.meal, btn.dataset.pick); this.pickerOpen = null; this.pickerQuery = ''; this.renderContent(); }
     }));
+    // Repas libre (texte court, sans impact sur la liste de courses)
+    const addCustomMeal = () => {
+      const input = document.getElementById('picker-custom-input');
+      const label = input?.value?.trim();
+      if (!label || !this.pickerOpen) return;
+      this.addToPlan(this.pickerOpen.date, this.pickerOpen.meal, 'txt:' + label);
+      this.pickerOpen = null; this.pickerQuery = ''; this.renderContent();
+    };
+    document.getElementById('btn-picker-custom')?.addEventListener('click', addCustomMeal);
+    document.getElementById('picker-custom-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addCustomMeal(); } });
+    // Drag & drop des repas entre jours/slots
+    document.querySelectorAll('.plan-chip[draggable]').forEach(chip => {
+      chip.addEventListener('dragstart', e => {
+        this._dragMeal = { id: chip.dataset.dragId, date: chip.dataset.dragDate, meal: chip.dataset.dragMeal };
+        chip.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', chip.dataset.dragId); } catch {}
+      });
+      chip.addEventListener('dragend', () => {
+        chip.classList.remove('dragging');
+        document.querySelectorAll('.planner-meal.drop-over').forEach(el => el.classList.remove('drop-over'));
+        this._dragMeal = null;
+      });
+    });
+    document.querySelectorAll('.planner-meal[data-drop-date]').forEach(zone => {
+      zone.addEventListener('dragover', e => { if (this._dragMeal) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; zone.classList.add('drop-over'); } });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drop-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drop-over');
+        if (this._dragMeal) this.moveMeal(this._dragMeal, zone.dataset.dropDate, zone.dataset.dropMeal);
+      });
+    });
     // Shopping list
     document.querySelectorAll('[data-check-item]').forEach(btn => btn.addEventListener('click', () => this.toggleShoppingItem(btn.dataset.checkItem)));
     document.querySelectorAll('[data-del-item]').forEach(btn => btn.addEventListener('click', () => this.removeShoppingItem(btn.dataset.delItem)));
@@ -2892,13 +2953,18 @@ const App = {
     </div>`;
   },
 
+  // Un repas libre est stocké comme 'txt:<label>' dans le slot — ignoré par la liste de courses
+  isCustomMeal(id) { return typeof id === 'string' && id.startsWith('txt:'); },
+
   addToPlan(date, meal, recipeId) {
     if (!this.plan[date]) this.plan[date] = { lunch: [], dinner: [] };
     if (!this.plan[date][meal]) this.plan[date][meal] = [];
     if (!this.plan[date][meal].includes(recipeId)) {
       this.plan[date][meal].push(recipeId);
-      const r = Store.byId(recipeId);
-      this.planPortions[`${date}|${meal}|${recipeId}`] = r?.basePeople || 4;
+      if (!this.isCustomMeal(recipeId)) {
+        const r = Store.byId(recipeId);
+        this.planPortions[`${date}|${meal}|${recipeId}`] = r?.basePeople || 4;
+      }
     }
     this.generateShoppingList(); this.savePlan();
   },
@@ -2906,6 +2972,19 @@ const App = {
     if (this.plan[date]?.[meal]) this.plan[date][meal] = this.plan[date][meal].filter(id => id !== recipeId);
     delete this.planPortions[`${date}|${meal}|${recipeId}`];
     this.generateShoppingList(); this.savePlan();
+  },
+  moveMeal(src, date, meal) {
+    if (src.date === date && src.meal === meal) return;
+    const list = this.plan[src.date]?.[src.meal];
+    if (!list || !list.includes(src.id)) return;
+    if (!this.plan[date]) this.plan[date] = { lunch: [], dinner: [] };
+    if (!this.plan[date][meal]) this.plan[date][meal] = [];
+    if (this.plan[date][meal].includes(src.id)) return; // déjà présent dans le slot cible
+    this.plan[src.date][src.meal] = list.filter(i => i !== src.id);
+    this.plan[date][meal].push(src.id);
+    const oldKey = `${src.date}|${src.meal}|${src.id}`, newKey = `${date}|${meal}|${src.id}`;
+    if (this.planPortions[oldKey] != null) { this.planPortions[newKey] = this.planPortions[oldKey]; delete this.planPortions[oldKey]; }
+    this.generateShoppingList(); this.savePlan(); this.renderContent();
   },
 
   exportShoppingPDF() {
@@ -3082,11 +3161,11 @@ const App = {
               <span class="day-name">${DAY_SHORT[i]}</span>
               <span class="day-date">${dayNum}</span>
             </div>
-            <div class="planner-meal">
+            <div class="planner-meal" data-drop-date="${date}" data-drop-meal="lunch">
               <div class="meal-label">${this.t('lunch')}</div>
               ${this.renderMealSlots(date, 'lunch', slots.lunch || [])}
             </div>
-            <div class="planner-meal">
+            <div class="planner-meal" data-drop-date="${date}" data-drop-meal="dinner">
               <div class="meal-label">${this.t('dinner')}</div>
               ${this.renderMealSlots(date, 'dinner', slots.dinner || [])}
             </div>
@@ -3130,12 +3209,19 @@ const App = {
 
   renderMealSlots(date, meal, ids) {
     return (ids || []).map(id => {
+      if (this.isCustomMeal(id)) {
+        return `<div class="plan-chip plan-chip-custom" draggable="true" data-drag-id="${this.escHtml(id)}" data-drag-date="${date}" data-drag-meal="${meal}">
+          <div class="chip-thumb chip-thumb-custom"><span>✏️</span></div>
+          <span class="chip-name-txt">${this.escHtml(id.slice(4))}</span>
+          <button class="chip-del" data-rm-date="${date}" data-rm-meal="${meal}" data-rm-id="${this.escHtml(id)}">✕</button>
+        </div>`;
+      }
       const r = Store.byId(id);
       if (!r) return '';
       const cover = this.getCover(r);
       const emoji = CAT_EMOJI[r.category] || '🍴';
       const portions = this.planPortions[`${date}|${meal}|${id}`] || r.basePeople || 4;
-      return `<div class="plan-chip">
+      return `<div class="plan-chip" draggable="true" data-drag-id="${id}" data-drag-date="${date}" data-drag-meal="${meal}">
         <div class="chip-thumb">${cover ? `<img src="${cover}" loading="lazy">` : `<span>${emoji}</span>`}</div>
         <button class="chip-name-btn" data-open-recipe="${id}" data-open-portions="${portions}" title="${this.t('viewRecipeTip')}">${this.escHtml(r.name)}</button>
         <div class="chip-portions">
@@ -3228,6 +3314,11 @@ const App = {
           <input type="text" class="picker-search" id="picker-search" placeholder="Rechercher une recette…" value="${this.escHtml(this.pickerQuery||'')}">
           ${this.pickerQuery ? `<button class="picker-search-clear" id="btn-picker-clear">✕</button>` : ''}
         </div>
+        <div class="picker-custom-row">
+          <input type="text" id="picker-custom-input" maxlength="60" placeholder="${this.t('customMealPh')}" autocomplete="off">
+          <button class="btn-secondary btn-sm" id="btn-picker-custom">${this.t('customMealAdd')}</button>
+        </div>
+        <p class="picker-custom-hint">${this.t('customMealHint')}</p>
         <div class="picker-tabs">
           ${mkTab('all', 'Toutes', all.length)}
           ${mkTab('liked', '❤️ Aimées', likedCount)}
