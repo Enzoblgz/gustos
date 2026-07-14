@@ -2719,20 +2719,22 @@ const App = {
     this.toast(sent ? this.t('inviteSent') : this.t('inviteLinkOnly'));
   },
 
+  // Base du site sans perdre le sous-chemin (GitHub Pages sert sous /gustos/)
+  _siteBase() {
+    return (location.origin + location.pathname.replace(/index\.html$/, '')).replace(/\/+$/, '');
+  },
+
   async sendInviteEmail(inviteId) {
     try {
-      const { data: { session } } = await db.auth.getSession();
-      const res = await fetch('/api/send-invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
-        body: JSON.stringify({ inviteId }),
+      const { data, error } = await db.functions.invoke('send-invite', {
+        body: { inviteId, origin: this._siteBase() },
       });
-      return res.ok;
+      return !error && data?.ok === true;
     } catch { return false; }
   },
 
   async copyInviteLink(inviteId) {
-    const link = `${location.origin}/?invite=${inviteId}`;
+    const link = `${this._siteBase()}/?invite=${inviteId}`;
     try { await navigator.clipboard.writeText(link); this.toast(this.t('linkCopied')); }
     catch { prompt(this.t('copyLink'), link); }
   },
