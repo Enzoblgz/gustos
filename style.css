@@ -3070,3 +3070,95 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
 @media (max-width: 700px) {
   .btn-signup-header { padding: 8px 14px; font-size: 0.82rem; }
 }
+
+/* ===== TEAMS ===== */
+.plan-scope-bar {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 0 0 14px; align-items: center;
+}
+.scope-chip {
+  padding: 8px 16px; border-radius: 50px;
+  border: 1.5px solid var(--cream-dark); background: var(--white);
+  font-family: var(--font-sans); font-size: 0.85rem; font-weight: 500;
+  color: var(--brown-light); cursor: pointer; transition: all 0.15s;
+  max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.scope-chip:hover { border-color: var(--terracotta-light); color: var(--brown); }
+.scope-chip.active {
+  background: var(--terracotta); border-color: var(--terracotta);
+  color: var(--white); font-weight: 600;
+}
+.scope-chip-manage { background: var(--cream); border-style: dashed; }
+.team-shared-note {
+  font-size: 0.8rem; color: var(--sage); margin: -6px 0 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.team-shared-note::before { content: '🔄'; }
+
+.team-modal { max-width: 480px; }
+.team-modal-body { padding: 14px 24px 24px; overflow-y: auto; }
+.team-intro { font-size: 0.85rem; color: var(--brown-light); line-height: 1.5; margin-bottom: 16px; }
+.team-card {
+  border: 1.5px solid var(--cream-dark); border-radius: var(--radius);
+  padding: 16px; margin-bottom: 14px; background: var(--cream);
+}
+.team-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.team-card-name { font-family: var(--font-serif); font-weight: 700; font-size: 1.05rem; color: var(--brown); }
+.team-card-count { font-size: 0.78rem; color: var(--brown-light); }
+.team-members { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.team-member-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px 4px 4px; border-radius: 50px;
+  background: var(--white); border: 1px solid var(--cream-dark);
+  font-size: 0.8rem; color: var(--brown);
+}
+.team-member-chip.me { border-color: var(--terracotta-light); background: var(--terracotta-bg); }
+.member-initial {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--terracotta); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 600;
+}
+.team-pending-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--brown-light); margin-bottom: 6px; }
+.team-pending { margin-bottom: 12px; }
+.team-pending-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: var(--radius-sm);
+  background: var(--white); margin-bottom: 4px;
+}
+.pending-email { flex: 1; font-size: 0.82rem; color: var(--brown-light); overflow: hidden; text-overflow: ellipsis; }
+.btn-invite-action { padding: 4px 8px; font-size: 0.85rem; border-radius: 8px; }
+.team-invite-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.team-invite-input {
+  flex: 1; min-width: 0; padding: 10px 14px;
+  border: 1.5px solid var(--cream-dark); border-radius: var(--radius-sm);
+  font-family: var(--font-sans); font-size: 0.88rem; color: var(--brown); background: var(--white);
+}
+.team-invite-input:focus { outline: none; border-color: var(--terracotta); }
+.btn-leave-team {
+  background: none; border: none; padding: 4px 0;
+  font-family: var(--font-sans); font-size: 0.78rem; color: #c0392b;
+  cursor: pointer; text-decoration: underline; opacity: 0.75;
+}
+.btn-leave-team:hover { opacity: 1; }
+.team-create-card {
+  border: 1.5px dashed var(--cream-dark); border-radius: var(--radius);
+  padding: 16px; background: var(--white);
+}
+.team-create-lbl { font-weight: 600; font-size: 0.9rem; color: var(--brown); margin-bottom: 10px; }
+.team-create-row { display: flex; gap: 8px; }
+.team-create-row input {
+  flex: 1; min-width: 0; padding: 10px 14px;
+  border: 1.5px solid var(--cream-dark); border-radius: var(--radius-sm);
+  font-family: var(--font-sans); font-size: 0.88rem; color: var(--brown);
+}
+.team-create-row input:focus { outline: none; border-color: var(--terracotta); }
+.auth-invite-note {
+  background: var(--terracotta-bg); border: 1px solid var(--terracotta-light);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-size: 0.85rem; color: var(--brown); line-height: 1.45; margin-bottom: 16px;
+}
+@media (max-width: 700px) {
+  .scope-chip { padding: 7px 13px; font-size: 0.8rem; }
+  .team-modal-body { padding: 12px 16px 18px; }
+}
