@@ -3162,3 +3162,64 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
   .scope-chip { padding: 7px 13px; font-size: 0.8rem; }
   .team-modal-body { padding: 12px 16px 18px; }
 }
+
+/* ===== REPAS LIBRES + DRAG & DROP PLANNING ===== */
+.plan-chip[draggable] { cursor: grab; }
+.plan-chip.dragging { opacity: 0.4; cursor: grabbing; }
+.planner-meal.drop-over {
+  background: var(--terracotta-bg);
+  border-radius: var(--radius-sm);
+  outline: 1.5px dashed var(--terracotta-light);
+  outline-offset: -1.5px;
+}
+.plan-chip-custom { background: var(--cream); }
+.chip-thumb-custom {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--cream-dark); font-size: 0.8rem;
+}
+.chip-name-txt {
+  flex: 1; min-width: 0;
+  font-size: 0.78rem; font-weight: 500; color: var(--brown);
+  font-style: italic;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.picker-custom-row {
+  display: flex; gap: 8px;
+  margin: 12px 20px 0;
+  flex-shrink: 0;
+}
+.picker-custom-row input {
+  flex: 1; min-width: 0; padding: 10px 14px;
+  border: 1.5px dashed var(--cream-dark); border-radius: var(--radius-sm);
+  font-family: var(--font-sans); font-size: 0.88rem; color: var(--brown);
+  background: var(--cream);
+}
+.picker-custom-row input:focus { outline: none; border-color: var(--terracotta); background: var(--white); }
+.picker-custom-hint {
+  margin: 6px 22px 0;
+  font-size: 0.72rem; color: var(--brown-light); opacity: 0.8;
+  flex-shrink: 0;
+}
+
+/* ===== FOOTER ===== */
+.site-footer {
+  margin-top: 56px;
+  border-top: 1px solid var(--cream-dark);
+  background: var(--white);
+}
+.footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 36px 24px 28px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; text-align: center;
+}
+.footer-brand { display: flex; align-items: center; gap: 8px; }
+.footer-mascot { width: 34px; height: 34px; object-fit: contain; }
+.footer-name { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--brown); }
+.footer-tagline { font-size: 0.82rem; color: var(--brown-light); max-width: 420px; }
+.footer-contact {
+  font-size: 0.85rem; color: var(--terracotta);
+  text-decoration: none; margin-top: 4px;
+}
+.footer-contact:hover { text-decoration: underline; }
+.footer-copy { font-size: 0.72rem; color: var(--brown-light); opacity: 0.7; margin-top: 8px; }
