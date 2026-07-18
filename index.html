@@ -2,29 +2,39 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gustos — redirection vers gustos.fr</title>
-  <meta http-equiv="refresh" content="0; url=https://gustos.fr">
-  <link rel="canonical" href="https://gustos.fr">
-  <meta name="robots" content="noindex">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gustos</title>
+  <meta name="description" content="Gustos — recettes partagées, planning des repas de la semaine et liste de courses automatique. Gratuit et sans pub.">
+  <meta name="theme-color" content="#C7522A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Gustos">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23C7522A'/><text x='16' y='23' font-family='Georgia,serif' font-size='21' font-weight='700' fill='white' text-anchor='middle'>G</text></svg>">
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Georgia, serif;
-      background: #FDF8F3;
-      color: #3D2B1F;
-      text-align: center;
-    }
-    a { color: #C7522A; }
-  </style>
-  <script>window.location.replace("https://gustos.fr");</script>
+  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <p>Gustos a déménagé — redirection vers <a href="https://gustos.fr">gustos.fr</a>…</p>
+  <div id="app"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js?v=25"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(e => console.warn('[SW]', e));
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          if (navigator.serviceWorker.controller) location.reload();
+        });
+      });
+    }
+  </script>
 </body>
 </html>
