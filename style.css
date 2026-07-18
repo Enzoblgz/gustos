@@ -3223,3 +3223,96 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
 }
 .footer-contact:hover { text-decoration: underline; }
 .footer-copy { font-size: 0.72rem; color: var(--brown-light); opacity: 0.7; margin-top: 8px; }
+
+/* ===== PWA : installation + navigation en mode app ===== */
+
+.footer-install {
+  margin-top: 10px;
+  border: 1.5px solid var(--terracotta);
+  color: var(--terracotta);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  transition: background 0.2s, color 0.2s;
+}
+.footer-install:hover { background: var(--terracotta); color: #fff; }
+
+/* Bannière d'installation */
+.install-banner {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 900;
+  display: flex; align-items: center; gap: 12px;
+  background: #fff;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  padding: 12px 14px;
+  animation: banner-in 0.35s ease;
+  max-width: 520px;
+  margin: 0 auto;
+}
+@keyframes banner-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.install-banner-logo { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+.install-banner-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.install-banner-txt strong { font-size: 0.9rem; color: var(--brown); }
+.install-banner-txt span { font-size: 0.78rem; color: var(--brown-light); line-height: 1.35; }
+.install-banner-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+/* Modal instructions iOS */
+.ios-install-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(44, 24, 16, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.ios-install-card {
+  background: var(--cream);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  padding: 28px 24px;
+  max-width: 380px;
+  text-align: center;
+  display: flex; flex-direction: column; gap: 14px; align-items: center;
+}
+.ios-install-logo { width: 64px; height: 64px; object-fit: contain; }
+.ios-install-card h3 { font-family: var(--font-serif); color: var(--brown); }
+.ios-install-card p { font-size: 0.9rem; color: var(--brown-light); line-height: 1.5; }
+
+/* Barre d'onglets en mode app installée (standalone) */
+.pwa-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 800;
+  display: none;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--cream-dark);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+}
+.pwa-nav button {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--brown-light);
+  padding: 6px 0 4px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+.pwa-nav button.active { color: var(--terracotta); background: var(--terracotta-bg); }
+.pwa-nav .pwa-nav-ico { font-size: 1.25rem; line-height: 1; }
+
+@media (max-width: 900px) {
+  .pwa-nav { display: flex; }
+  body.has-pwa-nav main { padding-bottom: 76px; }
+  body.has-pwa-nav .site-footer { padding-bottom: 76px; }
+  body.has-pwa-nav .install-banner { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}

@@ -207,6 +207,12 @@ const TR = {
     lunch: '☀️ Déjeuner', dinner: '🌙 Dîner',
     shoppingTitle: '🛒 Liste de courses', clearChecked: 'Supprimer cochés', refreshList: '↺ Actualiser',
     shoppingEmpty: 'Ajoute des repas dans le planning — la liste se génère automatiquement.',
+    installApp: '📲 Installer l\'application', installBannerTitle: 'Gustos sur ton écran d\'accueil',
+    installBannerSub: 'Planning et liste de courses toujours à portée de main, même hors connexion.',
+    installBtn: 'Installer', installLater: 'Plus tard', installDone: 'Gustos est installé !',
+    iosInstallTitle: 'Installer Gustos sur iPhone',
+    iosInstallSteps: 'Dans <strong>Safari</strong> : touche le bouton <strong>Partager</strong> <span style="font-size:1.1em">⎋</span> puis <strong>« Sur l\'écran d\'accueil »</strong>. Gustos s\'ouvrira comme une vraie app.',
+    navRecipes: 'Recettes', navPlanning: 'Planning', navCourses: 'Courses',
     shopGroupAuto: 'Ingrédients des recettes', shopGroupManual: 'Ajouts manuels',
     addItemPh: 'Ajouter un article…', addItemBtn: '+ Ajouter', newItemBadge: 'Nouveau',
     viewRecipeTip: 'Voir la recette', profileSaved: 'Profil mis à jour !',
@@ -317,6 +323,12 @@ const TR = {
     lunch: '☀️ Lunch', dinner: '🌙 Dinner',
     shoppingTitle: '🛒 Shopping list', clearChecked: 'Clear checked', refreshList: '↺ Refresh',
     shoppingEmpty: 'Add meals to the planner — the list generates automatically.',
+    installApp: '📲 Install the app', installBannerTitle: 'Gustos on your home screen',
+    installBannerSub: 'Meal plan and shopping list always at hand, even offline.',
+    installBtn: 'Install', installLater: 'Later', installDone: 'Gustos is installed!',
+    iosInstallTitle: 'Install Gustos on iPhone',
+    iosInstallSteps: 'In <strong>Safari</strong>: tap the <strong>Share</strong> button <span style="font-size:1.1em">⎋</span> then <strong>"Add to Home Screen"</strong>. Gustos will open like a real app.',
+    navRecipes: 'Recipes', navPlanning: 'Planner', navCourses: 'Shopping',
     shopGroupAuto: 'Recipe ingredients', shopGroupManual: 'Manual items',
     addItemPh: 'Add an item…', addItemBtn: '+ Add', newItemBadge: 'New',
     viewRecipeTip: 'View recipe', profileSaved: 'Profile updated!',
@@ -729,6 +741,29 @@ const App = {
         history.replaceState({}, '', url.pathname + url.search);
       }
     } catch {}
+    // Deep link PWA : ?view=planning ou ?view=courses (raccourcis d'app)
+    try {
+      const url = new URL(location.href);
+      const dl = url.searchParams.get('view');
+      if (dl === 'planning' || dl === 'courses') this._deepLink = dl;
+      if (dl || url.searchParams.has('source')) {
+        url.searchParams.delete('view');
+        url.searchParams.delete('source');
+        history.replaceState({}, '', url.pathname + (url.search || ''));
+      }
+    } catch {}
+    // Installation PWA (Android/desktop : événement natif ; iOS : instructions manuelles)
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      this._installEvt = e;
+      this.updatePwaUi();
+    });
+    window.addEventListener('appinstalled', () => {
+      this._installEvt = null;
+      localStorage.setItem('gustos_installed', '1');
+      this.toast(this.t('installDone'));
+      this.updatePwaUi();
+    });
     this.loadPlanLocal();
     // Tooltip global épingle — créé une fois, attaché au body (hors overflow:hidden)
     const _tip = document.createElement('div');
@@ -788,8 +823,136 @@ const App = {
     }
     // Check for post-reload instruction (e.g. after profile save)
     this.view = 'list'; this.render();
+    this.applyDeepLink();
     this.subscribeTeamPlan();
     this.checkPendingInvite().catch(e => console.warn('[Invite]', e));
+  },
+
+  // ---- PWA : deep links, installation, navigation app ----
+  applyDeepLink() {
+    const dl = this._deepLink;
+    if (!dl || !this.user) { this._deepLink = null; return; }
+    this._deepLink = null;
+    this._pwaTab = dl === 'courses' ? 'courses' : 'planning';
+    this.nav('planning');
+    if (dl === 'courses') this.scrollToShopping();
+  },
+
+  scrollToShopping() {
+    requestAnimationFrame(() => {
+      document.querySelector('.shopping-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  },
+
+  isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  },
+
+  isIos() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  },
+
+  canInstall() {
+    return !this.isStandalone() && (!!this._installEvt || this.isIos());
+  },
+
+  async promptInstall() {
+    if (this._installEvt) {
+      const evt = this._installEvt;
+      this._installEvt = null;
+      evt.prompt();
+      try { await evt.userChoice; } catch {}
+      this.updatePwaUi();
+    } else if (this.isIos()) {
+      this.showIosModal();
+    }
+  },
+
+  showIosModal() {
+    document.getElementById('ios-install-modal')?.remove();
+    const m = document.createElement('div');
+    m.id = 'ios-install-modal';
+    m.className = 'ios-install-overlay';
+    m.innerHTML = `<div class="ios-install-card">
+      <img src="Images/gustos-logo-transparent-background.png" alt="" class="ios-install-logo">
+      <h3>${this.t('iosInstallTitle')}</h3>
+      <p>${this.t('iosInstallSteps')}</p>
+      <button class="btn-primary" id="ios-install-close">OK</button>
+    </div>`;
+    m.addEventListener('click', e => {
+      if (e.target === m || e.target.id === 'ios-install-close') m.remove();
+    });
+    document.body.appendChild(m);
+  },
+
+  // Barre d'onglets (mode app installée) + bannière d'installation — éléments
+  // attachés au body, persistants entre les render()
+  updatePwaUi() {
+    // Barre d'onglets en mode standalone
+    let nav = document.getElementById('pwa-nav');
+    if (this.isStandalone() && this.user && this.view !== 'loading' && this.view !== 'auth') {
+      if (!nav) {
+        nav = document.createElement('nav');
+        nav.id = 'pwa-nav';
+        nav.className = 'pwa-nav';
+        document.body.appendChild(nav);
+        nav.addEventListener('click', e => {
+          const btn = e.target.closest('[data-pwa-tab]');
+          if (!btn) return;
+          const tab = btn.dataset.pwaTab;
+          this._pwaTab = tab;
+          if (tab === 'recipes') { this.view = 'list'; this.searchQuery = ''; this.render(); }
+          else if (tab === 'planning') { if (this.requireAccount()) this.nav('planning'); }
+          else if (tab === 'courses') {
+            if (this.requireAccount()) {
+              if (this.view === 'planning') { this.updatePwaUi(); this.scrollToShopping(); }
+              else { this.nav('planning'); this.scrollToShopping(); }
+            }
+          }
+        });
+      }
+      const active = this.view === 'planning' ? (this._pwaTab === 'courses' ? 'courses' : 'planning')
+        : this.view === 'list' ? 'recipes' : '';
+      nav.innerHTML = `
+        <button data-pwa-tab="recipes" class="${active === 'recipes' ? 'active' : ''}"><span class="pwa-nav-ico">🍽️</span>${this.t('navRecipes')}</button>
+        <button data-pwa-tab="planning" class="${active === 'planning' ? 'active' : ''}"><span class="pwa-nav-ico">📅</span>${this.t('navPlanning')}</button>
+        <button data-pwa-tab="courses" class="${active === 'courses' ? 'active' : ''}"><span class="pwa-nav-ico">🛒</span>${this.t('navCourses')}</button>`;
+      document.body.classList.add('has-pwa-nav');
+    } else if (nav) {
+      nav.remove();
+      document.body.classList.remove('has-pwa-nav');
+    }
+
+    // Bannière d'installation (une seule fois, refusable)
+    const dismissed = localStorage.getItem('gustos_install_dismissed') === '1'
+      || localStorage.getItem('gustos_installed') === '1';
+    let banner = document.getElementById('install-banner');
+    if (this.canInstall() && !dismissed && this.user && this.view !== 'loading' && this.view !== 'auth') {
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'install-banner';
+        banner.className = 'install-banner';
+        banner.innerHTML = `
+          <img src="Images/gustos-logo-transparent-background.png" alt="" class="install-banner-logo">
+          <div class="install-banner-txt">
+            <strong>${this.t('installBannerTitle')}</strong>
+            <span>${this.t('installBannerSub')}</span>
+          </div>
+          <div class="install-banner-actions">
+            <button class="btn-primary btn-sm" id="install-banner-yes">${this.t('installBtn')}</button>
+            <button class="btn-ghost btn-sm" id="install-banner-no">${this.t('installLater')}</button>
+          </div>`;
+        banner.querySelector('#install-banner-yes').addEventListener('click', () => this.promptInstall());
+        banner.querySelector('#install-banner-no').addEventListener('click', () => {
+          localStorage.setItem('gustos_install_dismissed', '1');
+          banner.remove();
+        });
+        document.body.appendChild(banner);
+      }
+    } else if (banner) {
+      banner.remove();
+    }
   },
 
   async enterGuest() {
@@ -1007,10 +1170,11 @@ const App = {
 
   render() {
     const app = document.getElementById('app');
-    if (this.view === 'loading') { app.innerHTML = this.renderLoading(); return; }
-    if (this.view === 'auth') { app.innerHTML = this.renderAuth(); this.bindAuthEvents(); return; }
+    if (this.view === 'loading') { app.innerHTML = this.renderLoading(); this.updatePwaUi(); return; }
+    if (this.view === 'auth') { app.innerHTML = this.renderAuth(); this.bindAuthEvents(); this.updatePwaUi(); return; }
     app.innerHTML = this.renderHeader() + '<main>' + this.renderView() + '</main>' + this.renderFooter();
     this.bindHeader(); this.bindContent();
+    this.updatePwaUi();
   },
 
   renderFooter() {
@@ -1022,6 +1186,7 @@ const App = {
         </div>
         <p class="footer-tagline">${this.t('appSubtitle')}</p>
         <a href="mailto:enzo.bellenguez@gmail.com" class="footer-contact">✉️ ${this.t('footerContact')} — enzo.bellenguez@gmail.com</a>
+        ${this.canInstall() ? `<button class="btn-ghost footer-install" id="btn-install-footer">${this.t('installApp')}</button>` : ''}
         <p class="footer-copy">© ${new Date().getFullYear()} Gustos · ${this.t('footerMade')}</p>
       </div>
     </footer>`;
@@ -1774,6 +1939,7 @@ const App = {
 
   bindHeader() {
     document.getElementById('nav-home')?.addEventListener('click', () => { this.view='list'; this.searchQuery=''; this.render(); });
+    document.getElementById('btn-install-footer')?.addEventListener('click', () => this.promptInstall());
     document.getElementById('btn-new')?.addEventListener('click', () => { if (this.requireAccount()) this.nav('create'); });
     document.getElementById('btn-admin')?.addEventListener('click', () => this.nav('admin'));
 
