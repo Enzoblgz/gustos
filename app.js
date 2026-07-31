@@ -213,7 +213,7 @@ const TR = {
     installBtn: 'Installer', installLater: 'Plus tard', installDone: 'Gustos est installé !',
     iosInstallTitle: 'Installer Gustos sur iPhone',
     iosInstallSteps: 'Dans <strong>Safari</strong> : touche le bouton <strong>Partager</strong> <span style="font-size:1.1em">⎋</span> puis <strong>« Sur l\'écran d\'accueil »</strong>. Gustos s\'ouvrira comme une vraie app.',
-    navRecipes: 'Recettes', navPlanning: 'Planning', navCourses: 'Courses',
+    navRecipes: 'Recettes', navPlanning: 'Planning', navCourses: 'Courses', navProfile: 'Profil', navNew: 'Créer',
     shopGroupAuto: 'Ingrédients des recettes', shopGroupManual: 'Ajouts manuels',
     addItemPh: 'Ajouter un article…', addItemBtn: '+ Ajouter', newItemBadge: 'Nouveau',
     viewRecipeTip: 'Voir la recette', profileSaved: 'Profil mis à jour !',
@@ -330,7 +330,7 @@ const TR = {
     installBtn: 'Install', installLater: 'Later', installDone: 'Gustos is installed!',
     iosInstallTitle: 'Install Gustos on iPhone',
     iosInstallSteps: 'In <strong>Safari</strong>: tap the <strong>Share</strong> button <span style="font-size:1.1em">⎋</span> then <strong>"Add to Home Screen"</strong>. Gustos will open like a real app.',
-    navRecipes: 'Recipes', navPlanning: 'Planner', navCourses: 'Shopping',
+    navRecipes: 'Recipes', navPlanning: 'Planner', navCourses: 'Shopping', navProfile: 'Profile', navNew: 'Create',
     shopGroupAuto: 'Recipe ingredients', shopGroupManual: 'Manual items',
     addItemPh: 'Add an item…', addItemBtn: '+ Add', newItemBadge: 'New',
     viewRecipeTip: 'View recipe', profileSaved: 'Profile updated!',
@@ -894,9 +894,15 @@ const App = {
   // Barre d'onglets (mode app installée) + bannière d'installation — éléments
   // attachés au body, persistants entre les render()
   updatePwaUi() {
-    // Barre d'onglets en mode standalone
+    // Barre d'onglets : navigation principale sur téléphone (web mobile ET app
+    // installée) — c'est là que 90 % de l'usage se fait
+    if (!this._pwaResizeBound) {
+      this._pwaResizeBound = true;
+      let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => this.updatePwaUi(), 150); });
+    }
+    const phone = window.matchMedia('(max-width: 900px)').matches;
     let nav = document.getElementById('pwa-nav');
-    if (this.isStandalone() && this.user && this.view !== 'loading' && this.view !== 'auth') {
+    if ((this.isStandalone() || phone) && this.view !== 'loading' && this.view !== 'auth') {
       if (!nav) {
         nav = document.createElement('nav');
         nav.id = 'pwa-nav';
@@ -907,7 +913,8 @@ const App = {
           if (!btn) return;
           const tab = btn.dataset.pwaTab;
           this._pwaTab = tab;
-          if (tab === 'recipes') { this.view = 'list'; this.searchQuery = ''; this.render(); }
+          if (tab === 'recipes') { this.view = 'list'; this.searchQuery = ''; this.render(); window.scrollTo(0, 0); }
+          else if (tab === 'new') { if (this.requireAccount()) this.nav('create'); }
           else if (tab === 'planning') { if (this.requireAccount()) this.nav('planning'); }
           else if (tab === 'courses') {
             if (this.requireAccount()) {
@@ -915,14 +922,19 @@ const App = {
               else { this.nav('planning'); this.scrollToShopping(); }
             }
           }
+          else if (tab === 'profile') { if (this.requireAccount()) this.nav('account'); }
         });
       }
       const active = this.view === 'planning' ? (this._pwaTab === 'courses' ? 'courses' : 'planning')
-        : this.view === 'list' ? 'recipes' : '';
+        : this.view === 'list' ? 'recipes'
+        : this.view === 'create' || this.view === 'edit' ? 'new'
+        : this.view === 'account' || this.view === 'admin' ? 'profile' : '';
       nav.innerHTML = `
         <button data-pwa-tab="recipes" class="${active === 'recipes' ? 'active' : ''}"><span class="pwa-nav-ico">🍽️</span>${this.t('navRecipes')}</button>
         <button data-pwa-tab="planning" class="${active === 'planning' ? 'active' : ''}"><span class="pwa-nav-ico">📅</span>${this.t('navPlanning')}</button>
-        <button data-pwa-tab="courses" class="${active === 'courses' ? 'active' : ''}"><span class="pwa-nav-ico">🛒</span>${this.t('navCourses')}</button>`;
+        <button data-pwa-tab="new" class="pwa-nav-create${active === 'new' ? ' active' : ''}"><span class="pwa-nav-create-ico">+</span>${this.t('navNew')}</button>
+        <button data-pwa-tab="courses" class="${active === 'courses' ? 'active' : ''}"><span class="pwa-nav-ico">🛒</span>${this.t('navCourses')}</button>
+        <button data-pwa-tab="profile" class="${active === 'profile' ? 'active' : ''}"><span class="pwa-nav-ico">👤</span>${this.t('navProfile')}</button>`;
       document.body.classList.add('has-pwa-nav');
     } else if (nav) {
       nav.remove();
