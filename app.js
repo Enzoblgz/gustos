@@ -161,6 +161,7 @@ const TR = {
     heroGreeting: 'Bonjour', heroSearchPh: 'Chercher une recette, un ingrédient, un tag…',
     heroTitle: 'Qu\'est-ce qu\'on cuisine <em>aujourd\'hui</em> ?', heroSub: 'Ajuste les portions en un clic — les quantités s\'adaptent automatiquement.',
     statRecipes: 'Recettes', statCats: 'Catégories', statUsers: 'Utilisateurs',
+    videoPlay: 'Lancer la présentation', videoPlayHint: 'avec le son', videoSoundOn: 'Couper le son', videoSoundOff: 'Activer le son',
     allCat: 'Tout', allRecipesLabel: 'Toutes les recettes',
     searchResults: (n,q) => `${n} résultat${n!==1?'s':''} pour « ${q} »`,
     noResults: 'Aucun résultat', noResultsSub: 'Essaie un autre terme.',
@@ -277,6 +278,7 @@ const TR = {
     heroGreeting: 'Hello', heroSearchPh: 'Search a recipe, an ingredient, a tag…',
     heroTitle: 'What are we <em>cooking</em> today?', heroSub: 'Adjust servings in one click — quantities update automatically.',
     statRecipes: 'Recipes', statCats: 'Categories', statUsers: 'Users',
+    videoPlay: 'Play the presentation', videoPlayHint: 'with sound', videoSoundOn: 'Mute', videoSoundOff: 'Unmute',
     allCat: 'All', allRecipesLabel: 'All recipes',
     searchResults: (n,q) => `${n} result${n!==1?'s':''} for « ${q} »`,
     noResults: 'No results', noResultsSub: 'Try another term.',
@@ -393,6 +395,7 @@ const TR = {
     heroGreeting: 'Hola', heroSearchPh: 'Buscar receta, ingrediente, etiqueta…',
     heroTitle: '¿Qué <em>cocinamos</em> hoy?', heroSub: 'Ajusta las porciones con un clic — las cantidades se adaptan automáticamente.',
     statRecipes: 'Recetas', statCats: 'Categorías', statUsers: 'Usuarios',
+    videoPlay: 'Ver la presentación', videoPlayHint: 'con sonido', videoSoundOn: 'Silenciar', videoSoundOff: 'Activar el sonido',
     allCat: 'Todo', allRecipesLabel: 'Todas las recetas',
     searchResults: (n,q) => `${n} resultado${n!==1?'s':''} para « ${q} »`,
     noResults: 'Sin resultados', noResultsSub: 'Prueba otro término.',
@@ -503,6 +506,7 @@ const TR = {
     heroGreeting: 'Ciao', heroSearchPh: 'Cerca una ricetta, un ingrediente, un tag…',
     heroTitle: 'Cosa <em>cuciniamo</em> oggi?', heroSub: 'Regola le porzioni con un clic — le quantità si adattano automaticamente.',
     statRecipes: 'Ricette', statCats: 'Categorie', statUsers: 'Utenti',
+    videoPlay: 'Guarda la presentazione', videoPlayHint: 'con l\'audio', videoSoundOn: 'Disattiva l\'audio', videoSoundOff: 'Attiva l\'audio',
     allCat: 'Tutto', allRecipesLabel: 'Tutte le ricette',
     searchResults: (n,q) => `${n} risultat${n!==1?'i':'o'} per « ${q} »`,
     noResults: 'Nessun risultato', noResultsSub: 'Prova un altro termine.',
@@ -613,6 +617,7 @@ const TR = {
     heroGreeting: 'Hallo', heroSearchPh: 'Rezept, Zutat oder Tag suchen…',
     heroTitle: 'Was kochen wir <em>heute</em>?', heroSub: 'Portionen per Klick anpassen — Mengen aktualisieren sich automatisch.',
     statRecipes: 'Rezepte', statCats: 'Kategorien', statUsers: 'Nutzer',
+    videoPlay: 'Präsentation ansehen', videoPlayHint: 'mit Ton', videoSoundOn: 'Ton aus', videoSoundOff: 'Ton an',
     allCat: 'Alle', allRecipesLabel: 'Alle Rezepte',
     searchResults: (n,q) => `${n} Ergebnis${n!==1?'se':''} für « ${q} »`,
     noResults: 'Keine Ergebnisse', noResultsSub: 'Versuche einen anderen Begriff.',
@@ -1531,26 +1536,36 @@ const App = {
       <div class="hero">
         <p class="hero-greeting">${this.t('heroGreeting')}${firstName ? `, <strong>${this.escHtml(firstName)}</strong>` : ''} 👋</p>
         <h1 class="hero-title">${this.t('heroTitle')}</h1>
-        <div class="hero-columns">
+        <div class="hero-stage">
+          <video class="hero-video" src="Images/gustos-presentation.mp4?v=26" poster="Images/gustos-presentation-poster.jpg?v=26" loop playsinline muted preload="metadata" aria-label="Présentation de Gustos"></video>
+          <button class="hero-video-launch" id="hero-video-launch" type="button">
+            <span class="hero-play-icon" aria-hidden="true"></span>
+            <span class="hero-play-text">${this.t('videoPlay')}<small>${this.t('videoPlayHint')}</small></span>
+          </button>
+          <button class="hero-video-sound" id="hero-video-sound" type="button" title="${this.t('videoSoundOff')}" aria-label="${this.t('videoSoundOff')}">
+            <span class="hero-sound-icon" aria-hidden="true">🔇</span>
+            <span class="hero-sound-label">${this.t('videoSoundOff')}</span>
+          </button>
+        </div>
+        <div class="hero-below">
           <img class="hero-mascot" src="Images/gustos-logo-transparent-background.png" alt="Mascotte Gustos" loading="lazy">
-          <div class="hero-center">
-        <div class="hero-search-wrap">
-          <div class="hero-search-bar">
-            <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
-            ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
+          <div class="hero-below-main">
+            <div class="hero-search-wrap">
+              <div class="hero-search-bar">
+                <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M13 13 L18.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <input type="text" id="hero-search-input" placeholder="${this.t('heroSearchPh')}" value="${this.escHtml(this.searchQuery)}" autocomplete="off">
+                ${this.searchQuery?`<button class="hero-search-clear" id="hero-search-clear">✕</button>`:''}
+              </div>
+            </div>
+            <div class="stats-bar">
+              <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
+              <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
+              <div class="stat"><span class="stat-value">${this.userCount||'—'}</span><span class="stat-label">${this.t('statUsers')}</span></div>
+            </div>
           </div>
-        </div>
-        <div class="stats-bar">
-          <div class="stat"><span class="stat-value">${all.length}</span><span class="stat-label">${this.t('statRecipes')}</span></div>
-          <div class="stat"><span class="stat-value">${rawCats.length}</span><span class="stat-label">${this.t('statCats')}</span></div>
-          <div class="stat"><span class="stat-value">${this.userCount||'—'}</span><span class="stat-label">${this.t('statUsers')}</span></div>
-        </div>
-          </div>
-          <video class="hero-video" src="Images/gustos-presentation.mp4" loop playsinline controls preload="metadata" aria-label="Présentation de Gustos"></video>
         </div>
       </div>
       <div class="categories">
@@ -1564,6 +1579,53 @@ const App = {
           :this.renderCardGrid(shown)}
       </div>
     </div>`;
+  },
+
+  // Vidéo du hero : aperçu muet en boucle + un bouton pour la lancer avec le son.
+  // L'autoplay n'est autorisé par les navigateurs que si la vidéo est muette,
+  // d'où le bouton son visible en permanence tant qu'elle l'est.
+  bindHeroVideo() {
+    const video = document.querySelector('.hero-video');
+    if (!video) return;
+    const launch = document.getElementById('hero-video-launch');
+    const sound = document.getElementById('hero-video-sound');
+
+    const syncSound = () => {
+      if (!sound) return;
+      const label = this.t(video.muted ? 'videoSoundOff' : 'videoSoundOn');
+      sound.querySelector('.hero-sound-icon').textContent = video.muted ? '🔇' : '🔊';
+      sound.querySelector('.hero-sound-label').textContent = label;
+      sound.title = label;
+      sound.setAttribute('aria-label', label);
+      sound.classList.toggle('is-on', !video.muted);
+    };
+
+    // Aperçu muet automatique — sur mobile on attend le clic pour ne pas
+    // consommer de données sans que l'utilisateur l'ait demandé.
+    if (window.matchMedia('(min-width: 769px)').matches) {
+      video.muted = true;
+      video.play().then(() => video.classList.add('is-playing')).catch(() => {});
+    }
+
+    launch?.addEventListener('click', () => {
+      video.muted = false;
+      video.controls = true;
+      video.currentTime = 0;
+      video.classList.add('is-playing');
+      video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+      launch.hidden = true;
+      syncSound();
+    });
+
+    sound?.addEventListener('click', () => {
+      video.muted = !video.muted;
+      if (!video.muted) { video.controls = true; if (launch) launch.hidden = true; }
+      video.play().catch(() => {});
+      syncSound();
+    });
+
+    video.addEventListener('play', () => video.classList.add('is-playing'));
+    syncSound();
   },
 
   updateHeroResults() {
@@ -2016,8 +2078,7 @@ const App = {
       this.nav('recipe', el.dataset.id);
     }));
     document.querySelectorAll('.category-pill').forEach(el => el.addEventListener('click', () => { this.activeCategory=el.dataset.cat; this._listLimit=24; this.renderContent(); }));
-    const heroVideo = document.querySelector('.hero-video');
-    if (heroVideo && window.matchMedia('(min-width: 1025px)').matches) { heroVideo.muted = true; heroVideo.autoplay = true; heroVideo.play().catch(() => {}); }
+    this.bindHeroVideo();
     this.bindLoadMore();
     document.querySelectorAll('[data-save-card]').forEach(btn => btn.addEventListener('click', e => {
       e.stopPropagation();

@@ -1,11 +1,11 @@
 // Service worker Gustos — cache du shell + offline
 // Bump CACHE_VERSION à chaque déploiement (suivre le ?v= de index.html)
-const CACHE_VERSION = 'gustos-v25';
+const CACHE_VERSION = 'gustos-v26';
 const SHELL = [
   './',
   'index.html',
-  'style.css?v=25',
-  'app.js?v=25',
+  'style.css?v=26',
+  'app.js?v=26',
   'config.js',
   'manifest.json',
   'Images/gustos-logo-transparent-background.png',
