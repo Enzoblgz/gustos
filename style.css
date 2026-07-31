@@ -3120,6 +3120,7 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
   .btn-plan-nav svg { width: 17px; height: 17px; }
   .header-sep { display: none; }
   .logo span { font-size: 1.15rem; }
+  .header-left { gap: 10px; }
 
   /* iOS zoome sur tout champ < 16px : on force 16px */
   main input, main select, main textarea, .step-textarea { font-size: 16px !important; }
@@ -3170,6 +3171,11 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
 .wall-modal .btn-ghost { margin-top: 10px; width: 100%; }
 @media (max-width: 700px) {
   .btn-signup-header { padding: 8px 14px; font-size: 0.82rem; }
+}
+/* Invité sur petit écran : le texte du logo cède la place au CTA « Créer un compte »
+   (sans ça, le header déborde de ~35px et le bouton d'inscription est coupé) */
+@media (max-width: 520px) {
+  header:has(.btn-signup-header) .logo span { display: none; }
 }
 
 /* ===== TEAMS ===== */

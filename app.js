@@ -1063,9 +1063,13 @@ const App = {
       this.savedIds = new Set((savedRes.data || []).map(s => s.recipe_id));
     }
     if (ids.length) {
-      const { data } = await db.from('likes').select('recipe_id').in('recipe_id', ids);
+      // 1000+ recettes : filtrer par .in(ids) dépasse la taille max d'URL → 400
+      // et les compteurs de likes ne chargeaient jamais. La table likes est
+      // petite : on la lit en entier et on compte côté client.
+      const idSet = new Set(ids);
+      const { data } = await db.from('likes').select('recipe_id');
       this.likeCounts = {};
-      (data || []).forEach(l => { this.likeCounts[l.recipe_id] = (this.likeCounts[l.recipe_id] || 0) + 1; });
+      (data || []).forEach(l => { if (idSet.has(l.recipe_id)) this.likeCounts[l.recipe_id] = (this.likeCounts[l.recipe_id] || 0) + 1; });
     }
   },
 
