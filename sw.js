@@ -1,11 +1,11 @@
 // Service worker Gustos — cache du shell + offline
 // Bump CACHE_VERSION à chaque déploiement (suivre le ?v= de index.html)
-const CACHE_VERSION = 'gustos-v29';
+const CACHE_VERSION = 'gustos-v35';
 const SHELL = [
   './',
   'index.html',
-  'style.css?v=29',
-  'app.js?v=29',
+  'style.css?v=35',
+  'app.js?v=35',
   'config.js',
   'manifest.json',
   'Images/gustos-logo-transparent-background.png',
@@ -24,9 +24,53 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k))))
+      // 'gustos-state' porte l'instantané du planning : il survit aux versions
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_VERSION && k !== 'gustos-state').map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
+});
+
+// ===== Rappel du dîner =====
+// Chrome (Android, app installée) réveille le SW périodiquement. On lit
+// l'instantané du planning déposé par la page dans le Cache API — le SW n'a
+// pas accès au localStorage — et on notifie une seule fois par jour.
+async function showDinnerReminder() {
+  const c = await caches.open('gustos-state');
+  const res = await c.match('/__gustos_today');
+  if (!res) return;
+  const d = await res.json().catch(() => null);
+  if (!d || !d.enabled || !d.title) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  if (d.date !== today) return;                  // instantané périmé
+  const sent = await c.match('/__gustos_notified');
+  if (sent && (await sent.text()) === today) return;
+
+  const h = new Date().getHours();
+  if (h < 16 || h > 21) return;                  // fenêtre « avant le dîner »
+
+  await self.registration.showNotification(d.title, {
+    body: d.body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png',
+    tag: 'gustos-dinner', lang: d.lang || 'fr', data: { url: './?view=planning' },
+  });
+  await c.put('/__gustos_notified', new Response(today));
+}
+
+self.addEventListener('periodicsync', e => {
+  if (e.tag === 'gustos-dinner') e.waitUntil(showDinnerReminder());
+});
+
+// Un clic sur la notification ouvre l'app (ou remet au premier plan l'onglet déjà ouvert)
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const target = e.notification.data?.url || './';
+  e.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const cl of all) {
+      if (cl.url.includes(self.registration.scope)) { await cl.focus(); return; }
+    }
+    await self.clients.openWindow(target);
+  })());
 });
 
 self.addEventListener('fetch', e => {

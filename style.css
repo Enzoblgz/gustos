@@ -3366,27 +3366,79 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
 .footer-install:hover { background: var(--terracotta); color: #fff; }
 
 /* Bannière d'installation */
-.install-banner {
+/* Feuille d'installation : ancrée en bas, dans la zone atteignable au pouce */
+.install-sheet {
   position: fixed;
-  left: 12px; right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 10px; right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   z-index: 900;
-  display: flex; align-items: center; gap: 12px;
+  display: flex; flex-direction: column; gap: 12px;
   background: #fff;
   border: 1px solid var(--cream-dark);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-hover);
-  padding: 12px 14px;
-  animation: banner-in 0.35s ease;
-  max-width: 520px;
+  border-radius: 22px;
+  box-shadow: 0 -4px 24px rgba(44,24,16,0.10), 0 18px 48px rgba(44,24,16,0.22);
+  padding: 18px 18px 14px;
+  max-width: 460px;
   margin: 0 auto;
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
 }
-@keyframes banner-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-.install-banner-logo { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
-.install-banner-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
-.install-banner-txt strong { font-size: 0.9rem; color: var(--brown); }
-.install-banner-txt span { font-size: 0.78rem; color: var(--brown-light); line-height: 1.35; }
-.install-banner-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.install-sheet.is-in { transform: none; opacity: 1; }
+.install-sheet-head { display: flex; align-items: center; gap: 13px; }
+.install-sheet-head > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.install-sheet-head strong { font-family: var(--font-serif); font-size: 1.12rem; color: var(--brown); line-height: 1.25; }
+.install-sheet-head span { font-size: 0.85rem; color: var(--brown-light); line-height: 1.35; }
+.install-sheet-logo { width: 50px; height: 50px; object-fit: contain; flex-shrink: 0; }
+.notif-card-ico { font-size: 2.1rem; flex-shrink: 0; }
+
+.install-benefits { list-style: none; display: flex; flex-direction: column; gap: 11px; margin: 2px 0 0; padding: 0; }
+.install-benefits li { display: flex; align-items: flex-start; gap: 11px; }
+.install-benefits .ib-ico { font-size: 1.15rem; line-height: 1.3; flex-shrink: 0; width: 24px; text-align: center; }
+.install-benefits div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.install-benefits strong { font-size: 0.88rem; color: var(--brown); font-weight: 600; }
+.install-benefits small { font-size: 0.79rem; color: var(--brown-light); line-height: 1.4; }
+
+.install-sheet-cta {
+  width: 100%; padding: 15px; font-size: 1rem; font-weight: 600;
+  border-radius: 14px; margin-top: 2px;
+}
+.install-sheet-no {
+  background: none; border: none; cursor: pointer;
+  color: var(--brown-light); font-family: var(--font-sans);
+  font-size: 0.86rem; padding: 8px; width: 100%;
+}
+.install-sheet-no:active { color: var(--brown); }
+
+/* Réglages app dans le Profil */
+.app-rows { display: flex; flex-direction: column; gap: 10px; margin: 22px 0; }
+.app-row {
+  display: flex; align-items: center; gap: 13px; width: 100%;
+  background: var(--white); border: 1px solid var(--cream-dark);
+  border-radius: var(--radius); padding: 14px 16px;
+  cursor: pointer; text-align: left; font-family: var(--font-sans);
+  transition: border-color 0.15s, transform 0.1s;
+}
+.app-row:active { transform: scale(0.99); }
+.app-row:hover:not(:disabled) { border-color: var(--terracotta); }
+.app-row:disabled { cursor: default; opacity: 0.65; }
+.app-row--done { cursor: default; background: var(--terracotta-bg); border-color: transparent; }
+.app-row-ico { font-size: 1.35rem; flex-shrink: 0; }
+.app-row-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.app-row-txt strong { font-size: 0.92rem; color: var(--brown); font-weight: 600; }
+.app-row-txt small { font-size: 0.78rem; color: var(--brown-light); line-height: 1.4; }
+.app-row-cta { color: var(--terracotta); font-weight: 600; font-size: 0.86rem; flex-shrink: 0; }
+.app-row-switch {
+  width: 46px; height: 27px; border-radius: 50px; background: var(--cream-dark);
+  position: relative; flex-shrink: 0; transition: background 0.2s;
+}
+.app-row-switch::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 21px; height: 21px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.2s;
+}
+.app-row-switch.is-on { background: var(--terracotta); }
+.app-row-switch.is-on::after { transform: translateX(19px); }
 
 /* Modal instructions iOS */
 .ios-install-overlay {
@@ -3405,6 +3457,19 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
   display: flex; flex-direction: column; gap: 14px; align-items: center;
 }
 .ios-install-logo { width: 64px; height: 64px; object-fit: contain; }
+.install-guide { text-align: left; max-width: 400px; }
+.install-guide .ios-install-logo { display: block; margin: 0 auto; }
+.install-guide h3 { text-align: center; }
+.guide-browser { text-align: center; font-size: 0.9rem; color: var(--brown-light); margin-bottom: 4px; }
+.guide-steps { margin: 14px 0 4px; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+.guide-steps li { font-size: 0.92rem; color: var(--brown); line-height: 1.5; }
+.guide-steps li::marker { color: var(--terracotta); font-weight: 700; }
+.guide-steps b { font-weight: 600; }
+.guide-note {
+  font-size: 0.82rem; color: var(--brown-light); line-height: 1.45;
+  background: var(--terracotta-bg); border-radius: var(--radius-sm);
+  padding: 10px 12px; margin-top: 14px; text-align: left;
+}
 .ios-install-card h3 { font-family: var(--font-serif); color: var(--brown); }
 .ios-install-card p { font-size: 0.9rem; color: var(--brown-light); line-height: 1.5; }
 
@@ -3455,7 +3520,7 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
   .pwa-nav { display: flex; }
   body.has-pwa-nav main { padding-bottom: 84px; }
   body.has-pwa-nav .site-footer { padding-bottom: 84px; }
-  body.has-pwa-nav .install-banner { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  body.has-pwa-nav .install-sheet { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
   /* La barre d'onglets porte déjà Créer + Planning : on allège le header */
   body.has-pwa-nav .btn-plan-nav, body.has-pwa-nav .btn-new, body.has-pwa-nav .header-sep { display: none; }
 }

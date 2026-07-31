@@ -13,7 +13,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Gustos">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23C7522A'/><text x='16' y='23' font-family='Georgia,serif' font-size='21' font-weight='700' fill='white' text-anchor='middle'>G</text></svg>">
-  <link rel="stylesheet" href="style.css?v=29">
+  <script>
+    // beforeinstallprompt part très tôt — souvent avant que app.js soit parsé.
+    // On le capture ici, dans le <head>, sinon l'événement est perdu et le
+    // bouton « Installer » ne peut plus rien déclencher.
+    window.__gustosInstallEvt = null;
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__gustosInstallEvt = e; window.dispatchEvent(new Event('gustos-installable')); });
+  </script>
+  <link rel="stylesheet" href="style.css?v=35">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -22,7 +29,7 @@
   <div id="app"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=35"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

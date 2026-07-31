@@ -211,6 +211,33 @@ const TR = {
     installApp: '📲 Installer l\'application', installBannerTitle: 'Gustos sur ton écran d\'accueil',
     installBannerSub: 'Planning et liste de courses toujours à portée de main, même hors connexion.',
     installBtn: 'Installer', installLater: 'Plus tard', installDone: 'Gustos est installé !',
+    installSheetTitle: 'Mets Gustos sur ton écran d\'accueil',
+    installSheetSub: 'L\'app complète, en un geste du pouce.',
+    installB1t: 'À portée de pouce', installB1s: 'Plein écran, sans barre d\'adresse — les onglets sous le pouce.',
+    installB2t: 'Rappels du dîner', installB2s: 'Une notification quand un repas est prévu au planning.',
+    installB3t: 'Même sans réseau', installB3s: 'Ta liste de courses reste consultable en magasin.',
+    installNow: '📲 Installer l\'app', installNoThanks: 'Plus tard', askNever: 'Ne plus me redemander',
+    notifTitle: 'Active les rappels', notifSub: 'Gustos te prévient quand un repas est prévu ce soir.',
+    notifEnable: '🔔 Activer les notifications', notifSkip: 'Plus tard',
+    notifOn: 'Rappels activés ✓', notifOff: 'Rappels désactivés',
+    notifBlocked: 'Notifications bloquées dans les réglages du navigateur.',
+    notifUnsupported: 'Ton navigateur ne gère pas les notifications.',
+    notifWelcomeT: 'Rappels activés 🔔', notifWelcomeB: 'Gustos te préviendra quand un repas est prévu.',
+    notifRow: 'Rappels du dîner', notifRowOn: 'Activés', notifRowOff: 'Désactivés',
+    installRow: 'Installer l\'application', installRowDone: 'Application installée ✓',
+    androidInstallTitle: 'Installer Gustos en 2 gestes',
+    androidInstallSteps: 'Ouvre le menu ⋮ en haut à droite de Chrome, puis touche « Ajouter à l\'écran d\'accueil » (ou « Installer l\'application »).',
+    guideTitle: 'Installer Gustos', guideOn: b => `Sur ${b}, en ${b === 'Firefox' ? 'quelques' : '2'} gestes :`,
+    guideIosSafari: ['Touche <b>⬆️ Partager</b>, en bas de l\'écran', 'Fais défiler, puis touche <b>« Sur l\'écran d\'accueil »</b>', 'Confirme avec <b>« Ajouter »</b>'],
+    guideIosOther: ['Touche <b>⬆️ Partager</b> dans la barre du navigateur', 'Touche <b>« Sur l\'écran d\'accueil »</b>', 'Confirme avec <b>« Ajouter »</b>'],
+    guideIosFirefox: ['Firefox sur iPhone ne sait pas installer d\'app web.', 'Ouvre <b>gustos.fr dans Safari</b>, puis Partager → « Sur l\'écran d\'accueil ».'],
+    guideSamsung: ['Ouvre le menu <b>☰</b> en bas à droite', 'Touche <b>« Ajouter la page à »</b>', 'Choisis <b>« Écran d\'accueil »</b>'],
+    guideFirefoxAndroid: ['Ouvre le menu <b>⋮</b> en haut à droite', 'Touche <b>« Ajouter à l\'écran d\'accueil »</b>'],
+    guideAndroidChromium: ['Ouvre le menu <b>⋮</b> du navigateur', 'Touche <b>« Ajouter à l\'écran d\'accueil »</b> (ou <b>« Installer l\'application »</b>)'],
+    guideDesktopChromium: ['Clique l\'icône d\'installation <b>⊕</b> à droite de la barre d\'adresse', 'ou menu <b>⋮</b> → <b>« Installer Gustos »</b>'],
+    guideDesktopSafari: ['Menu <b>« Fichier »</b>', 'Choisis <b>« Ajouter au Dock »</b>'],
+    guideDesktopFirefox: ['Firefox ne gère pas l\'installation des apps web.', 'Ouvre <b>gustos.fr dans Chrome, Edge ou Safari</b> pour l\'installer.'],
+    guideNoteNotif: 'Une fois installée, l\'app peut t\'envoyer les rappels du dîner.',
     iosInstallTitle: 'Installer Gustos sur iPhone',
     iosInstallSteps: 'Dans <strong>Safari</strong> : touche le bouton <strong>Partager</strong> <span style="font-size:1.1em">⎋</span> puis <strong>« Sur l\'écran d\'accueil »</strong>. Gustos s\'ouvrira comme une vraie app.',
     navRecipes: 'Recettes', navPlanning: 'Planning', navCourses: 'Courses', navProfile: 'Profil', navNew: 'Créer',
@@ -328,6 +355,33 @@ const TR = {
     installApp: '📲 Install the app', installBannerTitle: 'Gustos on your home screen',
     installBannerSub: 'Meal plan and shopping list always at hand, even offline.',
     installBtn: 'Install', installLater: 'Later', installDone: 'Gustos is installed!',
+    installSheetTitle: 'Put Gustos on your home screen',
+    installSheetSub: 'The full app, one thumb away.',
+    installB1t: 'Within thumb reach', installB1s: 'Full screen, no address bar — tabs right under your thumb.',
+    installB2t: 'Dinner reminders', installB2s: 'A notification when a meal is planned.',
+    installB3t: 'Works offline', installB3s: 'Your shopping list stays readable in the store.',
+    installNow: '📲 Install the app', installNoThanks: 'Later', askNever: 'Don\'t ask again',
+    notifTitle: 'Turn on reminders', notifSub: 'Gustos tells you when a meal is planned tonight.',
+    notifEnable: '🔔 Enable notifications', notifSkip: 'Later',
+    notifOn: 'Reminders on ✓', notifOff: 'Reminders off',
+    notifBlocked: 'Notifications are blocked in your browser settings.',
+    notifUnsupported: 'Your browser does not support notifications.',
+    notifWelcomeT: 'Reminders on 🔔', notifWelcomeB: 'Gustos will tell you when a meal is planned.',
+    notifRow: 'Dinner reminders', notifRowOn: 'On', notifRowOff: 'Off',
+    installRow: 'Install the app', installRowDone: 'App installed ✓',
+    androidInstallTitle: 'Install Gustos in 2 taps',
+    androidInstallSteps: 'Open the ⋮ menu at the top right of Chrome, then tap "Add to Home screen" (or "Install app").',
+    guideTitle: 'Install Gustos', guideOn: b => `On ${b}, in a couple of taps:`,
+    guideIosSafari: ['Tap <b>⬆️ Share</b> at the bottom of the screen', 'Scroll, then tap <b>"Add to Home Screen"</b>', 'Confirm with <b>"Add"</b>'],
+    guideIosOther: ['Tap <b>⬆️ Share</b> in the browser bar', 'Tap <b>"Add to Home Screen"</b>', 'Confirm with <b>"Add"</b>'],
+    guideIosFirefox: ['Firefox on iPhone cannot install web apps.', 'Open <b>gustos.fr in Safari</b>, then Share → "Add to Home Screen".'],
+    guideSamsung: ['Open the <b>☰</b> menu at the bottom right', 'Tap <b>"Add page to"</b>', 'Choose <b>"Home screen"</b>'],
+    guideFirefoxAndroid: ['Open the <b>⋮</b> menu at the top right', 'Tap <b>"Add to Home screen"</b>'],
+    guideAndroidChromium: ['Open the browser\'s <b>⋮</b> menu', 'Tap <b>"Add to Home screen"</b> (or <b>"Install app"</b>)'],
+    guideDesktopChromium: ['Click the install icon <b>⊕</b> at the right of the address bar', 'or menu <b>⋮</b> → <b>"Install Gustos"</b>'],
+    guideDesktopSafari: ['Menu <b>"File"</b>', 'Choose <b>"Add to Dock"</b>'],
+    guideDesktopFirefox: ['Firefox does not support installing web apps.', 'Open <b>gustos.fr in Chrome, Edge or Safari</b> to install it.'],
+    guideNoteNotif: 'Once installed, the app can send you dinner reminders.',
     iosInstallTitle: 'Install Gustos on iPhone',
     iosInstallSteps: 'In <strong>Safari</strong>: tap the <strong>Share</strong> button <span style="font-size:1.1em">⎋</span> then <strong>"Add to Home Screen"</strong>. Gustos will open like a real app.',
     navRecipes: 'Recipes', navPlanning: 'Planner', navCourses: 'Shopping', navProfile: 'Profile', navNew: 'Create',
@@ -758,9 +812,10 @@ const App = {
       }
     } catch {}
     // Installation PWA (Android/desktop : événement natif ; iOS : instructions manuelles)
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      this._installEvt = e;
+    // L'événement est capté dans le <head> d'index.html (il part avant app.js)
+    this._installEvt = window.__gustosInstallEvt || null;
+    window.addEventListener('gustos-installable', () => {
+      this._installEvt = window.__gustosInstallEvt;
       this.updatePwaUi();
     });
     window.addEventListener('appinstalled', () => {
@@ -768,6 +823,12 @@ const App = {
       localStorage.setItem('gustos_installed', '1');
       this.toast(this.t('installDone'));
       this.updatePwaUi();
+      // L'app vient d'atterrir sur l'écran d'accueil : c'est le bon moment
+      // pour proposer les rappels (le navigateur exige un geste utilisateur).
+      if (this.notifState() === 'default') {
+        localStorage.setItem('gustos_notif_asked', '1');
+        setTimeout(() => this.showNotifCard(), 800);
+      }
     });
     this.loadPlanLocal();
     // Tooltip global épingle — créé une fois, attaché au body (hors overflow:hidden)
@@ -858,31 +919,75 @@ const App = {
       || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   },
 
+  // Chrome ne diffuse pas toujours `beforeinstallprompt` (heuristiques internes,
+  // suppression après un refus…). L'installation manuelle par le menu du
+  // navigateur reste possible : on propose donc l'app sur tout mobile, avec des
+  // instructions en repli quand l'événement natif n'est pas disponible.
   canInstall() {
-    return !this.isStandalone() && (!!this._installEvt || this.isIos());
+    if (this.isStandalone()) return false;
+    return !!this._installEvt || this.isIos() || this.isMobile();
+  },
+
+  isMobile() {
+    return window.matchMedia('(max-width: 900px)').matches
+      && (navigator.maxTouchPoints > 0 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
   },
 
   async promptInstall() {
+    if (!this._installEvt && window.__gustosInstallEvt) this._installEvt = window.__gustosInstallEvt;
     if (this._installEvt) {
       const evt = this._installEvt;
       this._installEvt = null;
+      window.__gustosInstallEvt = null;
       evt.prompt();
       try { await evt.userChoice; } catch {}
       this.updatePwaUi();
-    } else if (this.isIos()) {
-      this.showIosModal();
+    } else {
+      this.showInstallGuide();
     }
   },
 
-  showIosModal() {
+  // Chaque navigateur installe une PWA à sa façon, et seuls les Chromium
+  // diffusent `beforeinstallprompt` — d'où des instructions ciblées plutôt
+  // qu'un mode d'emploi unique qui serait faux presque partout.
+  detectBrowser() {
+    const ua = navigator.userAgent;
+    const ios = this.isIos();
+    const android = /Android/i.test(ua);
+    const brave = !!(navigator.brave && navigator.brave.isBrave);
+    let name = 'ce navigateur', key;
+
+    if (/FxiOS/i.test(ua)) { name = 'Firefox'; key = 'guideIosFirefox'; }
+    else if (ios && /CriOS|EdgiOS|OPT\//i.test(ua)) { name = /CriOS/i.test(ua) ? 'Chrome' : 'ce navigateur'; key = 'guideIosOther'; }
+    else if (ios) { name = 'Safari'; key = 'guideIosSafari'; }
+    else if (/SamsungBrowser/i.test(ua)) { name = 'Samsung Internet'; key = 'guideSamsung'; }
+    else if (android && /Firefox/i.test(ua)) { name = 'Firefox'; key = 'guideFirefoxAndroid'; }
+    else if (android) {
+      name = brave ? 'Brave' : /EdgA/i.test(ua) ? 'Edge' : /OPR/i.test(ua) ? 'Opera' : 'Chrome';
+      key = 'guideAndroidChromium';
+    }
+    else if (/Firefox/i.test(ua)) { name = 'Firefox'; key = 'guideDesktopFirefox'; }
+    else if (/Safari/i.test(ua) && !/Chrome|Chromium|Edg/i.test(ua)) { name = 'Safari'; key = 'guideDesktopSafari'; }
+    else { name = brave ? 'Brave' : /Edg\//i.test(ua) ? 'Edge' : /OPR/i.test(ua) ? 'Opera' : 'Chrome'; key = 'guideDesktopChromium'; }
+
+    return { name, key, canInstallHere: key !== 'guideIosFirefox' && key !== 'guideDesktopFirefox' };
+  },
+
+  showInstallGuide() {
     document.getElementById('ios-install-modal')?.remove();
+    const b = this.detectBrowser();
+    const steps = this.t(b.key) || [];
     const m = document.createElement('div');
     m.id = 'ios-install-modal';
     m.className = 'ios-install-overlay';
-    m.innerHTML = `<div class="ios-install-card">
+    m.innerHTML = `<div class="ios-install-card install-guide">
       <img src="Images/gustos-logo-transparent-background.png" alt="" class="ios-install-logo">
-      <h3>${this.t('iosInstallTitle')}</h3>
-      <p>${this.t('iosInstallSteps')}</p>
+      <h3>${this.t('guideTitle')}</h3>
+      <p class="guide-browser">${this.t('guideOn', b.name)}</p>
+      <${b.canInstallHere ? 'ol' : 'ul'} class="guide-steps">
+        ${steps.map(s => `<li>${s}</li>`).join('')}
+      </${b.canInstallHere ? 'ol' : 'ul'}>
+      ${b.canInstallHere ? `<p class="guide-note">${this.t('guideNoteNotif')}</p>` : ''}
       <button class="btn-primary" id="ios-install-close">OK</button>
     </div>`;
     m.addEventListener('click', e => {
@@ -941,35 +1046,178 @@ const App = {
       document.body.classList.remove('has-pwa-nav');
     }
 
-    // Bannière d'installation (une seule fois, refusable)
-    const dismissed = localStorage.getItem('gustos_install_dismissed') === '1'
-      || localStorage.getItem('gustos_installed') === '1';
+    // Relance d'installation et de notifications : on repropose à chaque
+    // session et après une courte pause, mais « Plus tard » devient
+    // « Ne plus me redemander » au bout de 3 refus — insister, sans piéger.
+    const viewOk = this.view !== 'loading' && this.view !== 'auth';
+    const now = Date.now();
+    const nagCount = k => +(localStorage.getItem('gustos_' + k + '_nag') || 0);
+    const snoozed = k => now < +(localStorage.getItem('gustos_' + k + '_snooze') || 0);
+    const never = k => localStorage.getItem('gustos_' + k + '_never') === '1';
+
+    const installed = this.isStandalone() || localStorage.getItem('gustos_installed') === '1';
+    const showInstall = this.canInstall() && !installed && !never('install') && !snoozed('install') && viewOk;
+    const showNotif = !showInstall && this.notifSupported() && this.notifState() === 'default'
+      && !never('notif') && !snoozed('notif') && viewOk;
+
     let banner = document.getElementById('install-banner');
-    if (this.canInstall() && !dismissed && this.user && this.view !== 'loading' && this.view !== 'auth') {
+    if (showInstall) {
       if (!banner) {
         banner = document.createElement('div');
         banner.id = 'install-banner';
-        banner.className = 'install-banner';
+        banner.className = 'install-sheet';
         banner.innerHTML = `
-          <img src="Images/gustos-logo-transparent-background.png" alt="" class="install-banner-logo">
-          <div class="install-banner-txt">
-            <strong>${this.t('installBannerTitle')}</strong>
-            <span>${this.t('installBannerSub')}</span>
+          <div class="install-sheet-head">
+            <img src="Images/gustos-logo-transparent-background.png" alt="" class="install-sheet-logo">
+            <div>
+              <strong>${this.t('installSheetTitle')}</strong>
+              <span>${this.t('installSheetSub')}</span>
+            </div>
           </div>
-          <div class="install-banner-actions">
-            <button class="btn-primary btn-sm" id="install-banner-yes">${this.t('installBtn')}</button>
-            <button class="btn-ghost btn-sm" id="install-banner-no">${this.t('installLater')}</button>
-          </div>`;
+          <ul class="install-benefits">
+            <li><span class="ib-ico">👍</span><div><strong>${this.t('installB1t')}</strong><small>${this.t('installB1s')}</small></div></li>
+            <li><span class="ib-ico">🔔</span><div><strong>${this.t('installB2t')}</strong><small>${this.t('installB2s')}</small></div></li>
+            <li><span class="ib-ico">📶</span><div><strong>${this.t('installB3t')}</strong><small>${this.t('installB3s')}</small></div></li>
+          </ul>
+          <button class="btn-primary install-sheet-cta" id="install-banner-yes">${this.t('installNow')}</button>
+          <button class="install-sheet-no" id="install-banner-no">${nagCount('install') >= 3 ? this.t('askNever') : this.t('installNoThanks')}</button>`;
         banner.querySelector('#install-banner-yes').addEventListener('click', () => this.promptInstall());
         banner.querySelector('#install-banner-no').addEventListener('click', () => {
-          localStorage.setItem('gustos_install_dismissed', '1');
+          this.snoozeNag('install');
           banner.remove();
         });
         document.body.appendChild(banner);
+        requestAnimationFrame(() => banner.classList.add('is-in'));
       }
     } else if (banner) {
       banner.remove();
     }
+
+    if (showNotif && !document.getElementById('notif-card')) {
+      setTimeout(() => { if (!document.getElementById('install-banner')) this.showNotifCard(); }, 1500);
+    }
+  },
+
+  // Refus n°1 et 2 : on met en pause 10 min et on repropose. Au 3e, le bouton
+  // devient « Ne plus me redemander » et le refus est définitif.
+  snoozeNag(key) {
+    const n = +(localStorage.getItem('gustos_' + key + '_nag') || 0) + 1;
+    localStorage.setItem('gustos_' + key + '_nag', String(n));
+    if (n > 3) { localStorage.setItem('gustos_' + key + '_never', '1'); return; }
+    const delay = 10 * 60 * 1000;
+    localStorage.setItem('gustos_' + key + '_snooze', String(Date.now() + delay));
+    clearTimeout(this['_nagT_' + key]);
+    this['_nagT_' + key] = setTimeout(() => this.updatePwaUi(), delay + 500);
+  },
+
+  // ===== Notifications =====
+  // Rappel du soir : le SW se réveille via periodicSync (Chrome Android, app
+  // installée) et lit l'instantané du planning déposé dans le Cache API — un
+  // service worker n'a pas accès au localStorage.
+  notifSupported() { return 'Notification' in window && 'serviceWorker' in navigator; },
+  notifState() { return this.notifSupported() ? Notification.permission : 'unsupported'; },
+  notifsOn() { return this.notifState() === 'granted' && localStorage.getItem('gustos_notifs') !== '0'; },
+
+  async enableNotifs() {
+    if (!this.notifSupported()) { this.toast(this.t('notifUnsupported')); return false; }
+    let p = Notification.permission;
+    if (p === 'default') { try { p = await Notification.requestPermission(); } catch { p = 'denied'; } }
+    if (p !== 'granted') { this.toast(this.t('notifBlocked')); return false; }
+    localStorage.setItem('gustos_notifs', '1');
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification(this.t('notifWelcomeT'), {
+      body: this.t('notifWelcomeB'),
+      icon: 'icons/icon-192.png', badge: 'icons/icon-192.png',
+      tag: 'gustos-welcome', lang: this.lang,
+    });
+    await this.cacheTodayPlan();
+    await this.registerDailyReminder();
+    this.toast(this.t('notifOn'));
+    return true;
+  },
+
+  async registerDailyReminder() {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (!('periodicSync' in reg)) return;
+      const st = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (st.state !== 'granted') return;
+      await reg.periodicSync.register('gustos-dinner', { minInterval: 8 * 60 * 60 * 1000 });
+    } catch (e) { console.warn('[periodicSync]', e?.message || e); }
+  },
+
+  // Instantané des repas du jour, lisible par le service worker
+  async cacheTodayPlan() {
+    if (!('caches' in window)) return;
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const slot = (this.plan || {})[today] || {};
+      const names = [...(slot.dinner || []), ...(slot.lunch || [])]
+        .map(id => Store.byId(id)?.name).filter(Boolean);
+      const payload = {
+        date: today, lang: this.lang, meals: names,
+        title: names.length ? `Ce soir : ${names[0]}` : '',
+        body: this.lang === 'fr'
+          ? 'Vérifie ta liste de courses avant de passer en cuisine.'
+          : 'Check your shopping list before you start cooking.',
+        enabled: this.notifsOn(),
+      };
+      const c = await caches.open('gustos-state');
+      await c.put('/__gustos_today', new Response(JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } }));
+    } catch (e) { console.warn('[planCache]', e?.message || e); }
+  },
+
+  // Réglages app dans le Profil : point d'entrée permanent, même après un refus
+  renderAppRows() {
+    const installed = this.isStandalone() || localStorage.getItem('gustos_installed') === '1';
+    const canInst = this.canInstall();
+    const nOn = this.notifsOn();
+    const nBlocked = this.notifState() === 'denied';
+    if (!canInst && !installed && !this.notifSupported()) return '';
+    return `<div class="app-rows">
+      ${installed
+        ? `<div class="app-row app-row--done"><span class="app-row-ico">📲</span><div class="app-row-txt"><strong>${this.t('installRowDone')}</strong></div></div>`
+        : canInst
+          ? `<button type="button" class="app-row" id="row-install"><span class="app-row-ico">📲</span><div class="app-row-txt"><strong>${this.t('installRow')}</strong><small>${this.t('installB1s')}</small></div><span class="app-row-cta">${this.t('installBtn')}</span></button>`
+          : ''}
+      ${this.notifSupported() ? `
+        <button type="button" class="app-row" id="row-notif"${nBlocked ? ' disabled' : ''}>
+          <span class="app-row-ico">🔔</span>
+          <div class="app-row-txt"><strong>${this.t('notifRow')}</strong><small>${nBlocked ? this.t('notifBlocked') : this.t('installB2s')}</small></div>
+          <span class="app-row-switch${nOn ? ' is-on' : ''}"></span>
+        </button>` : ''}
+    </div>`;
+  },
+
+  bindAppRows() {
+    document.getElementById('row-install')?.addEventListener('click', () => this.promptInstall());
+    document.getElementById('row-notif')?.addEventListener('click', async () => {
+      if (this.notifsOn()) {
+        localStorage.setItem('gustos_notifs', '0');
+        await this.cacheTodayPlan();
+        this.toast(this.t('notifOff'));
+      } else {
+        await this.enableNotifs();
+      }
+      this.render();
+    });
+  },
+
+  showNotifCard() {
+    if (document.getElementById('notif-card')) return;
+    const d = document.createElement('div');
+    d.id = 'notif-card';
+    d.className = 'install-sheet is-in notif-card';
+    d.innerHTML = `
+      <div class="install-sheet-head">
+        <span class="notif-card-ico">🔔</span>
+        <div><strong>${this.t('notifTitle')}</strong><span>${this.t('notifSub')}</span></div>
+      </div>
+      <button class="btn-primary install-sheet-cta" id="notif-yes">${this.t('notifEnable')}</button>
+      <button class="install-sheet-no" id="notif-no">${+(localStorage.getItem('gustos_notif_nag') || 0) >= 3 ? this.t('askNever') : this.t('notifSkip')}</button>`;
+    d.querySelector('#notif-yes').addEventListener('click', async () => { await this.enableNotifs(); d.remove(); this.render(); });
+    d.querySelector('#notif-no').addEventListener('click', () => { this.snoozeNag('notif'); d.remove(); });
+    document.body.appendChild(d);
   },
 
   async enterGuest() {
@@ -1456,6 +1704,7 @@ const App = {
           <button type="button" class="btn-delete-account" id="btn-delete-account">${this.t('deleteAccount')}</button>
         </div>
       </div>
+      ${this.renderAppRows()}
       <div class="profile-edit-card" id="profile-edit-card" hidden>
         <h3>${this.t('editProfileTitle')}</h3>
         <div class="profile-edit-avatar-row">
@@ -2084,6 +2333,7 @@ const App = {
       if (card) card.hidden = true;
     });
     document.getElementById('btn-go-admin-account')?.addEventListener('click', () => this.nav('admin'));
+    this.bindAppRows();
     document.getElementById('profile-avatar-input')?.addEventListener('change', e => {
       const file = e.target.files?.[0];
       if (file) this.handleAvatarUpload(file);
@@ -2937,6 +3187,7 @@ const App = {
   },
   savePlan() {
     this._persistPlanLocal();
+    this.cacheTodayPlan();
     if (!this.user) return;
     // Semaine entière + portions (l'ancien code ne sauvait que le lundi)
     const weekDays = this.getWeekDays(this.planWeek);
@@ -2976,6 +3227,7 @@ const App = {
       if (cur && cur.shopping?.length) this.shopping = cur.shopping;
       this._persistPlanLocal();
     }
+    this.cacheTodayPlan();
   },
 
   // ===== TEAMS =====
