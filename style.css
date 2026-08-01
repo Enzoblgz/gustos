@@ -607,6 +607,7 @@ main {
 
 .portion-slider {
   flex: 1;
+  min-width: 0; /* un <input> garde sinon sa largeur intrinsèque (~129px) et déborde */
   -webkit-appearance: none;
   height: 5px;
   border-radius: 3px;
@@ -2909,9 +2910,9 @@ textarea.drop-target {
   .view-auth { grid-template-columns: 38% 62%; }
   .auth-panel { padding: 40px 36px; }
   .auth-mascot-img { max-width: 240px; }
-  .recipe-hero { grid-template-columns: 1fr; gap: 28px; }
-  .recipe-columns { grid-template-columns: 1fr; }
-  .recipe-meta-grid { grid-template-columns: repeat(3, 1fr); }
+  .recipe-hero { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .recipe-columns { grid-template-columns: minmax(0, 1fr); }
+  .recipe-meta-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .account-stats { grid-template-columns: repeat(2, 1fr); }
   .planning-cta-banner { flex-direction: column; align-items: flex-start; gap: 14px; }
 }
@@ -2924,9 +2925,9 @@ textarea.drop-target {
   .hero h1 { font-size: 2rem; }
   .form-grid { grid-template-columns: 1fr; }
   .form-group.full { grid-column: 1; }
-  .ingredient-row { grid-template-columns: 28px 1fr 70px 90px 36px; }
-  .ing-header { grid-template-columns: 28px 1fr 70px 90px 36px; }
-  .recipe-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .ingredient-row { grid-template-columns: 28px minmax(0, 1fr) 70px 90px 36px; }
+  .ing-header { grid-template-columns: 28px minmax(0, 1fr) 70px 90px 36px; }
+  .recipe-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .step-photo { max-width: 100%; }
   .view-auth { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
   .auth-brand { display: none; }
@@ -3143,6 +3144,36 @@ button, .recipe-card, .category-pill { -webkit-tap-highlight-color: transparent;
   .btn-format { min-width: 40px; min-height: 36px; }
   .step-textarea { min-height: 80px; }
   .btn-icon { min-width: 36px; min-height: 36px; }
+  /* Portions : « − 3 personnes + » sur une ligne, curseur pleine largeur en
+     dessous — les 5 éléments côte à côte débordaient de ~30px sur téléphone */
+  .portion-controls { flex-wrap: wrap; gap: 10px 12px; }
+  .portion-btn { order: 1; }
+  .portion-display { order: 2; }
+  .portion-label { order: 3; margin-right: auto; }
+  #p-inc { order: 4; }
+  .portion-slider { order: 5; flex: 1 1 100%; }
+
+  /* Ligne d'ingrédient sur téléphone : les 5 colonnes (224px fixes + gaps)
+     ne tiennent pas sous ~500px — le nom se retrouvait écrasé et la ligne
+     débordait. On passe sur 2 rangées : nom en haut, quantité + unité en bas,
+     poignée et suppression sur les côtés. */
+  .ingredient-row {
+    grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1.15fr) 32px;
+    grid-template-areas:
+      "h nom nom del"
+      "h qte uni del";
+    gap: 8px;
+    padding: 8px 2px;
+  }
+  .ingredient-row > .drag-handle { grid-area: h; }
+  .ingredient-row > [data-f="name"] { grid-area: nom; }
+  .ingredient-row > [data-f="qty"]  { grid-area: qte; }
+  .ingredient-row > [data-f="unit"] { grid-area: uni; }
+  .ingredient-row > .btn-remove     { grid-area: del; }
+  .ingredient-row > input, .ingredient-row > select { min-width: 0; width: 100%; }
+  /* L'en-tête NOM/QTÉ/UNITÉ ne décrit plus la disposition sur 2 rangées */
+  .ing-header { display: none; }
+
   /* Ajout rapide d'ingrédient : le nom prend toute la largeur, puis
      Qté + Unité + bouton se partagent la 2e ligne (la version une-seule-ligne
      écrasait le champ nom à ~20px ou débordait de l'écran) */
